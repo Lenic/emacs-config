@@ -16,6 +16,9 @@
       (if (string-match (car my-pair) buffer-file-name)
 	  (funcall (cdr my-pair)))))
 
+;; 设置打开 NeoTree
+(global-set-key (kbd "C-c o") 'neotree-dir)
+
 ;; 加载 Web-Mode
 ;; (require 'pkg-web-mode)
 
