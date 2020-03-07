@@ -17,9 +17,9 @@
 	  (funcall (cdr my-pair)))))
 
 ;; 加载 Web-Mode
-(require 'pkg-web-mode)
+;; (require 'pkg-web-mode)
 
 ;; 加载 rjsx-mode
-;; (require 'pkg-rjsx-mode)
+(require 'pkg-rjsx-mode)
 
 (provide 'pkg-web)
