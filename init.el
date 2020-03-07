@@ -22,7 +22,7 @@
  '(helm-follow-mode-persistent t)
  '(package-selected-packages
    (quote
-    (neotree projectile spacemacs-theme rjsx-mode prettier-js emmet-mode counsel company))))
+    (web-mode magit neotree projectile spacemacs-theme rjsx-mode prettier-js emmet-mode counsel company))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
