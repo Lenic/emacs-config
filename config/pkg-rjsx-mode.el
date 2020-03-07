@@ -19,4 +19,7 @@
 ;; 设置默认缩进
 (add-hook 'rjsx-mode-hook (lambda () (setq js2-basic-offset 2)))
 
+;; 设置关闭自动换行
+(add-hook 'rjsx-mode-hook (lambda () (setq truncate-lines t)))
+
 (provide 'pkg-rjsx-mode)
