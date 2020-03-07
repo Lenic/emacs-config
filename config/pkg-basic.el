@@ -70,4 +70,10 @@
 ;; 设置 AG 项目文件查找
 (global-set-key (kbd "C-c k") 'counsel-ag)
 
+;; 在项目中快速查找文件
+(setq project-enable-caching t)
+(setq projectile-completion-system 'ivy)
+(setq projectile-indexing-method 'alien)
+(global-set-key (kbd "C-c p") 'projectile-find-file)
+
 (provide 'pkg-basic)
