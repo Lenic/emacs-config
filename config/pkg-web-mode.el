@@ -29,6 +29,6 @@
 (setq web-mode-content-types-alist '(("jsx" . "\\.js[x]?\\'")))
 
 ;; 设置关闭自动换行
-(add-hook 'rjsx-mode-hook (lambda () (setq truncate-lines t)))
+(add-hook 'web-mode-hook (lambda () (setq truncate-lines t)))
 
 (provide 'pkg-web-mode)
