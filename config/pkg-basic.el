@@ -39,8 +39,9 @@
 (scroll-bar-mode 0)
 
 ;; 设置 Emacs 窗口的宽和高
-(set-frame-width (selected-frame) 135)
-(set-frame-height (selected-frame) 40)
+(unless (equal nil (getenv "DISPLAY"))
+  (set-frame-width (selected-frame) 135)
+  (set-frame-height (selected-frame) 40))
 
 ;; 设置选中时编辑直接删除选中值
 (delete-selection-mode t)
