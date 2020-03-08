@@ -13,13 +13,12 @@
 
 ;; 备份设置
 (setq
-     backup-by-copying t ; 自动备份
-     backup-directory-alist
-     '(("." . "~/.em_backup")) ; 自动备份在目录"~/.em_backup"下
-     delete-old-versions t ; 自动删除旧的备份文件
-     kept-new-versions 3 ; 保留最近的3个备份文件
-     kept-old-versions 1 ; 保留最早的1个备份文件
-     version-control t) ; 多次备份
+ backup-by-copying t ; 自动备份
+ backup-directory-alist '(("." . "~/.em_backup")) ; 自动备份在目录"~/.em_backup"下
+ delete-old-versions t ; 自动删除旧的备份文件
+ kept-new-versions 3 ; 保留最近的3个备份文件
+ kept-old-versions 1 ; 保留最早的1个备份文件
+ version-control t) ; 多次备份
 
 ;; 显示光标所在列数
 (column-number-mode 1)
@@ -75,5 +74,21 @@
 (setq projectile-completion-system 'ivy)
 (setq projectile-indexing-method 'alien)
 (global-set-key (kbd "C-c p") 'projectile-find-file)
+
+;; 拷贝当前 Buffer 到剪切板
+(defun copy-buffer-path ()
+  (interactive)
+  (if (equal buffer-file-name nil)
+      (message "没有文件名")
+    (let ((path (vc-find-root buffer-file-name ".git")))
+      (if (equal path nil)
+	  (message buffer-file-name)
+	(gui-set-selection 'CLIPBOARD buffer-file-name)
+	(let ((absolutePath (expand-file-name path)))
+	  (let ((targetPath (substring buffer-file-name (length absolutePath))))
+	    (message targetPath)
+	    (gui-set-selection 'CLIPBOARD targetPath)))))))
+(global-set-key (kbd "C-c C-p") 'copy-buffer-path)
+
 
 (provide 'pkg-basic)
