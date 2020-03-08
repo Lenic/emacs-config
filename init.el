@@ -20,6 +20,7 @@
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  '(helm-follow-mode-persistent t)
+ '(org-agenda-files (quote ("~/task/me.inbox.org" "~/task/mj.org")))
  '(package-selected-packages
    (quote
     (web-mode magit neotree projectile spacemacs-theme rjsx-mode prettier-js emmet-mode counsel company))))
