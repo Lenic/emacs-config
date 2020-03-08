@@ -1,6 +1,9 @@
 ;; 设置字体
 (set-default-font "Ubuntu Mono 14")
 
+;; 设置自动加载已修改文件
+(global-auto-revert-mode t)
+
 ;; 设置缺省主题
 (load-theme 'spacemacs-dark t)
 
