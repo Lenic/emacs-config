@@ -5,7 +5,7 @@
 (global-auto-revert-mode t)
 
 ;; 设置缺省主题
-;; (load-theme 'spacemacs-dark t)
+(load-theme 'solarized-dark t)
 
 ;; 设置 Mac 上的缺省按键映射
 (setq mac-option-modifier 'super)
