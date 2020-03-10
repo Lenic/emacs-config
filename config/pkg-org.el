@@ -1,6 +1,8 @@
 ;; 设置 TODO 任务的几个状态
 (setq org-todo-keywords
-      '((sequence "TODO(t)" "START(s!)" "PAUSE(p@/!)" "|" "DONE(d!)" "CANCELED(c@/!)")))
+      '((sequence "TODO(t)" "START(s!)" "PAUSE(p@/!)" "|" "DONE(d!)")
+	(sequence "BUG(b)" "|" "FIXED(f!)")
+	(sequence "|" "CANCELED(c@/!)")))
 
 ;; org 自动换行
 (add-hook 'org-mode-hook (lambda () (setq truncate-lines nil)))
