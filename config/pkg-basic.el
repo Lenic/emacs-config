@@ -5,7 +5,7 @@
 (global-auto-revert-mode t)
 
 ;; 设置缺省主题
-(load-theme 'spacemacs-dark t)
+;; (load-theme 'spacemacs-dark t)
 
 ;; 设置 Mac 上的缺省按键映射
 (setq mac-option-modifier 'super)
@@ -14,14 +14,20 @@
 ;; 设置自动备份
 (setq auto-save-default t)
 
+;; 设置 yes 和 no 的输入使用简写
+(defalias 'yes-or-no-p 'y-or-n-p)
+
+;; 设置平滑滚动
+(setq scroll-step            1
+      scroll-conservatively  10000)
+
 ;; 备份设置
-(setq
- backup-by-copying t ; 自动备份
- backup-directory-alist '(("." . "~/.em_backup")) ; 自动备份在目录"~/.em_backup"下
- delete-old-versions t ; 自动删除旧的备份文件
- kept-new-versions 3 ; 保留最近的3个备份文件
- kept-old-versions 1 ; 保留最早的1个备份文件
- version-control t) ; 多次备份
+(setq backup-by-copying t ; 自动备份
+      backup-directory-alist '(("." . "~/.em_backup")) ; 自动备份在目录"~/.em_backup"下
+      delete-old-versions t ; 自动删除旧的备份文件
+      kept-new-versions 3 ; 保留最近的3个备份文件
+      kept-old-versions 1 ; 保留最早的1个备份文件
+      version-control t) ; 多次备份
 
 ;; 显示光标所在列数
 (column-number-mode 1)
@@ -56,7 +62,7 @@
 (show-paren-mode t)
 
 ;; 设置光标样式
-(setq-default cursor-type 'bar)
+(setq-default cursor-type 'box)
 
 ;; swiper 配置
 (global-set-key (kbd "C-s") 'swiper-isearch)
