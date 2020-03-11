@@ -17,4 +17,5 @@
 (custom-set-variables
  '(org-agenda-files (quote ("~/task/me.inbox.org" "~/task/mj.org")))
  '(package-selected-packages
-   '(solarized-theme web-mode magit neotree projectile spacemacs-theme rjsx-mode prettier-js emmet-mode counsel company)))
+   (quote
+    (diff-hl htmlize solarized-theme web-mode magit neotree projectile spacemacs-theme rjsx-mode prettier-js emmet-mode counsel company))))

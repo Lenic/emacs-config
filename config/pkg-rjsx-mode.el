@@ -12,6 +12,9 @@
 ;; 设置默认显示行号
 (add-hook 'rjsx-mode-hook (lambda () (display-line-numbers-mode t)))
 
+;; 全局开启 Git 更新显示
+(global-diff-hl-mode)
+
 ;; 快速编写 HTML 代码
 (add-hook 'rjsx-mode-hook  'emmet-mode)
 (setq emmet-expand-jsx-className? t)

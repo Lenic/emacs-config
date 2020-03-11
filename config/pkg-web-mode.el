@@ -25,6 +25,9 @@
   (display-line-numbers-mode t)) ;; 设置默认显示行号
 (add-hook 'web-mode-hook  'web-mode-init-hook)
 
+;; 全局开启 Git 更新显示
+(global-diff-hl-mode)
+
 ;; 设置语法高亮模式
 (setq web-mode-content-types-alist '(("jsx" . "\\.js[x]?\\'")))
 
