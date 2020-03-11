@@ -1,3 +1,6 @@
+;; 设置全局快捷键打开默认的任务管理
+(global-set-key (kbd "<f2>") (lambda () (interactive) (find-file "~/task/mj.org")))
+
 ;; 设置 TODO 任务的几个状态
 (setq org-todo-keywords
       '((sequence "TODO(t)" "START(s!)" "PAUSE(p@/!)" "|" "DONE(d!)")
