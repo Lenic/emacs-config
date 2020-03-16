@@ -5,7 +5,7 @@
 (global-auto-revert-mode t)
 
 ;; 设置缺省主题
-(load-theme 'solarized-dark t)
+;; (load-theme 'solarized-dark t)
 
 ;; 设置 Mac 上的缺省按键映射
 (setq mac-option-modifier 'super)
@@ -97,6 +97,21 @@
 	  (let '(targetPath (substring buffer-file-name (length absolutePath)))
 	    (kill-new (message targetPath))))))))
 (global-set-key (kbd "C-c C-p") 'copy-buffer-path)
+
+;; 自动切换编辑器主题
+(setq day-theme 'solarized-light)
+(setq dark-theme 'solarized-dark)
+(defun synchronize-theme ()
+    (setq hour
+        (string-to-number
+	 (substring (current-time-string) 11 13)))
+    (if (member hour (number-sequence 6 15)) ;; 6 - 15 点显示白天主题，其余时间显示夜晚主题
+        (setq now day-theme)
+        (setq now dark-theme))
+    (load-theme now)
+    )
+;; 每 10 分钟运行一次检查
+(run-with-timer 0 600 'synchronize-theme)
 
 
 (provide 'pkg-basic)
