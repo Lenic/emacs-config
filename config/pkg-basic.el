@@ -64,6 +64,12 @@
 ;; 设置光标样式
 (setq-default cursor-type 'box)
 
+;; 设置 NeoTree 的图标
+;; Emacs 指令：安装后需要执行一次
+;; M-x all-the-icons-install-fonts
+(setq inhibit-compacting-font-caches t)
+(setq neo-theme 'icons)
+
 ;; swiper 配置
 (global-set-key (kbd "C-s") 'swiper-isearch)
 
