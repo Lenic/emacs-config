@@ -101,15 +101,17 @@
 ;; 自动切换编辑器主题
 (setq day-theme 'solarized-light)
 (setq dark-theme 'solarized-dark)
+(setq previous-theme-name "")
 (defun synchronize-theme ()
-    (setq hour
-        (string-to-number
-	 (substring (current-time-string) 11 13)))
-    (if (member hour (number-sequence 6 15)) ;; 6 - 15 点显示白天主题，其余时间显示夜晚主题
-        (setq now day-theme)
-        (setq now dark-theme))
-    (load-theme now)
-    )
+  (setq hour (string-to-number (substring (current-time-string) 11 13)))
+  (setq current-theme nil)
+  (if (member hour (number-sequence 6 15)) 
+      (setq current-theme day-theme)
+    (setq current-theme dark-theme))
+  (setq current-theme-name (symbol-name current-theme))
+  (unless (string= previous-theme-name current-theme-name)
+    (setq previous-theme-name current-theme-name)
+    (load-theme current-theme)))
 ;; 每 10 分钟运行一次检查
 (run-with-timer 0 600 'synchronize-theme)
 
