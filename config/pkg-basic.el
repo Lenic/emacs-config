@@ -108,7 +108,7 @@
 (defun synchronize-theme ()
   (setq hour (string-to-number (substring (current-time-string) 11 13)))
   (setq current-theme nil)
-  (if (member hour (number-sequence 6 15)) 
+  (if (member hour (number-sequence 6 15))
       (setq current-theme day-theme)
     (setq current-theme dark-theme))
   (setq current-theme-name (symbol-name current-theme))
