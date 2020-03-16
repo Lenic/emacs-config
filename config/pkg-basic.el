@@ -79,6 +79,9 @@
 ;; 设置 AG 项目文件查找
 (global-set-key (kbd "C-c k") 'counsel-ag)
 
+;; 替换循环粘贴功能
+(global-set-key (kbd "M-y") 'counsel-yank-pop)
+
 ;; 在项目中快速查找文件
 (setq project-enable-caching t)
 (setq projectile-completion-system 'ivy)
