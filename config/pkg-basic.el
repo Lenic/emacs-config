@@ -90,12 +90,12 @@
   (interactive)
   (if (equal buffer-file-name nil)
       (message "没有文件名")
-    (let '(path (vc-find-root buffer-file-name ".git"))
-      (if (equal path nil)
-	  (kill-new (message buffer-file-name))
-	(let '(absolutePath (expand-file-name path))
-	  (let '(targetPath (substring buffer-file-name (length absolutePath)))
-	    (kill-new (message targetPath))))))))
+    (setq path (vc-find-root buffer-file-name ".git"))
+    (if (equal path nil)
+	(kill-new (message buffer-file-name))
+      (setq absolutePath (expand-file-name path))
+      (setq targetPath (substring buffer-file-name (length absolutePath)))
+      (kill-new (message targetPath)))))
 (global-set-key (kbd "C-c C-p") 'copy-buffer-path)
 
 ;; 自动切换编辑器主题
