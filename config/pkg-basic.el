@@ -71,7 +71,21 @@
 (setq neo-theme 'icons)
 
 ;; swiper 配置
-(global-set-key (kbd "C-s") 'swiper-isearch)
+;; (global-set-key (kbd "C-s") 'swiper-isearch)
+
+;; 设置每次前进或者后退搜索后将目标位置放置在屏幕垂直居中
+(defadvice
+  isearch-repeat-forward
+  (after isearch-repeat-forward-recenter activate)
+  (recenter))
+
+(defadvice
+  isearch-repeat-backward
+  (after isearch-repeat-backward-recenter activate)
+  (recenter))
+
+(ad-activate 'isearch-repeat-forward)
+(ad-activate 'isearch-repeat-backward)
 
 ;; 替换命令执行
 (global-set-key (kbd "M-x") 'counsel-M-x)
