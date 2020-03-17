@@ -2,7 +2,7 @@
 (add-hook 'css-mode-hook  'global-company-mode)
 
 ;; 设置保存后自动格式化代码
-(add-hook 'css-mode-hook  'prettier-js-mode)
+;; (add-hook 'css-mode-hook  'prettier-js-mode)
 
 ;; 设置自动缩进的宽度
 (add-hook 'css-mode-hook (lambda () (setq css-indent-offset 2)))
@@ -21,6 +21,9 @@
 
 ;; 设置 Git 管理快捷键
 (global-set-key (kbd "C-x g") 'magit-status)
+
+;; 添加 Prettier 格式化代码的快捷键
+(global-set-key (kbd "M-P") 'prettier-js)
 
 ;; 加载 Web-Mode
 (require 'pkg-web-mode)
