@@ -19,6 +19,9 @@
 ;; 设置打开 NeoTree
 (global-set-key (kbd "C-x o") 'neotree-dir)
 
+;; 设置 Git 管理快捷键
+(global-set-key (kbd "C-x g") 'magit-status)
+
 ;; 加载 Web-Mode
 (require 'pkg-web-mode)
 
