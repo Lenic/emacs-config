@@ -2,9 +2,9 @@
 (add-to-list 'auto-mode-alist '("\\.jsx?$" . web-mode))
 
 ;; 格式化代码
-(add-hook 'web-mode-hook #'(lambda ()
-                            (enable-minor-mode
-                             '("\\.jsx?\\'" . prettier-js-mode))))
+;; (add-hook 'web-mode-hook #'(lambda ()
+;;                             (enable-minor-mode
+;;                              '("\\.jsx?\\'" . prettier-js-mode))))
 ;; 开启 JSX 文件的代码折叠
 (add-hook 'web-mode-hook #'(lambda () (enable-minor-mode '("\\.jsx?\\'" . hs-minor-mode))))
 
