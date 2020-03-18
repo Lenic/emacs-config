@@ -1,5 +1,6 @@
 ;; 设置字体
-(set-default-font "Ubuntu Mono 14")
+;; (set-default-font "Ubuntu Mono 14")
+(set-default-font "文泉驿等宽正黑 14")
 
 ;; 设置自动加载已修改文件
 (global-auto-revert-mode t)
