@@ -5,9 +5,6 @@
 ;; 设置自动加载已修改文件
 (global-auto-revert-mode t)
 
-;; 设置缺省主题
-;; (load-theme 'solarized-dark t)
-
 ;; 设置 Mac 上的缺省按键映射
 (setq mac-option-modifier 'super)
 (setq mac-command-modifier 'meta)
@@ -138,6 +135,5 @@
     (load-theme current-theme)))
 ;; 每 10 分钟运行一次检查
 (run-with-timer 0 600 'synchronize-theme)
-
 
 (provide 'pkg-basic)
