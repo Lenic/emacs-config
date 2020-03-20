@@ -1,6 +1,8 @@
 ;; 设置 CSS 及其它 CSS 预处理语言
 (add-hook 'css-mode-hook
 	  (lambda ()
+	    ;; 自动不全括号
+	    (autopair-mode +1)
 	    ;; 设置自动缩进的宽度
 	    (setq css-indent-offset 2)
 	    ;; 设置保存后自动格式化代码

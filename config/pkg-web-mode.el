@@ -7,6 +7,13 @@
 ;; 格式化代码
 (add-hook 'web-mode-hook
 	  (lambda ()
+	    ;; 自动不全括号
+	    (autopair-mode +1)
+	    ;; Tide 安装
+	    (tide-setup)
+	    ;;(tide-hl-identifier-mode +1)
+	    ;; 当 tsserver 服务没有启动时自动重新启动
+	    (unless (tide-current-server) (tide-restart-server))
 	    ;; 设置默认的缩进
 	    (setq web-mode-markup-indent-offset 2)
 	    (setq web-mode-css-indent-offset 2)
