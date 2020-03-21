@@ -9,6 +9,10 @@
 	    (prettier-js-mode +1)
 	    ;; 设置 CSS 的自动完成
 	    (company-mode +1)
+	    ;; 设置关闭自动换行
+	    (setq truncate-lines t)
+	    ;; 开启显示行号
+	    (display-line-numbers-mode +1)
 	    ;; 开启 Git 变更提示
 	    (diff-hl-mode +1)))
 
