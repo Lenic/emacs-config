@@ -9,6 +9,9 @@
 (setq mac-option-modifier 'super)
 (setq mac-command-modifier 'meta)
 
+;; 设置缩进使用空格而非 Tab
+(setq-default indent-tabs-mode nil)
+
 ;; 设置自动备份
 (setq auto-save-default t)
 
