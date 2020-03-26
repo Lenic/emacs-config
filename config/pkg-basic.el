@@ -62,6 +62,8 @@
 ;; 设置光标样式
 (setq-default cursor-type 'box)
 
+(global-set-key (kbd "C-c SPC") 'ace-jump-word-mode)
+
 ;; swiper 配置
 ;; (global-set-key (kbd "C-s") 'swiper-isearch)
 
@@ -85,7 +87,7 @@
 (global-set-key (kbd "C-c k") 'counsel-ag)
 
 ;; 替换循环粘贴功能
-(global-set-key (kbd "M-y") 'counsel-yank-pop)
+;; (global-set-key (kbd "M-y") 'counsel-yank-pop)
 
 ;; 在项目中快速查找文件
 (setq project-enable-caching t)
@@ -108,12 +110,12 @@
 
 ;; 自动切换编辑器主题
 (setq day-theme 'solarized-light)
-(setq dark-theme 'spacemacs-dark)
+(setq dark-theme 'solarized-dark)
 (setq previous-theme-name "")
 (defun synchronize-theme ()
   (setq hour (string-to-number (substring (current-time-string) 11 13)))
   (setq current-theme nil)
-  (if (member hour (number-sequence 6 15))
+  (if (member hour (number-sequence 6 16))
       (setq current-theme day-theme)
     (setq current-theme dark-theme))
   (setq current-theme-name (symbol-name current-theme))
