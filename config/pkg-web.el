@@ -14,7 +14,11 @@
 	    ;; 开启显示行号
 	    (display-line-numbers-mode +1)
 	    ;; 开启 Git 变更提示
-	    (diff-hl-mode +1)))
+	    (diff-hl-mode +1)
+	    ;; 开启代码折叠子模式
+	    (hs-minor-mode +1)
+	    ;; 开启代码折叠快捷键
+	    (global-set-key (kbd "s-/") 'hs-toggle-hiding)))
 
 ;; 附加 Web 开发的各种插件
 (defun web-dev-attached ()
@@ -39,7 +43,9 @@
   ;; 开启 Git 变更提示
   (diff-hl-mode +1)
   ;; 开启 JSX 文件的代码折叠
-  (hs-minor-mode +1))
+  (hs-minor-mode +1)
+  ;; 开启代码折叠快捷键
+  (global-set-key (kbd "s-/") 'hs-toggle-hiding))
 
 ;; aligns annotation to the right hand side
 (setq company-tooltip-align-annotations t)

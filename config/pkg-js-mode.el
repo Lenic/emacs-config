@@ -17,6 +17,10 @@
 	    ;; 开启显示行号
 	    (display-line-numbers-mode +1)
 	    ;; 开启 Git 变更提示
-	    (diff-hl-mode +1)))
+	    (diff-hl-mode +1)
+	    ;; 开启代码折叠子模式
+	    (hs-minor-mode +1)
+	    ;; 开启代码折叠快捷键
+	    (global-set-key (kbd "s-/") 'hs-toggle-hiding)))
 
 (provide 'pkg-js-mode)
