@@ -1,7 +1,7 @@
 ;; 设置 CSS 及其它 CSS 预处理语言
 (add-hook 'css-mode-hook
 	  (lambda ()
-	    ;; 自动不全括号
+	    ;; 自动补全括号
 	    (autopair-mode +1)
 	    ;; 设置自动缩进的宽度
 	    (setq css-indent-offset 2)
@@ -48,12 +48,15 @@
 (global-set-key (kbd "C-x o") 'neotree-dir)
 
 ;; 设置 Git 管理快捷键
-(global-set-key (kbd "C-x g") 'magit-status)
+(global-set-key (kbd "C-x m") 'magit-status)
 
 ;; 加载 Web-Mode
 (require 'pkg-web-mode)
 
 ;; 加载 TypeScript-Mode
 (require 'pkg-typescript-mode)
+
+;; 加载 JSON 格式：js-mode
+(require 'pkg-js-mode)
 
 (provide 'pkg-web)
