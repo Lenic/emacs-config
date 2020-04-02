@@ -65,6 +65,7 @@
 ;; 设置光标样式
 (setq-default cursor-type 'box)
 
+;; 设置 Ace-Jump
 (global-set-key (kbd "C-.") 'ace-jump-word-mode)
 
 ;; swiper 配置
