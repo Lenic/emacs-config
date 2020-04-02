@@ -65,7 +65,7 @@
 ;; 设置光标样式
 (setq-default cursor-type 'box)
 
-(global-set-key (kbd "C-c SPC") 'ace-jump-word-mode)
+(global-set-key (kbd "C-.") 'ace-jump-word-mode)
 
 ;; swiper 配置
 ;; (global-set-key (kbd "C-s") 'swiper-isearch)
@@ -89,8 +89,13 @@
 ;; 设置 AG 项目文件查找
 (global-set-key (kbd "C-c k") 'counsel-ag)
 
-;; 替换循环粘贴功能
-;; (global-set-key (kbd "M-y") 'counsel-yank-pop)
+;; 设置 Undo-Tree
+(global-undo-tree-mode)
+(setq undo-tree-visualizer-timestamps t)
+(setq undo-tree-visualizer-diff t)
+
+;; 设置全局 Git 状态显示
+(global-git-gutter+-mode)
 
 ;; 在项目中快速查找文件
 (setq project-enable-caching t)

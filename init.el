@@ -24,7 +24,7 @@
     ("~/task/inbox.org" "~/task/me.inbox.org" "~/task/mj.org")))
  '(package-selected-packages
    (quote
-    (amx markdown-mode ace-jump-mode dockerfile-mode rjsx-mode autopair tide diff-hl htmlize solarized-theme web-mode magit neotree projectile spacemacs-theme prettier-js emmet-mode counsel company))))
+    (git-gutter+ undo-tree amx markdown-mode ace-jump-mode dockerfile-mode rjsx-mode autopair tide diff-hl htmlize solarized-theme web-mode magit neotree projectile spacemacs-theme prettier-js emmet-mode counsel company))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
