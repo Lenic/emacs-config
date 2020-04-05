@@ -42,6 +42,9 @@
 ;; 隐藏工具栏
 (tool-bar-mode 0)
 
+;; 隐藏菜单栏
+(menu-bar-mode 0)
+
 ;;关闭启动画面
 (setq inhibit-startup-message t)
 
