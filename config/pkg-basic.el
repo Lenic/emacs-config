@@ -69,7 +69,7 @@
 (setq-default cursor-type 'box)
 
 ;; 设置 Ace-Jump
-(global-set-key (kbd "C-.") 'ace-jump-word-mode)
+(global-set-key (kbd "C-c j") 'ace-jump-word-mode)
 
 ;; swiper 配置
 ;; (global-set-key (kbd "C-s") 'swiper-isearch)
