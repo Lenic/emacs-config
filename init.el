@@ -19,15 +19,7 @@
 ;; 加载 Web 开发配置
 (require 'pkg-web)
 
-(custom-set-variables
- '(org-agenda-files
-    ("~/task/inbox.org" "~/task/me.inbox.org" "~/task/mj.org")))
- '(package-selected-packages
-   (quote
-    (multiple-cursors git-gutter+ amx markdown-mode ace-jump-mode dockerfile-mode rjsx-mode autopair tide diff-hl htmlize solarized-theme web-mode magit neotree projectile spacemacs-theme prettier-js emmet-mode counsel company))))
-(custom-set-faces
- ;; custom-set-faces was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- )
+'(org-agenda-files ("~/task/inbox.org" "~/task/me.inbox.org" "~/task/mj.org"))
+'(package-selected-packages
+  (quote
+   (multiple-cursors git-gutter+ amx markdown-mode ace-jump-mode dockerfile-mode rjsx-mode autopair tide diff-hl htmlize solarized-theme web-mode magit neotree projectile spacemacs-theme prettier-js emmet-mode counsel company)))
