@@ -10,6 +10,9 @@
 ;; org 自动换行
 (add-hook 'org-mode-hook (lambda () (setq truncate-lines nil)))
 
+;; 设置 Bullets
+(add-hook 'org-mode-hook 'org-bullets-mode)
+
 ;; 设置使用 indent 模式
 (add-hook 'org-mode-hook 'org-indent-mode)
 
