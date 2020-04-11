@@ -19,7 +19,7 @@
 ;; 加载 Web 开发配置
 (require 'pkg-web)
 
-'(org-agenda-files ("~/task/inbox.org" "~/task/me.inbox.org" "~/task/mj.org"))
+;; '(org-agenda-files ("~/task/inbox.org" "~/task/me.inbox.org" "~/task/mj.org"))
 '(package-selected-packages
   (quote
    (multiple-cursors git-gutter+ amx markdown-mode ace-jump-mode dockerfile-mode rjsx-mode autopair tide diff-hl htmlize solarized-theme web-mode magit neotree projectile spacemacs-theme prettier-js emmet-mode counsel company)))

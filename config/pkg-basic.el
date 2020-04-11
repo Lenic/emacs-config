@@ -122,7 +122,9 @@
 
 ;; 自动切换编辑器主题
 (setq day-theme 'solarized-light)
-(setq dark-theme 'solarized-dark)
+(if (equal nil (getenv "DISPLAY"))
+    (setq dark-theme 'spacemacs-dark)
+  (setq dark-theme 'solarized-dark))
 (setq previous-theme-name "")
 (defun synchronize-theme ()
   (setq hour (string-to-number (substring (current-time-string) 11 13)))
