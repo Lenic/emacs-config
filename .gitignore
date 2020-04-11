@@ -1,6 +1,7 @@
 auto-save-list/
 elpa/
 url/
+tramp
 .mc-lists.el
 bookmarks
 recentf
