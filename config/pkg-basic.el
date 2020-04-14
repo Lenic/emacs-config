@@ -5,6 +5,12 @@
 ;; 设置自动加载已修改文件
 (global-auto-revert-mode t)
 
+;; 编码设置
+(prefer-coding-system 'utf-8)
+(set-default-coding-systems 'utf-8)
+(set-terminal-coding-system 'utf-8)
+(set-keyboard-coding-system 'utf-8)
+
 ;; Always load newest byte code
 (setq load-prefer-newer t)
 
