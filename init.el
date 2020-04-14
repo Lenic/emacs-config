@@ -8,6 +8,11 @@
 (setenv "PATH" (concat (getenv "PATH") ":/usr/local/bin"))
 (setq exec-path (append exec-path '("/usr/local/bin")))
 
+(unless (package-installed-p 'use-package)
+  (package-install 'use-package))
+(require 'use-package)
+(setq use-package-verbose t)
+
 (add-to-list 'load-path "~/.emacs.d/config")
 
 ;; 加载基础全局配置
