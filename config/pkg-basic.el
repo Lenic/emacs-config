@@ -5,6 +5,9 @@
 ;; 设置自动加载已修改文件
 (global-auto-revert-mode t)
 
+;; Always load newest byte code
+(setq load-prefer-newer t)
+
 ;; 设置 Mac 上的缺省按键映射
 (setq mac-option-modifier 'super)
 (setq mac-command-modifier 'meta)
@@ -40,7 +43,8 @@
 (set-frame-position (selected-frame) 0 0)
 
 ;; 隐藏工具栏
-(tool-bar-mode 0)
+(when (fboundp 'tool-bar-mode)
+  (tool-bar-mode -1))
 
 ;; 隐藏菜单栏
 (menu-bar-mode 0)
@@ -49,7 +53,9 @@
 (setq inhibit-startup-message t)
 
 ;; 隐藏滚动条
-(scroll-bar-mode 0)
+(when (fboundp 'scroll-bar-mode)
+  (scroll-bar-mode -1))
+
 
 ;; 设置 Emacs 窗口的宽和高
 (unless (equal nil (getenv "DISPLAY"))
