@@ -16,6 +16,9 @@
 (add-to-list 'load-path "~/.emacs.d/config")
 
 ;; 加载基础全局配置
+(require 'pkg-global)
+
+;; 加载基础配置
 (require 'pkg-basic)
 
 ;; 加载 org-mode 配置

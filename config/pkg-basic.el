@@ -2,9 +2,6 @@
 ;; (set-default-font "Ubuntu Mono 14")
 (set-default-font "文泉驿等宽正黑 14")
 
-;; 设置自动加载已修改文件
-(global-auto-revert-mode t)
-
 ;; 编码设置
 (prefer-coding-system 'utf-8)
 (set-default-coding-systems 'utf-8)
@@ -70,9 +67,6 @@
 
 ;; 设置选中时编辑直接删除选中值
 (delete-selection-mode t)
-
-;; 高亮当前行
-(global-hl-line-mode t)
 
 ;; 高亮匹配括号
 (show-paren-mode t)
