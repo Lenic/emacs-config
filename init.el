@@ -27,12 +27,10 @@
  '(custom-safe-themes
    (quote
     ("bffa9739ce0752a37d9b1eee78fc00ba159748f50dc328af4be661484848e476" "fa2b58bb98b62c3b8cf3b6f02f058ef7827a8e497125de0254f56e373abee088" "c433c87bd4b64b8ba9890e8ed64597ea0f8eb0396f4c9a9e01bd20a04d15d358" "2809bcb77ad21312897b541134981282dc455ccd7c14d74cc333b6e549b824f3" default)))
- '(org-agenda-files
-   (quote
-    ("~/task/mj.org" "~/task/me.inbox.org" "~/task/mj.org")))
+ '(org-agenda-files (quote ("~/task/mj.org" "~/task/me.inbox.org")))
  '(package-selected-packages
    (quote
-    (org-bullets web-mode undo-tree tide spacemacs-theme solarized-theme rjsx-mode projectile prettier-js neotree multiple-cursors markdown-mode magit htmlize git-gutter+ emmet-mode dockerfile-mode counsel company autopair amx ace-jump-mode))))
+    (json-mode org-bullets web-mode undo-tree tide spacemacs-theme solarized-theme rjsx-mode projectile prettier-js neotree multiple-cursors markdown-mode magit htmlize git-gutter+ emmet-mode dockerfile-mode counsel company autopair amx ace-jump-mode))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
