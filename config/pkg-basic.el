@@ -15,8 +15,9 @@
 (setq mac-option-modifier 'super)
 (setq mac-command-modifier 'meta)
 
-;; 设置缩进使用空格而非 Tab
+;; 设置缩进使用空格而非 Tab，同时设置 Tab 宽度是 4 个空格
 (setq-default indent-tabs-mode nil)
+(setq-default tab-width 4)
 
 ;; 设置自动备份
 (setq auto-save-default t)
