@@ -1,17 +1,16 @@
-;; swiper 配置
-;; (global-set-key (kbd "C-s") 'swiper-isearch)
-
-;; 替换命令执行
-(global-set-key (kbd "M-x") 'counsel-M-x)
-
-;; 替换 Buffer 界面
-(global-set-key (kbd "C-x C-b") 'counsel-ibuffer)
-
-;; 替换打开文件
-(global-set-key (kbd "C-x C-f") 'counsel-find-file)
-
-;; 设置 AG 项目文件查找
-(global-set-key (kbd "C-c k") 'counsel-ag)
+(use-package counsel
+  :ensure t
+  :config
+  ;; swiper 配置
+  ;; (global-set-key (kbd "C-s") 'swiper-isearch)
+  ;; 替换命令执行
+  (global-set-key (kbd "M-x") 'counsel-M-x)
+  ;; 替换 Buffer 界面
+  (global-set-key (kbd "C-x C-b") 'counsel-ibuffer)
+  ;; 替换打开文件
+  (global-set-key (kbd "C-x C-f") 'counsel-find-file)
+  ;; 设置 AG 项目文件查找
+  (global-set-key (kbd "C-c k") 'counsel-ag))
 
 ;; 设置 Undo-Tree
 (global-undo-tree-mode)
