@@ -18,10 +18,14 @@
   (setq undo-tree-visualizer-timestamps t)
   (setq undo-tree-visualizer-diff t)
   :init
+  ;; 设置显示可视化撤销树形结构
   (global-undo-tree-mode))
 
-;; 设置全局 Git 状态显示
-(global-git-gutter+-mode)
+(use-package git-gutter+
+  :ensure t
+  :init
+  ;; 设置全局 Git 状态显示
+  (global-git-gutter+-mode))
 
 ;; 在项目中快速查找文件
 (setq project-enable-caching t)
