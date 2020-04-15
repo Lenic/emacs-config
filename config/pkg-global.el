@@ -12,10 +12,13 @@
   ;; 设置 AG 项目文件查找
   (global-set-key (kbd "C-c k") 'counsel-ag))
 
-;; 设置 Undo-Tree
-(global-undo-tree-mode)
-(setq undo-tree-visualizer-timestamps t)
-(setq undo-tree-visualizer-diff t)
+(use-package undo-tree
+  :ensure t
+  :config
+  (setq undo-tree-visualizer-timestamps t)
+  (setq undo-tree-visualizer-diff t)
+  :init
+  (global-undo-tree-mode))
 
 ;; 设置全局 Git 状态显示
 (global-git-gutter+-mode)
