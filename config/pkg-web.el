@@ -42,19 +42,18 @@
      ;; 当 tsserver 服务没有启动时自动重新启动
      (unless (tide-current-server) (tide-restart-server)))))
 
+;; 快速编写 HTML 代码
+(use-package emmet-mode
+  :ensure t
+  :custom (emmet-expand-jsx-className? t)
+  :hook (web-mode typescript-mode js-mode rjsx-mode))
+
 ;; 附加 Web 开发的各种插件
 (defun web-dev-attached ()
-  ;; emmet
-  (emmet-mode +1)
-  (setq emmet-expand-jsx-className? t)
   ;; 设置关闭自动换行
   (setq truncate-lines t)
   ;; 开启显示行号
-  (display-line-numbers-mode +1)
-  ;; 开启 JSX 文件的代码折叠
-  (hs-minor-mode +1)
-  ;; 开启代码折叠快捷键
-  (global-set-key (kbd "s-/") 'hs-toggle-hiding))
+  (display-line-numbers-mode +1))
 
 ;; aligns annotation to the right hand side
 (setq company-tooltip-align-annotations t)
