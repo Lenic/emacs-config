@@ -7,6 +7,7 @@
 ;; 设置 Agenda 模块快捷键
 (global-set-key "\C-ca" 'org-agenda)
 
+(use-package htmlize)
 (use-package org-bullets
   :config
   (add-hook 'org-mode-hook
