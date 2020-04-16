@@ -12,6 +12,8 @@
   ;; 设置 AG 项目文件查找
   ("C-c k" . counsel-ag))
 
+(use-package multiple-cursors)
+
 (use-package undo-tree
   :ensure t
   :init
