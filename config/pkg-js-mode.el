@@ -3,8 +3,6 @@
 	  (lambda ()
 	    ;; 设置缩进两个空格
 	    (setq js2-basic-offset 2)
-	    ;; 设置保存后自动格式化代码
-	    (company-mode +1)
 	    ;; 设置关闭自动换行
 	    (setq truncate-lines t)
 	    ;; 开启显示行号

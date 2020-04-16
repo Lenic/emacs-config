@@ -8,13 +8,15 @@
   :ensure t
   :hook ((css-mode web-mode typescript-mode js-mode rjsx-mode json-mode) . autopair-mode))
 
+(use-package company
+  :ensure t
+  :hook ((css-mode web-mode typescript-mode js-mode rjsx-mode json-mode emacs-lisp-mode) . company-mode))
+
 ;; 设置 CSS 及其它 CSS 预处理语言
 (add-hook 'css-mode-hook
 	  (lambda ()
 	    ;; 设置自动缩进的宽度
 	    (setq css-indent-offset 2)
-	    ;; 设置 CSS 的自动完成
-	    (company-mode +1)
 	    ;; 设置关闭自动换行
 	    (setq truncate-lines t)
 	    ;; 开启显示行号
@@ -36,9 +38,7 @@
   (setq emmet-expand-jsx-className? t)
   ;; 设置关闭自动换行
   (setq truncate-lines t)
-  ;; 设置 Company
-  (company-mode +1)
-  ;; 开启显示行号
+=  ;; 开启显示行号
   (display-line-numbers-mode +1)
   ;; 开启 JSX 文件的代码折叠
   (hs-minor-mode +1)
