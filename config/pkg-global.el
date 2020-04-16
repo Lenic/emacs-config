@@ -25,7 +25,7 @@
   :ensure t
   :config
   ;; 设置全局 Git 状态显示
-  (global-git-gutter+-mode))
+  (global-git-gutter+-mode t))
 
 (use-package projectile
   :ensure t

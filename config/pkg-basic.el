@@ -66,7 +66,6 @@
 (when (fboundp 'scroll-bar-mode)
   (scroll-bar-mode -1))
 
-
 ;; 设置 Emacs 窗口的宽和高
 (unless (equal nil (getenv "DISPLAY"))
   (set-frame-width (selected-frame) 135)
