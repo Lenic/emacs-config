@@ -11,6 +11,7 @@
 ;; 设置自动完成
 (use-package company
   :ensure t
+  :custom (company-tooltip-align-annotations t "aligns annotation to the right hand side")
   :hook ((css-mode web-mode typescript-mode js-mode rjsx-mode json-mode emacs-lisp-mode) . company-mode))
 
 ;; 设置 CSS 及其它 CSS 预处理语言
@@ -59,9 +60,6 @@
   (setq truncate-lines t)
   ;; 开启显示行号
   (display-line-numbers-mode +1))
-
-;; aligns annotation to the right hand side
-(setq company-tooltip-align-annotations t)
 
 ;; 设置 Git 管理快捷键
 (global-set-key (kbd "C-x m") 'magit-status)
