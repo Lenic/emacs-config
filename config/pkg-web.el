@@ -48,6 +48,11 @@
   :custom (emmet-expand-jsx-className? t)
   :hook (web-mode typescript-mode js-mode rjsx-mode))
 
+;; 设置打开 NeoTree
+(use-package neotree
+  :ensure t
+  :bind ("C-x o" . neotree-dir))
+
 ;; 附加 Web 开发的各种插件
 (defun web-dev-attached ()
   ;; 设置关闭自动换行
@@ -57,9 +62,6 @@
 
 ;; aligns annotation to the right hand side
 (setq company-tooltip-align-annotations t)
-
-;; 设置打开 NeoTree
-(global-set-key (kbd "C-x o") 'neotree-dir)
 
 ;; 设置 Git 管理快捷键
 (global-set-key (kbd "C-x m") 'magit-status)
