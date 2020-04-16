@@ -40,7 +40,7 @@
  '(org-agenda-files (quote ("~/task/mj.org" "~/task/me.inbox.org")))
  '(package-selected-packages
    (quote
-    (spacemacs-theme solarized-theme markdown-mode htmlize dockerfile-mode amx))))
+    (spacemacs-theme solarized-theme markdown-mode htmlize dockerfile-mode))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
