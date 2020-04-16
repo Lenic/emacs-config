@@ -1,37 +1,47 @@
 (use-package counsel
   :ensure t
-  :config
+  :bind
   ;; swiper 配置
-  ;; (global-set-key (kbd "C-s") 'swiper-isearch)
+  ("C-s" . swiper-isearch)
   ;; 替换命令执行
-  (global-set-key (kbd "M-x") 'counsel-M-x)
+  ("M-x" . counsel-M-x)
   ;; 替换 Buffer 界面
-  (global-set-key (kbd "C-x C-b") 'counsel-ibuffer)
+  ("C-x C-b" . counsel-ibuffer)
   ;; 替换打开文件
-  (global-set-key (kbd "C-x C-f") 'counsel-find-file)
+  ("C-x C-f" . counsel-find-file)
   ;; 设置 AG 项目文件查找
-  (global-set-key (kbd "C-c k") 'counsel-ag))
+  ("C-c k" . counsel-ag))
 
 (use-package undo-tree
   :ensure t
+  :custom
+  (undo-tree-visualizer-timestamps t)
+  (undo-tree-visualizer-diff t)
   :config
-  (setq undo-tree-visualizer-timestamps t)
-  (setq undo-tree-visualizer-diff t)
-  :init
   ;; 设置显示可视化撤销树形结构
   (global-undo-tree-mode))
 
 (use-package git-gutter+
   :ensure t
-  :init
+  :config
   ;; 设置全局 Git 状态显示
   (global-git-gutter+-mode))
 
-;; 在项目中快速查找文件
-(setq project-enable-caching t)
-(setq projectile-completion-system 'ivy)
-(setq projectile-indexing-method 'alien)
-(global-set-key (kbd "C-c p") 'projectile-find-file)
+(use-package projectile
+  :ensure t
+  :custom
+  (project-enable-caching t)
+  (projectile-completion-system 'ivy)
+  (projectile-indexing-method 'alien)
+  :bind
+  ;; 在项目中快速查找文件
+  ("C-c p" . projectile-find-file))
+
+;; 设置 Ace-Jump
+(use-package ace-jump-mode
+  :ensure t
+  :bind
+  ("C-c j" . ace-jump-char-mode))
 
 ;; 拷贝当前 Buffer 到剪切板
 (defun copy-buffer-path ()
@@ -70,8 +80,5 @@
       (setq previous-theme current-theme)))
   ;; 每 10 分钟运行一次检查
   (run-with-timer 0 600 'synchronize-theme))
-
-;; 设置 Ace-Jump
-(global-set-key (kbd "C-c j") 'ace-jump-word-mode)
 
 (provide 'pkg-global)

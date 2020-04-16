@@ -38,7 +38,7 @@
  '(org-agenda-files (quote ("~/task/mj.org" "~/task/me.inbox.org")))
  '(package-selected-packages
    (quote
-    (json-mode org-bullets web-mode undo-tree tide spacemacs-theme solarized-theme rjsx-mode projectile prettier-js neotree multiple-cursors markdown-mode magit htmlize git-gutter+ emmet-mode dockerfile-mode counsel company autopair amx ace-jump-mode))))
+    (org-bullets web-mode tide spacemacs-theme solarized-theme rjsx-mode prettier-js neotree multiple-cursors markdown-mode magit htmlize emmet-mode dockerfile-mode company autopair amx))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
