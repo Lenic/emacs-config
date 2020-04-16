@@ -8,23 +8,27 @@
   :ensure t
   :hook ((css-mode web-mode typescript-mode js-mode rjsx-mode json-mode) . autopair-mode))
 
+;; 设置自动完成
 (use-package company
   :ensure t
   :hook ((css-mode web-mode typescript-mode js-mode rjsx-mode json-mode emacs-lisp-mode) . company-mode))
 
 ;; 设置 CSS 及其它 CSS 预处理语言
 (add-hook 'css-mode-hook
-	  (lambda ()
-	    ;; 设置自动缩进的宽度
-	    (setq css-indent-offset 2)
-	    ;; 设置关闭自动换行
-	    (setq truncate-lines t)
-	    ;; 开启显示行号
-	    (display-line-numbers-mode +1)
-	    ;; 开启代码折叠子模式
-	    (hs-minor-mode +1)
-	    ;; 开启代码折叠快捷键
-	    (global-set-key (kbd "s-/") 'hs-toggle-hiding)))
+          (lambda ()
+            ;; 设置自动缩进的宽度
+            (setq css-indent-offset 2)
+            ;; 设置关闭自动换行
+            (setq truncate-lines t)
+            ;; 开启显示行号
+            (display-line-numbers-mode +1)))
+
+;; 开启代码折叠子模式
+(use-package hs-minor-mode
+  :hook ((css-mode web-mode typescript-mode js-mode rjsx-mode json-mode) . hs-minor-mode)
+  :bind
+  ;; 开启代码折叠快捷键
+  ("s-/" . hs-toggle-hiding))
 
 ;; 附加 Web 开发的各种插件
 (defun web-dev-attached ()
