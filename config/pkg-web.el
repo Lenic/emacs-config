@@ -54,15 +54,17 @@
   :ensure t
   :bind ("C-x o" . neotree-dir))
 
+;; 设置 Git 管理快捷键
+(use-package magit
+  :ensure t
+  :bind ("C-x m" . magit-status))
+
 ;; 附加 Web 开发的各种插件
 (defun web-dev-attached ()
   ;; 设置关闭自动换行
   (setq truncate-lines t)
   ;; 开启显示行号
   (display-line-numbers-mode +1))
-
-;; 设置 Git 管理快捷键
-(global-set-key (kbd "C-x m") 'magit-status)
 
 ;; 加载 Web-Mode
 (require 'pkg-web-mode)
