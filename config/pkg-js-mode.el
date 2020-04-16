@@ -1,6 +1,3 @@
-;; 设置特定文件直接进入该模式
-(add-to-list 'auto-mode-alist '("\\.json$" . js-mode))
-
 ;; JSON 设置
 (add-hook 'js-mode-hook
 	  (lambda ()

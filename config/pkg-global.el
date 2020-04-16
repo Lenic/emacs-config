@@ -43,6 +43,10 @@
   :bind
   ("C-c j" . ace-jump-char-mode))
 
+(use-package json-mode
+  :ensure t
+  :mode "\\.json\\'")
+
 ;; 拷贝当前 Buffer 到剪切板
 (defun copy-buffer-path ()
   (interactive)
