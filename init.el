@@ -12,6 +12,7 @@
   (package-install 'use-package))
 (require 'use-package)
 (setq use-package-verbose t)
+(setq use-package-always-ensure t)
 
 (add-to-list 'load-path "~/.emacs.d/config")
 
