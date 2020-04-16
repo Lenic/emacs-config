@@ -30,19 +30,26 @@
   ;; 开启代码折叠快捷键
   ("s-/" . hs-toggle-hiding))
 
+;; LSP 模式的 JS 自动完成配置
+(use-package tide
+  :ensure t
+  :config (tide-hl-identifier-mode +1)
+  :hook
+  ((web-mode typescript-mode js-mode rjsx-mode) .
+   (lambda ()
+     ;; Tide 安装
+     (tide-setup)
+     ;; 当 tsserver 服务没有启动时自动重新启动
+     (unless (tide-current-server) (tide-restart-server)))))
+
 ;; 附加 Web 开发的各种插件
 (defun web-dev-attached ()
-=  ;; Tide 安装
-  (tide-setup)
-  (tide-hl-identifier-mode +1)
-  ;; 当 tsserver 服务没有启动时自动重新启动
-  (unless (tide-current-server) (tide-restart-server))
   ;; emmet
   (emmet-mode +1)
   (setq emmet-expand-jsx-className? t)
   ;; 设置关闭自动换行
   (setq truncate-lines t)
-=  ;; 开启显示行号
+  ;; 开启显示行号
   (display-line-numbers-mode +1)
   ;; 开启 JSX 文件的代码折叠
   (hs-minor-mode +1)
