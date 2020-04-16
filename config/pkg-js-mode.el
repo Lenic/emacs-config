@@ -6,8 +6,6 @@
 	    ;; 设置缩进两个空格
 	    (setq js2-basic-offset 2)
 	    ;; 设置保存后自动格式化代码
-	    (prettier-js-mode +1)
-	    ;; 设置 CSS 的自动完成
 	    (company-mode +1)
 	    ;; 设置关闭自动换行
 	    (setq truncate-lines t)

@@ -1,3 +1,8 @@
+;; 设置保存后自动格式化代码
+(use-package prettier-js
+  :ensure t
+  :hook ((css-mode web-mode typescript-mode js-mode rjsx-mode json-mode) . prettier-js-mode))
+
 ;; 设置 CSS 及其它 CSS 预处理语言
 (add-hook 'css-mode-hook
 	  (lambda ()
@@ -5,8 +10,6 @@
 	    (autopair-mode +1)
 	    ;; 设置自动缩进的宽度
 	    (setq css-indent-offset 2)
-	    ;; 设置保存后自动格式化代码
-	    (prettier-js-mode +1)
 	    ;; 设置 CSS 的自动完成
 	    (company-mode +1)
 	    ;; 设置关闭自动换行
@@ -36,8 +39,6 @@
   (company-mode +1)
   ;; 开启显示行号
   (display-line-numbers-mode +1)
-  ;; 格式化代码
-  (prettier-js-mode +1)
   ;; 开启 JSX 文件的代码折叠
   (hs-minor-mode +1)
   ;; 开启代码折叠快捷键
