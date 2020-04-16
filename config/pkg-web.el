@@ -8,7 +8,9 @@
 
 ;; 设置自动完成
 (use-package company
-  :custom (company-tooltip-align-annotations t "aligns annotation to the right hand side")
+  :init
+  ;; aligns annotation to the right hand side
+  (setq company-tooltip-align-annotations t)
   :hook ((css-mode web-mode typescript-mode js-mode rjsx-mode json-mode emacs-lisp-mode) . company-mode))
 
 ;; 设置 CSS 及其它 CSS 预处理语言
