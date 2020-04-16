@@ -3,11 +3,14 @@
   :ensure t
   :hook ((css-mode web-mode typescript-mode js-mode rjsx-mode json-mode) . prettier-js-mode))
 
+;; 自动补全括号
+(use-package autopair
+  :ensure t
+  :hook ((css-mode web-mode typescript-mode js-mode rjsx-mode json-mode) . autopair-mode))
+
 ;; 设置 CSS 及其它 CSS 预处理语言
 (add-hook 'css-mode-hook
 	  (lambda ()
-	    ;; 自动补全括号
-	    (autopair-mode +1)
 	    ;; 设置自动缩进的宽度
 	    (setq css-indent-offset 2)
 	    ;; 设置 CSS 的自动完成
@@ -23,9 +26,7 @@
 
 ;; 附加 Web 开发的各种插件
 (defun web-dev-attached ()
-  ;; 自动不全括号
-  (autopair-mode +1)
-  ;; Tide 安装
+=  ;; Tide 安装
   (tide-setup)
   (tide-hl-identifier-mode +1)
   ;; 当 tsserver 服务没有启动时自动重新启动

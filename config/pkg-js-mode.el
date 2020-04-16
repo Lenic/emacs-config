@@ -1,8 +1,6 @@
 ;; JSON 设置
 (add-hook 'js-mode-hook
 	  (lambda ()
-	    ;; 自动不全括号
-	    (autopair-mode +1)
 	    ;; 设置缩进两个空格
 	    (setq js2-basic-offset 2)
 	    ;; 设置保存后自动格式化代码
