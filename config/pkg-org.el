@@ -7,19 +7,21 @@
 ;; 设置 Agenda 模块快捷键
 (global-set-key "\C-ca" 'org-agenda)
 
-(add-hook 'org-mode-hook
-          (lambda ()
-            ;; org 自动换行
-            (setq truncate-lines nil)
-            ;; 设置 Bullets
-            (org-bullets-mode t)
-            ;; 设置使用 indent 模式
-            (org-indent-mode t)
-            ;; 设置 TODO 任务的几个状态
-            (setq org-todo-keywords
-                  '((sequence "TODO(t)" "START(s!)" "PAUSE(p@/!)" "|" "DONE(d!)")
-                    (sequence "BUG(b)" "|" "FIXED(f!)")
-                    (sequence "|" "CANCELED(c@/!)")))))
+(use-package org-bullets
+  :config
+  (add-hook 'org-mode-hook
+            (lambda ()
+              ;; org 自动换行
+              (setq truncate-lines nil)
+              ;; 设置 Bullets
+              (org-bullets-mode t)
+              ;; 设置使用 indent 模式
+              (org-indent-mode t)
+              ;; 设置 TODO 任务的几个状态
+              (setq org-todo-keywords
+                    '((sequence "TODO(t)" "START(s!)" "PAUSE(p@/!)" "|" "DONE(d!)")
+                      (sequence "BUG(b)" "|" "FIXED(f!)")
+                      (sequence "|" "CANCELED(c@/!)"))))))
 
 ;; 设置缺省的日志记录位置
 (setq org-default-notes-file "~/task/inbox.org")
