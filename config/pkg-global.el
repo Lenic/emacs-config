@@ -14,9 +14,9 @@
 
 (use-package undo-tree
   :ensure t
-  :custom
-  (undo-tree-visualizer-timestamps t)
-  (undo-tree-visualizer-diff t)
+  :init
+  (setq undo-tree-visualizer-timestamps t
+        undo-tree-visualizer-diff t)
   :config
   ;; 设置显示可视化撤销树形结构
   (global-undo-tree-mode))
@@ -29,10 +29,10 @@
 
 (use-package projectile
   :ensure t
-  :custom
-  (project-enable-caching t)
-  (projectile-completion-system 'ivy)
-  (projectile-indexing-method 'alien)
+  :init
+  (setq project-enable-caching t
+        projectile-completion-system 'ivy
+        projectile-indexing-method 'alien)
   :bind
   ;; 在项目中快速查找文件
   ("C-c p" . projectile-find-file))

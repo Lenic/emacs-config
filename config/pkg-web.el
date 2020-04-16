@@ -65,9 +65,9 @@
   ;; 设置语法高亮模式
   (setq web-mode-content-types-alist '(("jsx" . "\\.js[x]?\\'")))
   ;; 设置默认的缩进
-  (setq web-mode-css-indent-offset 2)
-  (setq web-mode-code-indent-offset 2)
-  (setq web-mode-markup-indent-offset 2)
+  (setq web-mode-css-indent-offset 2
+        web-mode-code-indent-offset 2
+        web-mode-markup-indent-offset 2)
   :config
   (add-hook 'web-mode-hook 'web-dev-attached))
 
