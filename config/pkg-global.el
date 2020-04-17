@@ -45,7 +45,8 @@
 (use-package ace-jump-mode
   :ensure t
   :bind
-  ("C-c j" . ace-jump-char-mode))
+  ("C-c j" . ace-jump-char-mode)
+  ("C-c l" .  ace-jump-line-mode))
 
 (use-package json-mode
   :ensure t
