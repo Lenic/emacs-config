@@ -35,6 +35,26 @@
 (setq scroll-step            1
       scroll-conservatively  10000)
 
+;; 保持鼠标不动屏幕向上滚动一行
+(defun hold-line-scroll-up()
+  "Scroll the page with the cursor in the same line"
+  (interactive)
+  (let ((next-screen-context-lines
+         (count-lines
+          (window-start) (window-end))))
+    (scroll-up)))
+(global-set-key (kbd "M-n") 'hold-line-scroll-up)
+
+;; 保持鼠标不动屏幕向下滚动一行
+(defun hold-line-scroll-down()
+  "Scroll the page with the cursor in the same line"
+  (interactive)
+  (let ((next-screen-context-lines
+         (count-lines
+          (window-start) (window-end))))
+    (scroll-down)))
+(global-set-key (kbd "M-p") 'hold-line-scroll-down)
+
 ;; 备份设置
 (setq backup-by-copying t ; 自动备份
       backup-directory-alist '(("." . "~/.em_backup")) ; 自动备份在目录"~/.em_backup"下
