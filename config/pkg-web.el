@@ -90,6 +90,6 @@
   ;; 设置缩进两个空格
   (setq typescript-indent-level 2)
   :config
-  (add-hook 'rjsx-mode-hook 'web-dev-attached))
+  (add-hook 'typescript-mode-hook 'web-dev-attached))
 
 (provide 'pkg-web)
