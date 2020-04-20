@@ -75,8 +75,8 @@
 
 ;; 设置 Emacs 窗口的宽和高
 (unless (equal nil (getenv "DISPLAY"))
-  (set-frame-width (selected-frame) 135)
-  (set-frame-height (selected-frame) 35))
+  (set-frame-width (selected-frame) 140)
+  (set-frame-height (selected-frame) 30))
 
 ;; 设置选中时编辑直接删除选中值
 (delete-selection-mode t)
