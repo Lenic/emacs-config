@@ -36,11 +36,11 @@
 (setq scroll-step            1
       scroll-conservatively  10000)
 
-;; 保持鼠标不动屏幕向上滚动一行
-(global-set-key (kbd "M-n") 'scroll-up-line)
+;; 保持鼠标所在行数不变屏幕向下滚动一行
+(global-set-key (kbd "M-n") 'scroll-down-line)
 
-;; 保持鼠标不动屏幕向下滚动一行
-(global-set-key (kbd "M-p") 'scroll-down-line)
+;; 保持鼠标所在行数不变屏幕向上滚动一行
+(global-set-key (kbd "M-p") 'scroll-up-line)
 
 ;; 备份设置
 (setq backup-by-copying t ; 自动备份
