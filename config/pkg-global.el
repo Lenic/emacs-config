@@ -1,5 +1,4 @@
 (use-package counsel
-  :ensure t
   :bind
   ;; swiper 配置
   ("C-s" . swiper-isearch)
@@ -13,11 +12,11 @@
   ("C-c k" . counsel-ag))
 
 (use-package amx)
+(use-package wgrep)
 
 (use-package multiple-cursors)
 
 (use-package undo-tree
-  :ensure t
   :init
   (setq undo-tree-visualizer-timestamps t
         undo-tree-visualizer-diff t)
@@ -26,13 +25,11 @@
   (global-undo-tree-mode))
 
 (use-package git-gutter+
-  :ensure t
   :config
   ;; 设置全局 Git 状态显示
   (global-git-gutter+-mode t))
 
 (use-package projectile
-  :ensure t
   :init
   (setq project-enable-caching t
         projectile-completion-system 'ivy
@@ -43,13 +40,11 @@
 
 ;; 设置 Ace-Jump
 (use-package ace-jump-mode
-  :ensure t
   :bind
   ("C-c j" . ace-jump-word-mode)
   ("C-c l" .  ace-jump-line-mode))
 
 (use-package json-mode
-  :ensure t
   :mode "\\.json\\'")
 
 ;; 拷贝当前 Buffer 到剪切板
