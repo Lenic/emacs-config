@@ -13,20 +13,6 @@
   (setq company-tooltip-align-annotations t)
   :hook ((css-mode web-mode typescript-mode js-mode rjsx-mode json-mode emacs-lisp-mode) . company-mode))
 
-;; 设置 CSS 及其它 CSS 预处理语言
-(add-hook 'css-mode-hook
-          (lambda ()
-            ;; 设置自动缩进的宽度
-            (setq css-indent-offset 2)
-            ;; 设置关闭自动换行
-            (setq truncate-lines t)
-            ;; 开启显示行号
-            (display-line-numbers-mode +1)
-            ;; 开启代码折叠子模式
-            (hs-minor-mode +1)
-            ;; 开启代码折叠快捷键
-            (global-set-key (kbd "s-/") 'hs-toggle-hiding)))
-
 ;; LSP 模式的 JS 自动完成配置
 (use-package tide
   :config (tide-hl-identifier-mode +1)
@@ -62,6 +48,14 @@
   ;; 开启代码折叠快捷键
   (global-set-key (kbd "s-/") 'hs-toggle-hiding))
 
+;; 设置 CSS 及其它 CSS 预处理语言
+(add-hook 'css-mode-hook
+          (lambda ()
+            ;; 设置自动缩进的宽度
+            (setq css-indent-offset 2)
+            ;; 其它开发设置
+            (web-dev-attached)))
+
 (use-package web-mode
   :mode "\\.jsx?\\'"
   :init
@@ -76,16 +70,16 @@
 
 
 ;; 加载 TypeScript-Mode
-(use-package rjsx-mode
-  :mode "\\.tsx\\'"
-  :init
-  ;; 设置缩进两个空格
-  (setq js2-basic-offset 2)
-  :config
-  (add-hook 'rjsx-mode-hook 'web-dev-attached))
+;; (use-package rjsx-mode
+;;   :mode "\\.tsx\\'"
+;;   :init
+;;   ;; 设置缩进两个空格
+;;   (setq js2-basic-offset 2)
+;;   :config
+;;   (add-hook 'rjsx-mode-hook 'web-dev-attached))
 
 (use-package typescript-mode
-  :mode "\\.ts\\'"
+  :mode "\\.ts[x]?\\'"
   :init
   ;; 设置缩进两个空格
   (setq typescript-indent-level 2)
