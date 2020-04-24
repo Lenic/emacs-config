@@ -44,23 +44,6 @@
   ("C-c j" . ace-jump-word-mode)
   ("C-c l" .  ace-jump-line-mode))
 
-(use-package json-mode
-  :mode "\\.json\\'"
-  :config
-  (add-hook 'json-mode-hook
-            (lambda ()
-              ;; 设置自动缩进的宽度
-              (make-local-variable 'js-indent-level)
-              (setq js-indent-level 2)
-              ;; 设置关闭自动换行
-              (setq truncate-lines t)
-              ;; 开启显示行号
-              (display-line-numbers-mode +1)
-              ;; 开启代码折叠子模式
-              (hs-minor-mode +1)
-              ;; 开启代码折叠快捷键
-              (global-set-key (kbd "s-/") 'hs-toggle-hiding))))
-
 ;; 拷贝当前 Buffer 到剪切板
 (defun copy-buffer-path ()
   (interactive)

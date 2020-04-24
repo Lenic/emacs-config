@@ -56,6 +56,17 @@
             ;; 其它开发设置
             (web-dev-attached)))
 
+(use-package json-mode
+  :mode "\\.json\\'"
+  :config
+  (add-hook 'json-mode-hook
+            (lambda ()
+              ;; 设置自动缩进的宽度
+              (make-local-variable 'js-indent-level)
+              (setq js-indent-level 2)
+              ;; 其它开发设置
+              (web-dev-attached))))
+
 (use-package web-mode
   :mode "\\.jsx?\\'"
   :init
