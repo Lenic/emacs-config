@@ -1,7 +1,7 @@
 ;; 设置字体
 ;; (set-default-font "Ubuntu Mono 14")
 ;; (set-default-font "文泉驿等宽正黑 14")
-(set-default-font "Noto Sans Mono CJK SC 14")
+(set-default-font "Noto Sans Mono CJK SC 14") ;; 思源黑体的等宽字体
 
 ;; 设置自动加载已修改文件
 (global-auto-revert-mode t)
@@ -37,10 +37,10 @@
       scroll-conservatively  10000)
 
 ;; 保持鼠标所在行数不变屏幕向下滚动一行
-(global-set-key (kbd "M-n") 'scroll-down-line)
+(global-set-key (kbd "M-n") 'scroll-up-line)
 
 ;; 保持鼠标所在行数不变屏幕向上滚动一行
-(global-set-key (kbd "M-p") 'scroll-up-line)
+(global-set-key (kbd "M-p") 'scroll-down-line)
 
 ;; 备份设置
 (setq backup-by-copying t ; 自动备份
