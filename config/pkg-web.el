@@ -6,6 +6,13 @@
 (use-package autopair
   :hook ((css-mode web-mode typescript-mode js-mode rjsx-mode json-mode) . autopair-mode))
 
+;; 设置 Guide line
+(use-package highlight-indent-guides
+  :config
+  (setq highlight-indent-guides-method 'character)
+  (setq highlight-indent-guides-character ?\|)
+  :hook ((css-mode web-mode typescript-mode js-mode rjsx-mode json-mode) . highlight-indent-guides-mode))
+
 ;; 设置自动完成
 (use-package company
   :init
