@@ -58,6 +58,8 @@
   (setq pyim-page-tooltip 'popup)
   ;; 选词框显示5个候选词
   (setq pyim-page-length 5)
+  ;; 指示弹窗只显示一行，非两行的拼音和候选词显示
+  (setq pyim-page-style 'one-line)
   :bind
   (("M-j" . pyim-convert-string-at-point) ;与 pyim-probe-dynamic-english 配合
    ("C-;" . pyim-delete-word-from-personal-buffer)))
