@@ -1,7 +1,8 @@
 ;; 设置字体
 ;; (set-default-font "Ubuntu Mono 14")
-;; (set-default-font "文泉驿等宽正黑 14")
-(set-default-font "Noto Sans Mono CJK SC 14") ;; 思源黑体的等宽字体
+;; (set-default-font "文泉驿等宽正黑 12")
+;; (set-default-font "Noto Sans Mono CJK SC 14") ;; 思源黑体的等宽字体
+(setq default-frame-alist '((font . "Noto Sans Mono CJK SC 14")))
 
 ;; 设置自动加载已修改文件
 (global-auto-revert-mode t)
@@ -74,9 +75,8 @@
   (scroll-bar-mode -1))
 
 ;; 设置 Emacs 窗口的宽和高
-(unless (equal nil (getenv "DISPLAY"))
-  (set-frame-width (selected-frame) 140)
-  (set-frame-height (selected-frame) 30))
+(add-to-list 'default-frame-alist '(height . 30))
+(add-to-list 'default-frame-alist '(width . 140))
 
 ;; 设置选中时编辑直接删除选中值
 (delete-selection-mode t)
