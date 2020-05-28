@@ -1,8 +1,45 @@
-;; 设置字体
-;; (set-default-font "Ubuntu Mono 14")
-;; (set-default-font "文泉驿等宽正黑 12")
-;; (set-default-font "Noto Sans Mono CJK SC 14") ;; 思源黑体的等宽字体
-(setq default-frame-alist '((font . "Noto Sans Mono CJK SC 14")))
+;; 设置字体、窗口的宽和高、窗口位置
+(if (display-graphic-p)
+    (progn
+      (setq initial-frame-alist
+            '(
+              (tool-bar-lines . 0)
+              ;; (font . "Ubuntu Mono 14")
+              ;; (font . "文泉驿等宽正黑 14")
+              (font . "Noto Sans Mono CJK SC 14")
+              (width . 140) ; chars
+              (height . 30) ; lines
+              (left . 0)
+              (top . 0)))
+      (setq default-frame-alist
+            '(
+              (tool-bar-lines . 0)
+              ;; (font . "Ubuntu Mono 14")
+              ;; (font . "文泉驿等宽正黑 14")
+              (font . "Noto Sans Mono CJK SC 14")
+              (width . 140)
+              (height . 30)
+              (left . 0)
+              (top . 0))))
+  (progn
+    (setq initial-frame-alist '( (tool-bar-lines . 0)))
+    (setq default-frame-alist '( (tool-bar-lines . 0)))))
+
+(add-hook 'after-make-frame-functions
+          (lambda (new-frame)
+            (select-frame new-frame)
+            (if (display-graphic-p)
+                (progn
+                  ;; 隐藏菜单栏
+                  (menu-bar-mode 0)
+                  (set-frame-position (selected-frame) 0 0)
+                  (set-frame-width (selected-frame) 140)
+                  (set-frame-height (selected-frame) 30)
+                  ;; (set-default-font "Ubuntu Mono 14")
+                  ;; (set-default-font "文泉驿等宽正黑 14")
+                  (set-default-font "Noto Sans Mono CJK SC 14"))
+              ;; 隐藏菜单栏
+              (menu-bar-mode 0))))
 
 ;; 设置自动加载已修改文件
 (global-auto-revert-mode t)
@@ -57,15 +94,9 @@
 ;; 设置行号根据右侧对齐
 (setq display-line-numbers-width-start t)
 
-;; 设置窗口位置为屏库左上角(0,0)
-(set-frame-position (selected-frame) 0 0)
-
 ;; 隐藏工具栏
 (when (fboundp 'tool-bar-mode)
   (tool-bar-mode -1))
-
-;; 隐藏菜单栏
-(menu-bar-mode 0)
 
 ;;关闭启动画面
 (setq inhibit-startup-message t)
@@ -73,10 +104,6 @@
 ;; 隐藏滚动条
 (when (fboundp 'scroll-bar-mode)
   (scroll-bar-mode -1))
-
-;; 设置 Emacs 窗口的宽和高
-(add-to-list 'default-frame-alist '(height . 30))
-(add-to-list 'default-frame-alist '(width . 140))
 
 ;; 设置选中时编辑直接删除选中值
 (delete-selection-mode t)
