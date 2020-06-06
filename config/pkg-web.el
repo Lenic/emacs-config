@@ -1,17 +1,17 @@
 ;; 设置保存后自动格式化代码
 (use-package prettier-js
-  :hook ((css-mode web-mode typescript-mode js-mode rjsx-mode json-mode) . prettier-js-mode))
+  :hook ((css-mode web-mode vue-mode typescript-mode js-mode rjsx-mode json-mode) . prettier-js-mode))
 
 ;; 自动补全括号
 (use-package autopair
-  :hook ((css-mode web-mode typescript-mode js-mode rjsx-mode json-mode) . autopair-mode))
+  :hook ((css-mode web-mode vue-mode typescript-mode js-mode rjsx-mode json-mode) . autopair-mode))
 
 ;; 设置自动完成
 (use-package company
   :init
   ;; aligns annotation to the right hand side
   (setq company-tooltip-align-annotations t)
-  :hook ((css-mode web-mode typescript-mode js-mode rjsx-mode json-mode emacs-lisp-mode) . company-mode))
+  :hook ((css-mode web-mode vue-mode typescript-mode js-mode rjsx-mode json-mode emacs-lisp-mode) . company-mode))
 
 ;; LSP 模式的 JS 自动完成配置
 (use-package tide
@@ -27,7 +27,7 @@
 ;; 快速编写 HTML 代码
 (use-package emmet-mode
   :init (setq emmet-expand-jsx-className? t)
-  :hook (web-mode typescript-mode js-mode rjsx-mode))
+  :hook (web-mode vue-mode typescript-mode js-mode rjsx-mode))
 
 ;; 设置打开 NeoTree
 (use-package neotree
@@ -79,6 +79,12 @@
   :config
   (add-hook 'web-mode-hook 'web-dev-attached))
 
+(use-package vue-mode
+  :mode "\\.vue\\'"
+  :config
+  (setq javascript-indent-level 2)
+  (setq js-indent-level 2)
+  (add-hook 'vue-mode-hook 'web-dev-attached))
 
 ;; 加载 TypeScript-Mode
 ;; (use-package rjsx-mode
