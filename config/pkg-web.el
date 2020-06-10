@@ -17,7 +17,7 @@
 (use-package tide
   :config (tide-hl-identifier-mode +1)
   :hook
-  ((web-mode typescript-mode js-mode rjsx-mode) .
+  ((web-mode typescript-mode rjsx-mode) .
    (lambda ()
      ;; Tide 安装
      (tide-setup)
