@@ -15,6 +15,10 @@
   ;; 设置查找特定目录下的文件名查找
   ("C-c f" . counsel-file-jump))
 
+(use-package rg
+  :config
+  (rg-enable-default-bindings))
+
 (use-package amx)
 (use-package wgrep)
 
