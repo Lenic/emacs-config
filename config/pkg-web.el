@@ -33,14 +33,6 @@
 (use-package neotree
   :bind ("C-c o" . neotree-dir))
 
-(use-package all-the-icons
-  :config
-  (add-to-list 'all-the-icons-icon-alist
-               '("\\.tsx$"
-                 all-the-icons-alltheicon "react"
-                 :height 1.0
-                 :face all-the-icons-blue)))
-
 ;; 设置打开 Treemacs
 (use-package treemacs
   :defer t
