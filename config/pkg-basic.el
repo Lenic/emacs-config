@@ -6,7 +6,7 @@
               (tool-bar-lines . 0)
               ;; (font . "Ubuntu Mono 14")
               ;; (font . "文泉驿等宽正黑 14")
-              (font . "Noto Sans Mono CJK SC 14")
+              (font . "Noto Sans Mono CJK SC 13")
               (width . 140) ; chars
               (height . 30) ; lines
               (left . 0)
@@ -16,7 +16,7 @@
               (tool-bar-lines . 0)
               ;; (font . "Ubuntu Mono 14")
               ;; (font . "文泉驿等宽正黑 14")
-              (font . "Noto Sans Mono CJK SC 14")
+              (font . "Noto Sans Mono CJK SC 13")
               (width . 140)
               (height . 30)
               (left . 0)
