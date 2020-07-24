@@ -37,7 +37,7 @@
                   (set-frame-height (selected-frame) 30)
                   ;; (set-default-font "Ubuntu Mono 14")
                   ;; (set-default-font "文泉驿等宽正黑 14")
-                  (set-default-font "Noto Sans Mono CJK SC 14"))
+                  (set-default-font "Noto Sans Mono CJK SC 13"))
               ;; 隐藏菜单栏
               (menu-bar-mode 0))))
 
@@ -85,7 +85,7 @@
   :config
   (setq aw-keys '(?a ?s ?d ?f ?g ?h ?j ?k ?l))
   :bind
-  ("C-c i" . ace-window))
+  ("C-x i" . ace-window))
 
 ;; 备份设置
 (setq backup-by-copying t ; 自动备份
