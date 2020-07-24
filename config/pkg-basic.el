@@ -80,6 +80,13 @@
 ;; 保持鼠标所在行数不变屏幕向上滚动一行
 (global-set-key (kbd "M-p") 'scroll-down-line)
 
+;; 窗口快捷跳转操作
+(use-package ace-window
+  :config
+  (setq aw-keys '(?a ?s ?d ?f ?g ?h ?j ?k ?l))
+  :bind
+  ("C-c i" . ace-window))
+
 ;; 备份设置
 (setq backup-by-copying t ; 自动备份
       backup-directory-alist '(("." . "~/.em_backup")) ; 自动备份在目录"~/.em_backup"下
