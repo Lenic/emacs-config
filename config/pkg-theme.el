@@ -1,9 +1,11 @@
+(use-package gruvbox-theme)
 (use-package spacemacs-theme
+  :after gruvbox-theme
   :defer t
   :init
   ;; 自动切换编辑器主题
   ;; 控制台下只使用一种主题不设置定时器
-  (setq day-theme 'spacemacs-light)
+  (setq day-theme 'gruvbox-light-soft)
   (setq dark-theme 'spacemacs-dark)
   (setq previous-theme-name "")
   (setq previous-theme nil)
