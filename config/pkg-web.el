@@ -31,6 +31,8 @@
 
 ;; 设置打开 NeoTree
 (use-package neotree
+  :config
+  (setq neo-theme 'ascii)
   :bind ("C-c o" . neotree-dir))
 
 ;; 设置 Git 管理快捷键
