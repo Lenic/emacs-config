@@ -2,6 +2,13 @@
 (use-package prettier-js
   :hook ((css-mode web-mode vue-mode typescript-mode js-mode rjsx-mode json-mode) . prettier-js-mode))
 
+;; 指定符号高亮
+(use-package symbol-overlay
+  :hook ((css-mode web-mode vue-mode typescript-mode js-mode rjsx-mode json-mode) . symbol-overlay-mode)
+  :bind
+  (("C-c i" . symbol-overlay-put)
+   ("C-c q" . symbol-overlay-remove-all)))
+
 ;; 自动补全括号
 (use-package autopair
   :hook ((css-mode web-mode vue-mode typescript-mode js-mode rjsx-mode json-mode) . autopair-mode))
