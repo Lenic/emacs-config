@@ -4,7 +4,6 @@
 
 ;; 指定符号高亮
 (use-package symbol-overlay
-  :hook ((css-mode web-mode vue-mode typescript-mode js-mode rjsx-mode json-mode) . symbol-overlay-mode)
   :bind
   (("C-c i" . symbol-overlay-put)
    ("C-c q" . symbol-overlay-remove-all)))
