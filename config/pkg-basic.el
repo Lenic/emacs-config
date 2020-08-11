@@ -50,6 +50,9 @@
 ;; 高亮当前行
 (global-hl-line-mode t)
 
+;; 设置 Emacs 的缺省工作路径
+(setq default-directory "~/")
+
 ;; 编码设置
 (prefer-coding-system 'utf-8)
 (set-default-coding-systems 'utf-8)
