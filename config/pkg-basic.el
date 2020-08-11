@@ -6,8 +6,8 @@
               (tool-bar-lines . 0)
               ;; (font . "Ubuntu Mono 14")
               ;; (font . "文泉驿等宽正黑 14")
-              ;; (font . "Noto Sans Mono CJK SC 13")
-              (font . "M+ 1mn 13")
+              (font . "Noto Sans Mono CJK SC 13")
+              ;; (font . "M+ 1mn 13")
               (width . 140) ; chars
               (height . 30) ; lines
               (left . 0)
@@ -17,8 +17,8 @@
               (tool-bar-lines . 0)
               ;; (font . "Ubuntu Mono 14")
               ;; (font . "文泉驿等宽正黑 14")
-              ;; (font . "Noto Sans Mono CJK SC 13")
-              (font . "M+ 1mn 13")
+              (font . "Noto Sans Mono CJK SC 13")
+              ;; (font . "M+ 1mn 13")
               (width . 140)
               (height . 30)
               (left . 0)
@@ -39,8 +39,8 @@
                   (set-frame-height (selected-frame) 30)
                   ;; (set-default-font "Ubuntu Mono 14")
                   ;; (set-default-font "文泉驿等宽正黑 14")
-                  ;; (set-default-font "Noto Sans Mono CJK SC 13")
-                  (set-default-font "M+ 1mn 13"))
+                  (set-default-font "Noto Sans Mono CJK SC 13"))
+                  ;; (set-default-font "M+ 1mn 13"))
               ;; 隐藏菜单栏
               (menu-bar-mode 0))))
 
@@ -132,27 +132,5 @@
 (defadvice isearch-repeat-backward (after isearch-repeat-backward-recenter activate) (recenter))
 (ad-activate 'isearch-repeat-forward)
 (ad-activate 'isearch-repeat-backward)
-
-;; Set the padding between lines
-(defvar line-padding 1)
-(defun add-line-padding ()
-  "Add extra padding between lines"
-
-  ; remove padding overlays if they already exist
-  (let ((overlays (overlays-at (point-min))))
-    (while overlays
-      (let ((overlay (car overlays)))
-        (if (overlay-get overlay 'is-padding-overlay)
-            (delete-overlay overlay)))
-      (setq overlays (cdr overlays))))
-
-  ; add a new padding overlay
-  (let ((padding-overlay (make-overlay (point-min) (point-max))))
-    (overlay-put padding-overlay 'is-padding-overlay t)
-    (overlay-put padding-overlay 'line-spacing (* .1 line-padding))
-    (overlay-put padding-overlay 'line-height (+ 1 (* .1 line-padding))))
-  (setq mark-active nil))
-
-(add-hook 'buffer-list-update-hook 'add-line-padding)
 
 (provide 'pkg-basic)
