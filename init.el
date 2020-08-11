@@ -3,7 +3,7 @@
 ;;                          ("melpa" . "http://mirrors.cloud.tencent.com/elpa/melpa/")))
 (setq package-archives '(("gnu"   . "http://mirrors.tuna.tsinghua.edu.cn/elpa/gnu/")
                          ("melpa" . "http://mirrors.tuna.tsinghua.edu.cn/elpa/melpa/")))
-(package-initialize)
+;; (package-initialize)
 
 (setenv "PATH" (concat (getenv "PATH") ":/usr/local/bin"))
 (setq exec-path (append exec-path '("/usr/local/bin")))
@@ -12,7 +12,7 @@
   (package-refresh-contents)
   (package-install 'use-package))
 (require 'use-package)
-(setq use-package-verbose t)
+;; (setq use-package-verbose t)
 (setq use-package-always-ensure t)
 
 (add-to-list 'load-path "~/.emacs.d/config")
