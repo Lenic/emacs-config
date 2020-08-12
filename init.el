@@ -15,6 +15,8 @@
 ;; (setq use-package-verbose t)
 (setq use-package-always-ensure t)
 
+(setq byte-compile-warnings '(cl-functions))
+
 (add-to-list 'load-path "~/.emacs.d/config")
 
 ;; 加载基础全局配置

@@ -37,10 +37,11 @@
                   (set-frame-position (selected-frame) 0 0)
                   (set-frame-width (selected-frame) 140)
                   (set-frame-height (selected-frame) 30)
-                  ;; (set-default-font "Ubuntu Mono 14")
-                  ;; (set-default-font "文泉驿等宽正黑 14")
-                  (set-default-font "Noto Sans Mono CJK SC 13"))
-                  ;; (set-default-font "M+ 1mn 13"))
+                  ;; (set-frame-font "Ubuntu Mono 14")
+                  ;; (set-frame-font "文泉驿等宽正黑 14")
+                  ;; (set-frame-font "M+ 1mn 13")
+                  (message "after-make-frame-functions")
+                  (set-frame-font "Noto Sans Mono CJK SC 13"))
               ;; 隐藏菜单栏
               (menu-bar-mode 0))))
 
