@@ -21,6 +21,7 @@
 
 (use-package amx)
 (use-package wgrep)
+(use-package multi-term)
 
 (use-package multiple-cursors)
 
