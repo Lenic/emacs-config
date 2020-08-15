@@ -80,6 +80,8 @@
 ;; 设置平滑滚动
 (setq scroll-step            1
       scroll-conservatively  10000)
+(setq mouse-wheel-scroll-amount '(1 ((shift) . 1) ((control) . nil)))
+(setq mouse-wheel-progressive-speed nil)
 
 ;; 保持鼠标所在行数不变屏幕向下滚动一行
 (global-set-key (kbd "M-n") 'scroll-up-line)
