@@ -32,8 +32,6 @@
             (select-frame new-frame)
             (if (display-graphic-p)
                 (progn
-                  ;; 隐藏菜单栏
-                  (menu-bar-mode 0)
                   (set-frame-position (selected-frame) 0 0)
                   (set-frame-width (selected-frame) 140)
                   (set-frame-height (selected-frame) 30)
@@ -41,15 +39,19 @@
                   ;; (set-frame-font "文泉驿等宽正黑 14")
                   ;; (set-frame-font "M+ 1mn 13")
                   (message "after-make-frame-functions")
-                  (set-frame-font "Noto Sans Mono CJK SC 13"))
-              ;; 隐藏菜单栏
-              (menu-bar-mode 0))))
+                  (set-frame-font "Noto Sans Mono CJK SC 13")))))
+
+;; 隐藏菜单栏
+(menu-bar-mode 0)
 
 ;; 设置自动加载已修改文件
 (global-auto-revert-mode t)
 
 ;; 高亮当前行
 (global-hl-line-mode t)
+;; (require 'vline)
+;; (vline-global-mode)
+;; (set-face-background vline-face :background)
 
 ;; 设置 Emacs 的缺省工作路径
 (setq default-directory "~/")
