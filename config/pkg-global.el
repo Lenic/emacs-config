@@ -8,8 +8,8 @@
   ("C-x C-b" . counsel-ibuffer)
   ;; 替换打开文件
   ("C-x C-f" . counsel-find-file)
-  ;; 设置 AG 全文搜索
-  ("C-c k" . counsel-ag)
+  ;; 设置 RG 全文搜索
+  ("C-c k" . counsel-rg)
   ;; 设置 Git 控制下的文件名查找
   ("C-c p" . counsel-git)
   ;; 设置查找特定目录下的文件名查找
