@@ -91,6 +91,18 @@
 ;; 保持鼠标所在行数不变屏幕向上滚动一行
 (global-set-key (kbd "M-p") 'scroll-down-line)
 
+;; 滚动半屏设置
+(defun window-half-height ()
+  (max 1 (/ (- (1- (window-height (selected-window))) 4) 2)))
+(defun scroll-up-half ()
+  (interactive)
+  (scroll-up (window-half-height)))
+(defun scroll-down-half ()
+  (interactive)
+  (scroll-down (window-half-height)))
+(global-set-key (kbd "C-M-p") 'scroll-up-half)
+(global-set-key (kbd "C-M-n") 'scroll-down-half)
+
 ;; 窗口快捷跳转操作
 (use-package ace-window
   :config
