@@ -100,8 +100,8 @@
 (defun scroll-down-half ()
   (interactive)
   (scroll-down (window-half-height)))
-(global-set-key (kbd "C-M-p") 'scroll-up-half)
-(global-set-key (kbd "C-M-n") 'scroll-down-half)
+(global-set-key (kbd "C-M-n") 'scroll-up-half)
+(global-set-key (kbd "C-M-p") 'scroll-down-half)
 
 ;; 窗口快捷跳转操作
 (use-package ace-window
