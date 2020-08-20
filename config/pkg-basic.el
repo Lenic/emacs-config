@@ -110,6 +110,10 @@
   :bind
   ("C-x i" . ace-window))
 
+(use-package xclip
+  :config
+  (xclip-mode))
+
 ;; 备份设置
 (setq backup-by-copying t ; 自动备份
       backup-directory-alist '(("." . "~/.em_backup")) ; 自动备份在目录"~/.em_backup"下
