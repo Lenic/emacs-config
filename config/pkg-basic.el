@@ -100,8 +100,8 @@
 (defun scroll-down-half ()
   (interactive)
   (scroll-down (window-half-height)))
-(global-set-key (kbd "C-M-n") 'scroll-up-half)
-(global-set-key (kbd "C-M-p") 'scroll-down-half)
+(global-set-key (kbd "M-N") 'scroll-up-half)
+(global-set-key (kbd "M-P") 'scroll-down-half)
 
 ;; 窗口快捷跳转操作
 (use-package ace-window
@@ -110,6 +110,14 @@
   :bind
   ("C-x i" . ace-window))
 
+;; (use-package spaceline
+;;   :config
+;;   (spaceline-emacs-theme)
+;;   (setq powerline-default-separator 'slant)
+;;   :init
+;;   (add-hook 'after-init-hook 'spaceline-compile))
+
+;; 和系统剪切板相关设置
 (use-package xclip
   :config
   (xclip-mode))
