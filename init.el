@@ -3,7 +3,7 @@
 ;;                          ("melpa" . "http://mirrors.cloud.tencent.com/elpa/melpa/")))
 (setq package-archives '(("gnu"   . "http://mirrors.tuna.tsinghua.edu.cn/elpa/gnu/")
                          ("melpa" . "http://mirrors.tuna.tsinghua.edu.cn/elpa/melpa/")))
-;; (package-initialize)
+(package-initialize)
 
 (setenv "PATH" (concat (getenv "PATH") ":/usr/local/bin"))
 (setq exec-path (append exec-path '("/usr/local/bin")))
@@ -28,8 +28,8 @@
 ;; 加载 org-mode 配置
 (require 'pkg-org)
 
-;; 加载 Web 开发配置
-(require 'pkg-web)
+;; 加载开发配置
+(require 'pkg-dev);
 
 ;; 加载主题配置
 (require 'pkg-theme)

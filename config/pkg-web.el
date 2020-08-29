@@ -2,23 +2,6 @@
 (use-package prettier-js
   :hook ((css-mode web-mode vue-mode typescript-mode js-mode rjsx-mode json-mode) . prettier-js-mode))
 
-;; 指定符号高亮
-(use-package symbol-overlay
-  :bind
-  (("C-c i" . symbol-overlay-put)
-   ("C-c q" . symbol-overlay-remove-all)))
-
-;; 自动补全括号
-(use-package autopair
-  :hook ((css-mode web-mode vue-mode typescript-mode js-mode rjsx-mode json-mode) . autopair-mode))
-
-;; 设置自动完成
-(use-package company
-  :init
-  ;; aligns annotation to the right hand side
-  (setq company-tooltip-align-annotations t)
-  :hook ((css-mode web-mode vue-mode typescript-mode js-mode rjsx-mode json-mode emacs-lisp-mode) . company-mode))
-
 ;; LSP 模式的 JS 自动完成配置
 (use-package tide
   :config (tide-hl-identifier-mode +1)
@@ -53,6 +36,10 @@
   (display-line-numbers-mode +1)
   ;; 开启代码折叠子模式
   (hs-minor-mode +1)
+  ;; set default checker
+  (flycheck-select-checker 'javascript-eslint)
+  ;; use eslint with web-mode for jsx files
+  (flycheck-add-mode 'javascript-eslint 'web-mode)
   ;; 开启代码折叠快捷键
   (global-set-key (kbd "s-/") 'hs-toggle-hiding))
 

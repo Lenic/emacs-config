@@ -9,3 +9,9 @@ projectile*
 transient/
 amx-items
 pyim/
+.cache/
+.dap-breakpoints
+.lsp-session-v1
+eclipse.jdt.ls/
+meghanada/
+workspace/
