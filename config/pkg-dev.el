@@ -6,9 +6,9 @@
   :hook ((css-mode web-mode vue-mode typescript-mode js-mode rjsx-mode json-mode emacs-lisp-mode java-mode) . company-mode))
 
 ;; 设置自动完成时显示图标
-(use-package company-box
-  :after company
-  :hook (company-mode . company-box-mode))
+;; (use-package company-box
+;;   :after company
+;;   :hook (company-mode . company-box-mode))
 
 ;; 指定符号高亮
 (use-package symbol-overlay
