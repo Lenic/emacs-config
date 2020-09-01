@@ -49,9 +49,10 @@
 
 ;; 高亮当前行
 (global-hl-line-mode t)
+;; 高亮当前列
 ;; (require 'vline)
 ;; (vline-global-mode)
-;; (set-face-background vline-face :background)
+;; (set-face-background vline-face (face-attribute hl-line-face :background))
 
 ;; 设置 Emacs 的缺省工作路径
 (setq default-directory "~/")
