@@ -111,15 +111,15 @@
   :bind
   ("C-x i" . ace-window))
 
-(use-package spaceline
-  :init
-  (setq powerline-default-separator 'slant)
-  :config
-  (spaceline-emacs-theme)
-  :init
-  ;; (add-hook 'after-init-hook 'spaceline-compile))
-  (add-hook 'emacs-startup-hook
-          #'(lambda () (spaceline-compile))))
+;; (use-package spaceline
+;;   :init
+;;   (setq powerline-default-separator 'slant)
+;;   :config
+;;   (spaceline-emacs-theme)
+;;   :init
+;;   ;; (add-hook 'after-init-hook 'spaceline-compile))
+;;   (add-hook 'emacs-startup-hook
+;;           #'(lambda () (spaceline-compile))))
 
 ;; 和系统剪切板相关设置
 (use-package xclip
