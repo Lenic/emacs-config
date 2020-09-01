@@ -37,9 +37,10 @@
   ;; 开启代码折叠子模式
   (hs-minor-mode +1)
   ;; set default checker
-  (flycheck-select-checker 'javascript-eslint)
+  ;; (flycheck-select-checker 'javascript-eslint)
   ;; use eslint with web-mode for jsx files
   (flycheck-add-mode 'javascript-eslint 'web-mode)
+  (flycheck-add-mode 'javascript-eslint 'typescript-mode)
   ;; 开启代码折叠快捷键
   (global-set-key (kbd "s-/") 'hs-toggle-hiding))
 
