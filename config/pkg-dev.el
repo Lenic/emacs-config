@@ -19,7 +19,7 @@
   :init
   ;; aligns annotation to the right hand side
   (setq company-tooltip-align-annotations t)
-  :hook ((css-mode web-mode vue-mode typescript-mode js-mode rjsx-mode json-mode emacs-lisp-mode java-mode) . company-mode))
+  :hook ((css-mode web-mode vue-mode typescript-mode js-mode json-mode emacs-lisp-mode java-mode) . company-mode))
 
 ;; 设置自动完成时显示图标
 ;; (use-package company-box
@@ -34,7 +34,7 @@
 
 ;; 自动补全括号
 (use-package autopair
-  :hook ((css-mode web-mode vue-mode typescript-mode js-mode rjsx-mode json-mode java-mode) . autopair-mode))
+  :hook ((css-mode web-mode vue-mode typescript-mode js-mode json-mode java-mode) . autopair-mode))
 
 ;; 语法检查包
 (use-package flycheck

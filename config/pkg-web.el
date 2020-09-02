@@ -1,12 +1,12 @@
 ;; 设置保存后自动格式化代码
 (use-package prettier-js
-  :hook ((css-mode web-mode vue-mode typescript-mode js-mode rjsx-mode json-mode) . prettier-js-mode))
+  :hook ((css-mode web-mode vue-mode typescript-mode js-mode json-mode) . prettier-js-mode))
 
 ;; LSP 模式的 JS 自动完成配置
 (use-package tide
   :config (tide-hl-identifier-mode +1)
   :hook
-  ((web-mode typescript-mode rjsx-mode) .
+  ((web-mode typescript-mode) .
    (lambda ()
      ;; Tide 安装
      (tide-setup)
@@ -16,7 +16,7 @@
 ;; 快速编写 HTML 代码
 (use-package emmet-mode
   :init (setq emmet-expand-jsx-className? t)
-  :hook (web-mode vue-mode typescript-mode js-mode rjsx-mode))
+  :hook (web-mode vue-mode typescript-mode js-mode))
 
 ;; 附加 Web 开发的各种插件
 (defun web-dev-attached ()
@@ -71,15 +71,6 @@
   (setq javascript-indent-level 2)
   (setq js-indent-level 2)
   (add-hook 'vue-mode-hook 'web-dev-attached))
-
-;; 加载 TypeScript-Mode
-;; (use-package rjsx-mode
-;;   :mode "\\.tsx\\'"
-;;   :init
-;;   ;; 设置缩进两个空格
-;;   (setq js2-basic-offset 2)
-;;   :config
-;;   (add-hook 'rjsx-mode-hook 'web-dev-attached))
 
 (use-package typescript-mode
   :mode "\\.ts[x]?\\'"
