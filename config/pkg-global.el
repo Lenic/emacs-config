@@ -33,11 +33,6 @@
   ;; 设置显示可视化撤销树形结构
   (global-undo-tree-mode))
 
-(use-package git-gutter+
-  :config
-  ;; 设置全局 Git 状态显示
-  (global-git-gutter+-mode t))
-
 ;; 设置 Ace-Jump
 (use-package ace-jump-mode
   :bind

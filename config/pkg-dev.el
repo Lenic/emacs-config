@@ -1,3 +1,19 @@
+;; 设置打开 NeoTree
+(use-package neotree
+  :config
+  (setq neo-theme 'ascii)
+  :bind ("C-c o" . neotree-dir))
+
+(use-package git-gutter
+  :config
+  ;; 设置全局 Git 状态显示
+  (global-git-gutter-mode t))
+
+;; 设置 Git 管理快捷键
+(use-package magit
+  :bind ("C-x m" . magit-status)
+  :hook ((magit-post-commit-hook) . 'git-gutter:update-all-windows))
+
 ;; 设置自动完成
 (use-package company
   :init

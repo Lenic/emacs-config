@@ -18,16 +18,6 @@
   :init (setq emmet-expand-jsx-className? t)
   :hook (web-mode vue-mode typescript-mode js-mode rjsx-mode))
 
-;; 设置打开 NeoTree
-(use-package neotree
-  :config
-  (setq neo-theme 'ascii)
-  :bind ("C-c o" . neotree-dir))
-
-;; 设置 Git 管理快捷键
-(use-package magit
-  :bind ("C-x m" . magit-status))
-
 ;; 附加 Web 开发的各种插件
 (defun web-dev-attached ()
   ;; 设置关闭自动换行
