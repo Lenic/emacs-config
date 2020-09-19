@@ -51,7 +51,7 @@
                 '(pyim-probe-punctuation-line-beginning
                   pyim-probe-punctuation-after-punctuation))
   ;; 开启拼音搜索功能
-  (pyim-isearch-mode 1)
+  ;; (pyim-isearch-mode 1)
   ;; 使用 popup-el 来绘制选词框, 如果用 emacs26, 建议设置
   ;; 为 'posframe, 速度很快并且菜单不会变形，不过需要用户
   ;; 手动安装 posframe 包。
@@ -61,7 +61,6 @@
   ;; 指示弹窗只显示一行，非两行的拼音和候选词显示
   (setq pyim-page-style 'one-line)
   :bind
-  (("M-j" . pyim-convert-string-at-point) ;与 pyim-probe-dynamic-english 配合
-   ("C-;" . pyim-delete-word-from-personal-buffer)))
+  ("M-j" . pyim-convert-string-at-point)) ;与 pyim-probe-dynamic-english 配合
 
 (provide 'pkg-theme)
