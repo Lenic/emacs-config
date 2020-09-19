@@ -68,7 +68,10 @@
   :config
   (setq javascript-indent-level 2)
   (setq js-indent-level 2)
-  (add-hook 'vue-mode-hook 'web-dev-attached))
+  (add-hook 'vue-mode-hook 'web-dev-attached)
+  (add-hook 'mmm-mode-hook
+            (lambda ()
+              (set-face-background 'mmm-default-submode-face nil))))
 
 (use-package typescript-mode
   :mode "\\.ts[x]?\\'"
