@@ -38,25 +38,10 @@
 ;; 添加一个任务收集
 (add-to-list 'org-capture-templates
              '("ww" "新建任务" entry (file+headline "~/task/mj.org" "临时任务") "* TODO %?\n%U\n%a\n\n"))
-;; 添加一个灵感记录
-(add-to-list 'org-capture-templates
-             '("wi" "灵光闪现" entry (file+datetree "~/task/workspace.inspirations.org") "* %U\n%a\n%?"))
-;; 添加一个备忘
-(add-to-list 'org-capture-templates
-             '("wm" "备忘录" entry (file+datetree "~/task/workspace.memo.org") "* %U\n%a\n%?"))
 
 ;; 私人事务
 ;; 添加一个任务收集
 (add-to-list 'org-capture-templates
              '("mt" "新建任务" entry (file+headline "~/task/me.inbox.org" "Tasks") "* TODO %?\n%U\n%a"))
-;; 添加一个灵感记录
-(add-to-list 'org-capture-templates
-             '("mi" "灵光乍现" entry (file+datetree "~/task/me.inspirations.org") "* %U\n%a\n%?"))
-;; 添加一个备忘
-(add-to-list 'org-capture-templates
-             '("mm" "备忘录" entry (file+datetree "~/task/me.memo.org") "* %U\n%a\n%?"))
-;; 添加个人日记本
-(add-to-list 'org-capture-templates
-             '("mj" "日记本" entry (file+datetree "~/task/me.journal.org") "* %U\n%?"))
 
 (provide 'pkg-org)
