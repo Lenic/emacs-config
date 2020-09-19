@@ -74,6 +74,6 @@
 (require 'pkg-web)
 
 ;; 加载 Java 开发配置
-(require 'pkg-java)
+;; (require 'pkg-java)
 
 (provide 'pkg-dev)
