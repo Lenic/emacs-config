@@ -12,6 +12,7 @@ pyim/
 .cache/
 .dap-breakpoints
 .lsp-session-v1
+.org-id-locations
 eclipse.jdt.ls/
 meghanada/
 workspace/
