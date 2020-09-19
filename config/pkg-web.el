@@ -4,12 +4,12 @@
 
 ;; LSP 模式的 JS 自动完成配置
 (use-package tide
-  :config (tide-hl-identifier-mode +1)
   :hook
   ((web-mode typescript-mode) .
    (lambda ()
      ;; Tide 安装
      (tide-setup)
+     (tide-hl-identifier-mode t)
      ;; 当 tsserver 服务没有启动时自动重新启动
      (unless (tide-current-server) (tide-restart-server)))))
 
