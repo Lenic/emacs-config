@@ -50,14 +50,14 @@
 ;; 高亮当前行
 (global-hl-line-mode t)
 ;; 高亮当前列
-(require 'vline)
-(vline-global-mode)
-;; (set-face-background vline-face (face-attribute hl-line-face :background))
-;; 上面执行会在每次光标移动的时候重新读取一次背景色值
-;; 所以光标移动到时候会变得卡顿
-;; 正确的做法是直接执行 (face-attribute hl-line-face :background) 获取背景色值
-;; 然后使用下面这行代码设置当前列的背景色值
-(set-face-background vline-face "#e4e4e4")
+;; (require 'vline)
+;; (vline-global-mode)
+;; ;; (set-face-background vline-face (face-attribute hl-line-face :background))
+;; ;; 上面执行会在每次光标移动的时候重新读取一次背景色值
+;; ;; 所以光标移动到时候会变得卡顿
+;; ;; 正确的做法是直接执行 (face-attribute hl-line-face :background) 获取背景色值
+;; ;; 然后使用下面这行代码设置当前列的背景色值
+;; ;; (set-face-background vline-face "#212026")
 
 ;; 设置 Emacs 的缺省工作路径
 (setq default-directory "~/")
