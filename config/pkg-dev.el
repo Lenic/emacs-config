@@ -56,7 +56,7 @@
 ;; LSP 模式配置
 (use-package lsp-mode
   :commands lsp
-  :hook ((java-mode vue-mode) . lsp)
+  :hook ((java-mode vue-mode web-mode) . lsp)
   :config
   (setq lsp-eldoc-enable-hover nil)
   (setq lsp-completion-enable-additional-text-edit nil))

@@ -52,7 +52,7 @@
               (web-dev-attached))))
 
 (use-package web-mode
-  :mode "\\.jsx?\\'"
+  :mode ("\\.jsx?\\'" "\\.vue\\'")
   :init
   ;; 设置语法高亮模式
   (setq web-mode-content-types-alist '(("jsx" . "\\.js[x]?\\'")))
@@ -63,15 +63,15 @@
   :config
   (add-hook 'web-mode-hook 'web-dev-attached))
 
-(use-package vue-mode
-  :mode "\\.vue\\'"
-  :config
-  (setq javascript-indent-level 2)
-  (setq js-indent-level 2)
-  (add-hook 'vue-mode-hook 'web-dev-attached)
-  (add-hook 'mmm-mode-hook
-            (lambda ()
-              (set-face-background 'mmm-default-submode-face nil))))
+;; (use-package vue-mode
+;;   :mode "\\.vue\\'"
+;;   :config
+;;   (setq javascript-indent-level 2)
+;;   (setq js-indent-level 2)
+;;   (add-hook 'vue-mode-hook 'web-dev-attached)
+;;   (add-hook 'mmm-mode-hook
+;;             (lambda ()
+;;               (set-face-background 'mmm-default-submode-face nil))))
 
 (use-package typescript-mode
   :mode "\\.ts[x]?\\'"
