@@ -3,15 +3,15 @@
   :hook ((css-mode web-mode vue-mode typescript-mode js-mode json-mode) . prettier-js-mode))
 
 ;; LSP 模式的 JS 自动完成配置
-(use-package tide
-  :hook
-  ((web-mode typescript-mode) .
-   (lambda ()
-     ;; Tide 安装
-     (tide-setup)
-     (tide-hl-identifier-mode t)
-     ;; 当 tsserver 服务没有启动时自动重新启动
-     (unless (tide-current-server) (tide-restart-server)))))
+;; (use-package tide
+;;   :hook
+;;   ((web-mode typescript-mode) .
+;;    (lambda ()
+;;      ;; Tide 安装
+;;      (tide-setup)
+;;      (tide-hl-identifier-mode t)
+;;      ;; 当 tsserver 服务没有启动时自动重新启动
+;;      (unless (tide-current-server) (tide-restart-server)))))
 
 ;; 快速编写 HTML 代码
 (use-package emmet-mode
