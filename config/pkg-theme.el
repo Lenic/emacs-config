@@ -1,6 +1,6 @@
-;; (use-package solarized-theme)
+(use-package solarized-theme)
 (use-package spacemacs-theme
-  ;; :after (solarized-theme)
+  :after (solarized-theme)
   :defer t
   :init
   ;; 自动切换编辑器主题
@@ -36,7 +36,7 @@
   ;; 设置使用拼音输入法
   (setq default-input-method "pyim")
   ;; 我使用全拼
-  (setq pyim-default-scheme 'microsoft-shuangpin)
+  (setq pyim-default-scheme 'xiaohe-shuangpin)
   ;; 设置 pyim 探针设置，这是 pyim 高级功能设置，可以实现 *无痛* 中英文切换 :-)
   ;; 我自己使用的中英文动态切换规则是：
   ;; 1. 光标只有在注释里面时，才可以输入中文。
