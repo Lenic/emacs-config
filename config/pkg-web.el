@@ -1,3 +1,8 @@
+(define-derived-mode web-vue-mode web-mode "WVue"
+  "A major mode derived from web-mode, for editing .vue files with LSP support.")
+(define-derived-mode web-react-mode web-mode "WReact"
+  "A major mode derived from web-mode, for editing .jsx files with LSP support.")
+
 ;; 设置保存后自动格式化代码
 (use-package prettier-js
   :hook ((css-mode web-mode typescript-mode js-mode json-mode) . prettier-js-mode))
@@ -5,7 +10,7 @@
 ;; LSP 模式的 JS 自动完成配置
 (use-package tide
   :hook
-  ((web-mode typescript-mode) .
+  ((web-react-mode) .
    (lambda ()
      ;; Tide 安装
      (tide-setup)
@@ -51,17 +56,53 @@
               ;; 其它开发设置
               (web-dev-attached))))
 
+(use-package eglot)
 (use-package web-mode
-  :mode ("\\.jsx?\\'" "\\.vue\\'")
+  :after eglot
   :init
-  ;; 设置语法高亮模式
-  (setq web-mode-content-types-alist '(("jsx" . "\\.js[x]?\\'")))
   ;; 设置默认的缩进
   (setq web-mode-css-indent-offset 2
         web-mode-code-indent-offset 2
         web-mode-markup-indent-offset 2)
   :config
-  (add-hook 'web-mode-hook 'web-dev-attached))
+  (add-to-list 'auto-mode-alist '("\\.vue\\'" . web-vue-mode))
+  (add-to-list 'auto-mode-alist '("\\.jsx?\\'" . web-react-mode))
+  ;; 设置语法高亮模式
+  (add-hook 'web-react-mode-hook '(lambda ()
+                                    (web-dev-attached)
+                                    (setq web-mode-content-types-alist '(("jsx" . "\\.js[x]?\\'")))))
+  (defclass eglot-vls (eglot-lsp-server) ()
+    :documentation "Vue Language Server.")
+  (add-hook 'web-vue-mode-hook #'eglot-ensure)
+  (add-to-list 'eglot-server-programs
+               '(web-vue-mode . (eglot-vls . ("vls" "--stdio"))))
+  (cl-defmethod eglot-initialization-options ((server eglot-vls))
+    "Passes through required vetur initialization options to VLS."
+    '(:vetur
+      (:completion
+       (:autoImport t :useScaffoldSnippets t :tagCasing "kebab")
+       :grammar
+       (:customBlocks
+        (:docs "md" :i18n "json"))
+       :validation
+       (:template t :style t :script t)
+       :format
+       (:options
+        (:tabSize 2 :useTabs :json-false)
+        :defaultFormatter
+        (:html "prettyhtml" :css "prettier" :postcss "prettier" :scss "prettier" :less "prettier" :stylus "stylus-supremacy" :js "prettier" :ts "prettier")
+        :defaultFormatterOptions
+        (:js-beautify-html
+         (:wrap_attributes "force-expand-multiline")
+         :prettyhtml
+         (:printWidth 100 :singleQuote :json-false :wrapAttributes :json-false :sortAttributes :json-false))
+        :styleInitialIndent :json-false :scriptInitialIndent :json-false)
+       :trace
+       (:server "verbose")
+       :dev
+       (:vlsPath ""))
+      ))
+  )
 
 (use-package typescript-mode
   :mode "\\.ts[x]?\\'"
