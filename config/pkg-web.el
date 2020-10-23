@@ -1,6 +1,6 @@
 ;; 设置保存后自动格式化代码
 (use-package prettier-js
-  :hook ((css-mode web-mode vue-mode typescript-mode js-mode json-mode) . prettier-js-mode))
+  :hook ((css-mode web-mode typescript-mode js-mode json-mode) . prettier-js-mode))
 
 ;; LSP 模式的 JS 自动完成配置
 ;; (use-package tide
@@ -16,7 +16,7 @@
 ;; 快速编写 HTML 代码
 (use-package emmet-mode
   :init (setq emmet-expand-jsx-className? t)
-  :hook (web-mode vue-mode typescript-mode js-mode))
+  :hook (web-mode typescript-mode js-mode))
 
 ;; 附加 Web 开发的各种插件
 (defun web-dev-attached ()
@@ -62,16 +62,6 @@
         web-mode-markup-indent-offset 2)
   :config
   (add-hook 'web-mode-hook 'web-dev-attached))
-
-;; (use-package vue-mode
-;;   :mode "\\.vue\\'"
-;;   :config
-;;   (setq javascript-indent-level 2)
-;;   (setq js-indent-level 2)
-;;   (add-hook 'vue-mode-hook 'web-dev-attached)
-;;   (add-hook 'mmm-mode-hook
-;;             (lambda ()
-;;               (set-face-background 'mmm-default-submode-face nil))))
 
 (use-package typescript-mode
   :mode "\\.ts[x]?\\'"
