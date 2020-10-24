@@ -64,6 +64,7 @@
   (setq web-mode-css-indent-offset 2
         web-mode-code-indent-offset 2
         web-mode-markup-indent-offset 2)
+  (setq web-mode-enable-current-column-highlight t)
   :config
   (add-to-list 'auto-mode-alist '("\\.vue\\'" . web-vue-mode))
   (add-to-list 'auto-mode-alist '("\\.jsx?\\'" . web-react-mode))
@@ -90,12 +91,7 @@
        (:options
         (:tabSize 2 :useTabs :json-false)
         :defaultFormatter
-        (:html "prettyhtml" :css "prettier" :postcss "prettier" :scss "prettier" :less "prettier" :stylus "stylus-supremacy" :js "prettier" :ts "prettier")
-        :defaultFormatterOptions
-        (:js-beautify-html
-         (:wrap_attributes "force-expand-multiline")
-         :prettyhtml
-         (:printWidth 100 :singleQuote :json-false :wrapAttributes :json-false :sortAttributes :json-false))
+        (:html "prettier" :css "prettier" :postcss "prettier" :scss "prettier" :less "prettier" :stylus "stylus-supremacy" :js "prettier" :ts "prettier")
         :styleInitialIndent :json-false :scriptInitialIndent :json-false)
        :trace
        (:server "verbose")
