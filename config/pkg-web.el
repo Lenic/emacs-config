@@ -56,9 +56,7 @@
               ;; 其它开发设置
               (web-dev-attached))))
 
-(use-package eglot)
 (use-package web-mode
-  :after eglot
   :init
   ;; 设置默认的缩进
   (setq web-mode-css-indent-offset 2
@@ -68,37 +66,19 @@
   :config
   (add-to-list 'auto-mode-alist '("\\.vue\\'" . web-vue-mode))
   (add-to-list 'auto-mode-alist '("\\.jsx?\\'" . web-react-mode))
+  (add-hook 'web-vue-mode-hook 'lsp)
   ;; 设置语法高亮模式
   (add-hook 'web-react-mode-hook '(lambda ()
                                     (web-dev-attached)
-                                    (setq web-mode-content-types-alist '(("jsx" . "\\.js[x]?\\'")))))
-  (defclass eglot-vls (eglot-lsp-server) ()
-    :documentation "Vue Language Server.")
-  (add-hook 'web-vue-mode-hook #'eglot-ensure)
-  (add-to-list 'eglot-server-programs
-               '(web-vue-mode . (eglot-vls . ("vls" "--stdio"))))
-  (cl-defmethod eglot-initialization-options ((server eglot-vls))
-    "Passes through required vetur initialization options to VLS."
-    '(:vetur
-      (:completion
-       (:autoImport t :useScaffoldSnippets t :tagCasing "kebab")
-       :grammar
-       (:customBlocks
-        (:docs "md" :i18n "json"))
-       :validation
-       (:template t :style t :script t)
-       :format
-       (:options
-        (:tabSize 2 :useTabs :json-false)
-        :defaultFormatter
-        (:html "prettier" :css "prettier" :postcss "prettier" :scss "prettier" :less "prettier" :stylus "stylus-supremacy" :js "prettier" :ts "prettier")
-        :styleInitialIndent :json-false :scriptInitialIndent :json-false)
-       :trace
-       (:server "verbose")
-       :dev
-       (:vlsPath ""))
-      ))
-  )
+                                    (setq web-mode-content-types-alist '(("jsx" . "\\.js[x]?\\'"))))))
+
+(use-package company-quickhelp
+  :init
+  (setq company-minimum-prefix-length 1)
+  (setq company-dabbrev-downcase nil)
+  (setq company-idle-delay 0.5)
+  :config
+  (add-hook 'company-mode-hook 'company-quickhelp-mode))
 
 (use-package typescript-mode
   :mode "\\.ts[x]?\\'"

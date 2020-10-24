@@ -36,6 +36,22 @@
 (use-package autopair
   :hook ((css-mode web-mode typescript-mode js-mode json-mode java-mode) . autopair-mode))
 
+;; LSP 模式配置
+(use-package lsp-mode
+  :commands lsp
+  :config
+  (setq lsp-eldoc-enable-hover nil)
+  (setq lsp-completion-enable-additional-text-edit nil))
+
+;; LSP 模式的帮助文档相关
+(use-package lsp-ui
+  :commands lsp-ui-mode
+  :config
+  (setq lsp-ui-doc-delay 3)
+  (setq lsp-ui-doc-enable nil)
+  (setq lsp-ui-sideline-enable nil)
+  (setq lsp-enable-symbol-highlighting nil))
+
 ;; 加载 Web 开发配置
 (require 'pkg-web)
 

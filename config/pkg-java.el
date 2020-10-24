@@ -1,25 +1,9 @@
 ;; Java 调试配置
 (use-package dap-mode
   :after lsp-mode
+  :hook ((java-mode) . lsp)
   :config (setq dap-auto-configure-features (remove 'controls dap-auto-configure-features)))
 (use-package dap-java :ensure nil)
-
-;; LSP 模式配置
-(use-package lsp-mode
-  :commands lsp
-  :hook ((java-mode) . lsp)
-  :config
-  (setq lsp-eldoc-enable-hover nil)
-  (setq lsp-completion-enable-additional-text-edit nil))
-
-;; LSP 模式的帮助文档相关
-(use-package lsp-ui
-  :commands lsp-ui-mode
-  :config
-  (setq lsp-ui-doc-delay 3)
-  (setq lsp-ui-doc-enable nil)
-  (setq lsp-ui-sideline-enable nil)
-  (setq lsp-enable-symbol-highlighting nil))
 
  ;; 语法检查包
 ;; (use-package flycheck
