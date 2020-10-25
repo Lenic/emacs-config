@@ -1,7 +1,10 @@
+;; Java 配置
+(use-package lsp-java
+  :after lsp-mode
+  :config (add-hook 'java-mode-hook 'lsp))
 ;; Java 调试配置
 (use-package dap-mode
-  :after lsp-mode
-  :hook ((java-mode) . lsp)
+  :after lsp-java
   :config (setq dap-auto-configure-features (remove 'controls dap-auto-configure-features)))
 (use-package dap-java :ensure nil)
 
