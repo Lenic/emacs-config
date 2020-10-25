@@ -21,6 +21,14 @@
   (setq company-tooltip-align-annotations t)
   :hook ((css-mode web-mode typescript-mode js-mode json-mode emacs-lisp-mode java-mode) . company-mode))
 
+(use-package company-quickhelp
+  :init
+  (setq company-minimum-prefix-length 1)
+  (setq company-dabbrev-downcase nil)
+  (setq company-idle-delay 0.5)
+  :config
+  (add-hook 'company-mode-hook 'company-quickhelp-mode))
+
 ;; 设置自动完成时显示图标
 ;; (use-package company-box
 ;;   :after company

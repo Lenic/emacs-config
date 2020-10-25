@@ -53,14 +53,6 @@
   :config
   (add-hook 'web-mode-hook 'web-dev-attached))
 
-(use-package company-quickhelp
-  :init
-  (setq company-minimum-prefix-length 1)
-  (setq company-dabbrev-downcase nil)
-  (setq company-idle-delay 0.5)
-  :config
-  (add-hook 'company-mode-hook 'company-quickhelp-mode))
-
 (use-package typescript-mode
   :mode "\\.ts[x]?\\'"
   :init
