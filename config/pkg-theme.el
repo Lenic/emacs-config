@@ -5,7 +5,7 @@
   :init
   ;; 自动切换编辑器主题
   ;; 控制台下只使用一种主题不设置定时器
-  (setq day-theme 'spacemacs-light)
+  (setq day-theme 'solarized-light)
   (setq dark-theme 'spacemacs-dark)
   (setq previous-theme-name "")
   (setq previous-theme nil)
