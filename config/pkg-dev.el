@@ -16,16 +16,28 @@
 
 ;; 设置自动完成
 (use-package company
-  :init
-  ;; aligns annotation to the right hand side
-  (setq company-tooltip-align-annotations t)
-  :hook ((css-mode web-mode typescript-mode js-mode json-mode emacs-lisp-mode java-mode) . company-mode))
+  :hook ((css-mode web-mode typescript-mode js-mode json-mode emacs-lisp-mode java-mode) . company-mode)
+  :config
+  (setq company-idle-delay 0.5)
+  (setq company-minimum-prefix-length 2)
+  (setq company-tooltip-align-annotations t) ;; aligns annotation to the right hand side
+  (setq company-backends
+        '((company-files company-keywords company-capf)
+          (company-abbrev company-dabbrev))))
+
+(add-hook 'emacs-lisp-mode-hook (lambda ()
+                                  (add-to-list  (make-local-variable 'company-backends) '(company-elisp))))
+
+;; 设置自动完成快捷键
+(with-eval-after-load 'company
+  (define-key company-active-map (kbd "\C-n") #'company-select-next)
+  (define-key company-active-map (kbd "\C-p") #'company-select-previous)
+  (define-key company-active-map (kbd "M-n") nil)
+  (define-key company-active-map (kbd "M-p") nil))
 
 (use-package company-quickhelp
   :init
-  (setq company-minimum-prefix-length 1)
   (setq company-dabbrev-downcase nil)
-  (setq company-idle-delay 1)
   :config
   (add-hook 'company-mode-hook 'company-quickhelp-mode))
 

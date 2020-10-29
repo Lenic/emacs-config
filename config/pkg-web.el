@@ -7,10 +7,15 @@
   :init (setq emmet-expand-jsx-className? t)
   :hook (web-mode typescript-mode js-mode))
 
+(use-package company-web)
+
+(use-package tide
+  :config
+  (tide-hl-identifier-mode +1)
+  (setq tide-completion-enable-autoimport-suggestions t))
+
 ;; 附加 Web 开发的各种插件
 (defun web-dev-attached ()
-  ;; 开启 LSP 模式自动完成
-  (lsp)
   ;; 设置关闭自动换行
   (setq truncate-lines t)
   ;; 开启显示行号
@@ -26,8 +31,13 @@
 ;; 设置 CSS 及其它 CSS 预处理语言
 (add-hook 'css-mode-hook
           (lambda ()
+            ;; 开启 LSP 模式自动完成
+            (lsp)
             ;; 设置自动缩进的宽度
             (setq css-indent-offset 2)
+            ;; 设置 Company 后端
+            (add-to-list (make-local-variable 'company-backends)
+                         '(company-css company-files company-capf company-dabbrev))
             ;; 其它开发设置
             (web-dev-attached)))
 
@@ -36,22 +46,66 @@
   :config
   (add-hook 'json-mode-hook
             (lambda ()
+              ;; 开启 LSP 模式自动完成
+              (lsp)
               ;; 设置自动缩进的宽度
               (make-local-variable 'js-indent-level)
               (setq js-indent-level 2)
               ;; 其它开发设置
               (web-dev-attached))))
 
+(defun my/web-html-setup()
+  "Setup for web-mode html files."
+  (message "web-mode use html related setup")
+  ;; 开启 LSP 模式自动完成
+  (lsp)
+  ;; 设置 Company 后端
+  (add-to-list (make-local-variable 'company-backends)
+               '(company-web-html company-files company-css company-capf company-dabbrev)))
+
+(defun my/web-vue-setup()
+  "Setup for js related."
+  (message "web-mode use vue related setup")
+  ;; 开启 LSP 模式自动完成
+  (lsp)
+  ;; 调用 js 的设置
+  (web-dev-attached)
+  ;; 设置 Company 后端
+  (add-to-list (make-local-variable 'company-backends)
+               '(company-web-html company-css company-files)))
+
+(defun my/web-js-setup()
+  "Setup for js related."
+  (message "web-mode use vue related setup")
+  ;; Tide 安装
+  (tide-setup)
+  ;; 当 tsserver 服务没有启动时自动重新启动
+  (unless (tide-current-server) (tide-restart-server))
+  ;; 设置 Company 后端
+  (add-to-list (make-local-variable 'company-backends)
+               '(company-tide company-files company-dabbrev)))
+
 (use-package web-mode
+  :after (tide lsp-mode)
   :mode ("\\.jsx?\\'" "\\.vue\\'")
   :init
-  ;; 设置默认的缩进
-  (setq web-mode-css-indent-offset 2
-        web-mode-code-indent-offset 2
-        web-mode-markup-indent-offset 2)
-  (setq web-mode-enable-current-column-highlight t)
+  (setq web-mode-content-types-alist
+        '(("vue" . "\\.vue\\'")
+          ("jsx"  . "\\.js[x]?\\'")))
+  (setq web-mode-css-indent-offset 2                  ;; CSS 默认缩进 2 空格：包含 HTML 的 CSS 部分以及纯 CSS/LESS/SASS 文件等
+        web-mode-code-indent-offset 2                 ;; JavaScript 默认缩进 2 空格：包含 HTML 的 SCRIPT 部分以及纯 JS/JSX/TS/TSX 文件等
+        web-mode-markup-indent-offset 2               ;; HTML 默认缩进 2 空格：包含 HTML 文件以及 Vue 文件的 TEMPLATE 部分
+        web-mode-enable-css-colorization t            ;; 开启 CSS 部分色值的展示：展示的时候会有光标显示位置异常
+        web-mode-enable-current-column-highlight t)
   :config
-  (add-hook 'web-mode-hook 'web-dev-attached))
+  (add-hook 'web-mode-hook (lambda()
+                             (web-dev-attached)
+                             (cond ((equal web-mode-content-type "html")
+                                    (my/web-html-setup))
+                                   ((member web-mode-content-type '("vue"))
+                                    (my/web-vue-setup))
+                                   ((member web-mode-content-type '("jsx"))
+                                    (my/web-js-attached))))))
 
 (use-package typescript-mode
   :mode "\\.ts[x]?\\'"
@@ -59,6 +113,14 @@
   ;; 设置缩进两个空格
   (setq typescript-indent-level 2)
   :config
-  (add-hook 'typescript-mode-hook 'web-dev-attached))
+  (add-hook 'typescript-mode-hook '(lambda()
+                                     (web-dev-attached)
+                                     ;; Tide 安装
+                                     (tide-setup)
+                                     ;; 当 tsserver 服务没有启动时自动重新启动
+                                     (unless (tide-current-server) (tide-restart-server)))))
+
+;; 直接编辑 HTML 文件时的设置
+(add-hook 'mhtml-mode-hook 'web-dev-attached)
 
 (provide 'pkg-web)
