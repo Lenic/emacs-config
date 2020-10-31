@@ -29,11 +29,11 @@
                                   (add-to-list  (make-local-variable 'company-backends) '(company-elisp))))
 
 ;; 设置自动完成快捷键
-(with-eval-after-load 'company
-  (define-key company-active-map (kbd "\C-n") #'company-select-next)
-  (define-key company-active-map (kbd "\C-p") #'company-select-previous)
-  (define-key company-active-map (kbd "M-n") nil)
-  (define-key company-active-map (kbd "M-p") nil))
+;; (with-eval-after-load 'company
+;;   (define-key company-active-map (kbd "\C-n") #'company-select-next)
+;;   (define-key company-active-map (kbd "\C-p") #'company-select-previous)
+;;   (define-key company-active-map (kbd "M-n") nil)
+;;   (define-key company-active-map (kbd "M-p") nil))
 
 (use-package company-quickhelp
   :init
