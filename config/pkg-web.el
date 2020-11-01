@@ -87,7 +87,7 @@
 
 (use-package web-mode
   :after (tide lsp-mode)
-  :mode ("\\.jsx?\\'" "\\.vue\\'")
+  :mode ("\\.jsx?\\'" "\\.vue\\'" "\\.html\\'")
   :init
   (setq web-mode-content-types-alist
         '(("vue" . "\\.vue\\'")
