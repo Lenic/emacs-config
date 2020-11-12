@@ -4,10 +4,7 @@
       (setq initial-frame-alist
             '(
               (tool-bar-lines . 0)
-              ;; (font . "Ubuntu Mono 14")
-              ;; (font . "文泉驿等宽正黑 14")
               (font . "Noto Sans Mono CJK SC 13")
-              ;; (font . "M+ 1mn 13")
               (width . 140) ; chars
               (height . 30) ; lines
               (left . 0)
@@ -15,10 +12,7 @@
       (setq default-frame-alist
             '(
               (tool-bar-lines . 0)
-              ;; (font . "Ubuntu Mono 14")
-              ;; (font . "文泉驿等宽正黑 14")
               (font . "Noto Sans Mono CJK SC 13")
-              ;; (font . "M+ 1mn 13")
               (width . 140)
               (height . 30)
               (left . 0)
@@ -30,15 +24,13 @@
 (add-hook 'after-make-frame-functions
           (lambda (new-frame)
             (select-frame new-frame)
+            ;; 隐藏菜单栏
+            (menu-bar-mode 0)
             (if (display-graphic-p)
                 (progn
                   (set-frame-position (selected-frame) 0 0)
                   (set-frame-width (selected-frame) 140)
                   (set-frame-height (selected-frame) 30)
-                  ;; (set-frame-font "Ubuntu Mono 14")
-                  ;; (set-frame-font "文泉驿等宽正黑 14")
-                  ;; (set-frame-font "M+ 1mn 13")
-                  (message "after-make-frame-functions")
                   (set-frame-font "Noto Sans Mono CJK SC 13")))))
 
 ;; 隐藏菜单栏
