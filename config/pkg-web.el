@@ -54,6 +54,10 @@
               ;; 其它开发设置
               (web-dev-attached))))
 
+;; 语法检查包
+(use-package flycheck
+  :hook ((css-mode json-mode web-mode typescript-mode) . flycheck-mode))
+
 (defun my/web-html-setup()
   "Setup for web-mode html files."
   (message "web-mode use html related setup")
@@ -85,6 +89,19 @@
   (add-to-list (make-local-variable 'company-backends)
                '(company-tide company-files company-dabbrev)))
 
+;; JavaScript/TypeScript 语法检查设置
+(defun my/use-eslint-from-node-modules ()
+  (setq-default flycheck-disabled-checkers (append flycheck-disabled-checkers '(javascript-jshint)))
+  (let* ((root (locate-dominating-file
+                (or (buffer-file-name) default-directory)
+                "node_modules"))
+         (eslint
+          (and root
+               (expand-file-name "node_modules/.bin/eslint"
+                                 root))))
+    (when (and eslint (file-executable-p eslint))
+      (setq-local flycheck-javascript-eslint-executable eslint))))
+
 (use-package web-mode
   :after (tide lsp-mode)
   :mode ("\\.jsx?\\'" "\\.vue\\'" "\\.html\\'")
@@ -100,6 +117,7 @@
   :config
   (add-hook 'web-mode-hook (lambda()
                              (web-dev-attached)
+                             (my/use-eslint-from-node-modules)
                              (cond ((equal web-mode-content-type "html")
                                     (my/web-html-setup))
                                    ((member web-mode-content-type '("vue"))
