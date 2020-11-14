@@ -1,6 +1,7 @@
 (use-package counsel
   :config
-  '(ivy-more-chars-alist '((counsel-grep . 2) (t . 2)))
+  (custom-set-variables
+   '(ivy-more-chars-alist '((counsel-grep . 2) (t . 2))))
   :bind
   ;; swiper 配置
   ("C-s" . swiper-isearch)
