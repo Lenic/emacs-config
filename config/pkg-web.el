@@ -123,7 +123,7 @@
                                    ((member web-mode-content-type '("vue"))
                                     (my/web-vue-setup))
                                    ((member web-mode-content-type '("jsx"))
-                                    (my/web-js-attached))))))
+                                    (my/web-js-setup))))))
 
 (use-package typescript-mode
   :mode "\\.ts[x]?\\'"
