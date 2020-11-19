@@ -72,8 +72,6 @@
   (message "web-mode use vue related setup")
   ;; 开启 LSP 模式自动完成
   (lsp)
-  ;; 调用 js 的设置
-  (web-dev-attached)
   ;; 设置 Company 后端
   (add-to-list (make-local-variable 'company-backends)
                '(company-web-html company-css company-files)))
