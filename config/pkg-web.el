@@ -74,18 +74,18 @@
   (lsp)
   ;; 设置 Company 后端
   (add-to-list (make-local-variable 'company-backends)
-               '(company-web-html company-css company-files)))
+               '(company-web-html company-css company-files company-capf)))
 
 (defun my/web-js-setup()
   "Setup for js related."
-  (message "web-mode use vue related setup")
+  (message "web-mode use js related setup")
   ;; Tide 安装
   (tide-setup)
   ;; 当 tsserver 服务没有启动时自动重新启动
   (unless (tide-current-server) (tide-restart-server))
   ;; 设置 Company 后端
   (add-to-list (make-local-variable 'company-backends)
-               '(company-tide company-files company-dabbrev)))
+               '(company-capf company-tide company-files company-dabbrev)))
 
 ;; JavaScript/TypeScript 语法检查设置
 (defun my/use-eslint-from-node-modules ()
@@ -102,7 +102,7 @@
 
 (use-package web-mode
   :after (tide lsp-mode)
-  :mode ("\\.jsx?\\'" "\\.vue\\'" "\\.html\\'")
+  :mode ("\\.js[x]?\\'" "\\.vue\\'" "\\.html\\'")
   :init
   (setq web-mode-content-types-alist
         '(("vue" . "\\.vue\\'")
