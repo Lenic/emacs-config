@@ -37,6 +37,8 @@
   (setq default-input-method "pyim")
   ;; 我使用全拼
   (setq pyim-default-scheme 'microsoft-shuangpin)
+  ;; 设置不使用模糊拼音
+  (setq pyim-fuzzy-pinyin-alist '())
   ;; 设置 pyim 探针设置，这是 pyim 高级功能设置，可以实现 *无痛* 中英文切换 :-)
   ;; 我自己使用的中英文动态切换规则是：
   ;; 1. 光标只有在注释里面时，才可以输入中文。
