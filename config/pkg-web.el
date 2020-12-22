@@ -74,7 +74,7 @@
   (lsp)
   ;; 设置 Company 后端
   (add-to-list (make-local-variable 'company-backends)
-               '(company-web-html company-css company-files company-capf)))
+               '(company-capf company-web-html company-css company-files)))
 
 (defun my/web-js-setup()
   "Setup for js related."
