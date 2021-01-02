@@ -157,6 +157,10 @@
 ;; 高亮匹配括号
 (show-paren-mode t)
 
+;; 设置 Ctrl-h 为删除前一个字符
+(unbind-key "C-h")
+(global-set-key (kbd "C-h") 'delete-backward-char)
+
 ;; 设置光标样式
 (setq-default cursor-type 'box)
 
