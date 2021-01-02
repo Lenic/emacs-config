@@ -77,7 +77,7 @@
   :config
   (setq lsp-ui-doc-delay 3)
   (setq lsp-ui-doc-enable nil)
-  (setq lsp-ui-sideline-enable nil))
+  (setq lsp-ui-sideline-enable t))
 
 ;; 加载 Web 开发配置
 (require 'pkg-web)
