@@ -160,6 +160,7 @@
 ;; 设置 Ctrl-h 为删除前一个字符
 (unbind-key "C-h")
 (global-set-key (kbd "C-h") 'delete-backward-char)
+(global-set-key (kbd "M-h") 'backward-kill-word)
 
 ;; 设置光标样式
 (setq-default cursor-type 'box)
