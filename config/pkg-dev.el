@@ -62,6 +62,7 @@
   :config
   (setq lsp-enable-snippet nil
         lsp-eldoc-enable-hover t
+        lsp-disabled-clients '(eslint)
         lsp-signature-auto-activate t
         lsp-signature-render-documentation t
         lsp-completion-show-detail t
