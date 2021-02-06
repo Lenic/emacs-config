@@ -36,6 +36,9 @@
 ;; 隐藏菜单栏
 (menu-bar-mode 0)
 
+;; 直接打开软链接地址的文件，而不是打开原始文件的地址
+(setq vc-follow-symlinks nil)
+
 ;; 设置自动加载已修改文件
 (global-auto-revert-mode t)
 
