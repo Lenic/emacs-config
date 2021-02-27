@@ -68,13 +68,13 @@
                '(company-web-html company-files company-css company-capf company-dabbrev)))
 
 (defun my/web-vue-setup()
-  "Setup for js related."
+  "Setup for vue related."
   (message "web-mode use vue related setup")
   ;; 开启 LSP 模式自动完成
   (lsp)
   ;; 设置 Company 后端
   (add-to-list (make-local-variable 'company-backends)
-               '(company-capf company-web-html company-css company-files)))
+               '(company-capf company-files company-css)))
 
 (defun my/web-js-setup()
   "Setup for js related."
@@ -85,7 +85,7 @@
   (unless (tide-current-server) (tide-restart-server))
   ;; 设置 Company 后端
   (add-to-list (make-local-variable 'company-backends)
-               '(company-capf company-tide company-files company-dabbrev)))
+               '(company-capf company-files)))
 
 ;; JavaScript/TypeScript 语法检查设置
 (defun my/use-eslint-from-node-modules ()
