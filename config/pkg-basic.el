@@ -36,6 +36,9 @@
 ;; 隐藏菜单栏
 (menu-bar-mode 0)
 
+;; 开启 TCP 连接到 Server
+(setq server-use-tcp t)
+
 ;; 直接打开软链接地址的文件，而不是打开原始文件的地址
 (setq vc-follow-symlinks nil)
 
