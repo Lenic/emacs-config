@@ -28,6 +28,9 @@
 ;; 加载基础全局配置
 (require 'pkg-global)
 
+;; 加载 Dired 模式配置
+(require 'pkg-dired)
+
 ;; 加载基础配置
 (require 'pkg-basic)
 
