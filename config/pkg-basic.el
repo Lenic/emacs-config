@@ -1,10 +1,30 @@
 ;; 设置字体、窗口的宽和高、窗口位置
 (if (display-graphic-p)
     (progn
+      ;; Set the padding between lines
+      (defvar line-padding 2)
+      (defun add-line-padding ()
+        "Add extra padding between lines"
+        ;; remove padding overlays if they already exist
+        (let ((overlays (overlays-at (point-min))))
+          (while overlays
+            (let ((overlay (car overlays)))
+              (if (overlay-get overlay 'is-padding-overlay)
+                  (delete-overlay overlay)))
+            (setq overlays (cdr overlays))))
+        ;; add a new padding overlay
+        (let ((padding-overlay (make-overlay (point-min) (point-max))))
+          (overlay-put padding-overlay 'is-padding-overlay t)
+          (overlay-put padding-overlay 'line-spacing (* .1 line-padding))
+          (overlay-put padding-overlay 'line-height (+ 1 (* .1 line-padding))))
+        (setq mark-active nil))
+      ;; 添加 padding 自动执行的时机
+      (add-hook 'buffer-list-update-hook 'add-line-padding)
+      ;; 窗口、字体相关设置
       (setq initial-frame-alist
             '(
               (tool-bar-lines . 0)
-              (font . "Noto Sans Mono CJK SC 13")
+              (font . "Hack Nerd Font Mono 12")
               (width . 140) ; chars
               (height . 30) ; lines
               (left . 0)
@@ -12,7 +32,7 @@
       (setq default-frame-alist
             '(
               (tool-bar-lines . 0)
-              (font . "Noto Sans Mono CJK SC 13")
+              (font . "Hack Nerd Font Mono 12")
               (width . 140)
               (height . 30)
               (left . 0)
@@ -31,7 +51,7 @@
                   (set-frame-position (selected-frame) 0 0)
                   (set-frame-width (selected-frame) 140)
                   (set-frame-height (selected-frame) 30)
-                  (set-frame-font "Noto Sans Mono CJK SC 13")))))
+                  (set-frame-font "Hack Nerd Font Mono 12")))))
 
 ;; 隐藏菜单栏
 (menu-bar-mode 0)
