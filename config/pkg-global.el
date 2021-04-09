@@ -42,16 +42,6 @@
   ("C-c j" . ace-jump-word-mode)
   ("C-c l" .  ace-jump-line-mode))
 
-;; 设置 mode-line
-(use-package spaceline
-  :init
-  (setq powerline-default-separator nil)
-  :config
-  (spaceline-emacs-theme)
-  :init
-  (add-hook 'emacs-startup-hook
-            #'(lambda () (spaceline-compile))))
-
 ;; 拷贝当前 Buffer 到剪切板
 (defun copy-buffer-path ()
   (interactive)
