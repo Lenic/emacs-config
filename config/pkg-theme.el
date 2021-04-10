@@ -21,8 +21,16 @@
         (setq previous-theme nil))
       (load-theme current-theme t)
       (setq previous-theme current-theme)))
-  ;; 每 10 分钟运行一次检查
-  (run-with-timer 0 600 'synchronize-theme))
+  (setq is-theme-running nil)
+  (add-hook 'after-make-frame-functions
+            (lambda (new-frame)
+              (select-frame new-frame)
+              (if (eq is-theme-running nil)
+                  (progn
+                    ;; 设置自动主题更换已经运行
+                    (setf is-theme-running t)
+                    ;; 每 10 分钟运行一次检查
+                    (run-with-timer 0 600 'synchronize-theme))))))
 
 ;; 输入法设置
 (use-package pyim
