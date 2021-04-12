@@ -4,7 +4,7 @@
       (setq initial-frame-alist
             '(
               (tool-bar-lines . 0)
-              (font . "Hack Nerd Font Mono 12")
+              (font . "Noto Sans Mono CJK SC 13")
               (width . 140) ; chars
               (height . 30) ; lines
               (left . 0)
@@ -12,7 +12,7 @@
       (setq default-frame-alist
             '(
               (tool-bar-lines . 0)
-              (font . "Hack Nerd Font Mono 12")
+              (font . "Noto Sans Mono CJK SC 13")
               (width . 140)
               (height . 30)
               (left . 0)
@@ -31,7 +31,7 @@
                   (set-frame-position (selected-frame) 0 0)
                   (set-frame-width (selected-frame) 140)
                   (set-frame-height (selected-frame) 30)
-                  (set-frame-font "Hack Nerd Font Mono 12")))))
+                  (set-frame-font "Noto Sans Mono CJK SC 13")))))
 
 ;; 隐藏菜单栏
 (menu-bar-mode 0)
