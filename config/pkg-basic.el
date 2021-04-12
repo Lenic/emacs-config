@@ -114,26 +114,6 @@
   :bind
   ("C-x i" . ace-window))
 
-;; 设置 mode-line
-(setq is-spaceline-executed nil)
-(add-hook 'after-make-frame-functions
-          (lambda (new-frame)
-            (progn
-              (select-frame new-frame)
-              ;; 每 10 分钟运行一次检查
-              (if (eq is-spaceline-executed nil)
-                  (if (display-graphic-p)
-                      (use-package spaceline
-                        ;; :commands (spaceline-compile)
-                        :config
-                        (spaceline-emacs-theme)
-                        (spaceline-toggle-buffer-size-off)
-                        (run-with-timer 1 nil 'spaceline-compile)
-                        :init
-                        (setq powerline-default-separator 'slant)
-                        )))
-              (setq is-spaceline-executed t))))
-
 ;; 和系统剪切板相关设置
 (use-package xclip
   :config

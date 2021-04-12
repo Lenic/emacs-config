@@ -1,36 +1,61 @@
+;; 设置 mode-line
+(defun load-spaceline ()
+  (use-package spaceline
+    :config
+    (spaceline-emacs-theme)
+    (spaceline-toggle-buffer-size-off)
+    ;; 延迟一秒后编译 spaceline
+    (run-with-timer 1 nil 'spaceline-compile)
+    :init
+    (setq powerline-default-separator 'slant)))
+
+;; 自动切换编辑器主题
+(setq day-theme nil)
+(setq dark-theme nil)
+(setq previous-theme-name "")
+(setq previous-theme nil)
+(defun synchronize-theme ()
+  (setq hour (string-to-number (substring (current-time-string) 11 13)))
+  (setq current-theme nil)
+  (if (member hour (number-sequence 6 17))
+      (setq current-theme day-theme)
+    (setq current-theme dark-theme))
+  (setq current-theme-name (symbol-name current-theme))
+  (unless (string= previous-theme-name current-theme-name)
+    (setq previous-theme-name current-theme-name)
+    (unless (equal nil previous-theme)
+      (disable-theme previous-theme)
+      (setq previous-theme nil))
+    (load-theme current-theme t)
+    (if (spaceline-compile)
+        (spaceline-compile))
+    (setq previous-theme current-theme)))
+
 (use-package spacemacs-theme
   :defer t
   :init
-  ;; 自动切换编辑器主题
-  ;; 控制台下只使用一种主题不设置定时器
+  (setq is-theme-running nil)
   (setq day-theme 'spacemacs-light)
   (setq dark-theme 'spacemacs-dark)
-  (setq previous-theme-name "")
-  (setq previous-theme nil)
-  (defun synchronize-theme ()
-    (setq hour (string-to-number (substring (current-time-string) 11 13)))
-    (setq current-theme nil)
-    (if (member hour (number-sequence 6 17))
-        (setq current-theme day-theme)
-      (setq current-theme dark-theme))
-    (setq current-theme-name (symbol-name current-theme))
-    (unless (string= previous-theme-name current-theme-name)
-      (setq previous-theme-name current-theme-name)
-      (unless (equal nil previous-theme)
-        (disable-theme previous-theme)
-        (setq previous-theme nil))
-      (load-theme current-theme t)
-      (setq previous-theme current-theme)))
-  (setq is-theme-running nil)
+  ;; 执行主题设置
+  (defun run-theme()
+    ;; 加载 spaceline
+    (load-spaceline)
+    ;; 设置自动主题更换已经运行
+    (setf is-theme-running t)
+    ;; GUI 模式下才自动运行主题切换：每 10 分钟运行一次检查
+    (if (display-graphic-p)
+        (run-with-timer 0 600 'synchronize-theme)
+      ;; Terminal 下永久使用 dark-theme 主题
+      (load-theme dark-theme t)))
+  ;; 启动时不是 daemon 模式就执行主题设置
+  (if (eq (daemonp) nil)
+      (run-theme))
   (add-hook 'after-make-frame-functions
             (lambda (new-frame)
               (select-frame new-frame)
               (if (eq is-theme-running nil)
-                  (progn
-                    ;; 设置自动主题更换已经运行
-                    (setf is-theme-running t)
-                    ;; 每 10 分钟运行一次检查
-                    (run-with-timer 0 600 'synchronize-theme))))))
+                  (run-theme)))))
 
 ;; 输入法设置
 (use-package pyim
