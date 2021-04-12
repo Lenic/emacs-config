@@ -27,8 +27,11 @@
       (disable-theme previous-theme)
       (setq previous-theme nil))
     (load-theme current-theme t)
+    ;; 重新编译 Spaceline
     (if (spaceline-compile)
         (spaceline-compile))
+    ;; 设置高亮列的背景色
+    (set-face-attribute 'col-highlight nil :inherit 'hl-line :background)
     (setq previous-theme current-theme)))
 
 (use-package spacemacs-theme

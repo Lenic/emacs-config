@@ -4,7 +4,7 @@
       (setq initial-frame-alist
             '(
               (tool-bar-lines . 0)
-              (font . "Noto Sans Mono CJK SC 13")
+              (font . "Noto Sans Mono CJK SC 14")
               (width . 140) ; chars
               (height . 30) ; lines
               (left . 0)
@@ -12,7 +12,7 @@
       (setq default-frame-alist
             '(
               (tool-bar-lines . 0)
-              (font . "Noto Sans Mono CJK SC 13")
+              (font . "Noto Sans Mono CJK SC 14")
               (width . 140)
               (height . 30)
               (left . 0)
@@ -31,7 +31,7 @@
                   (set-frame-position (selected-frame) 0 0)
                   (set-frame-width (selected-frame) 140)
                   (set-frame-height (selected-frame) 30)
-                  (set-frame-font "Noto Sans Mono CJK SC 13")))))
+                  (set-frame-font "Noto Sans Mono CJK SC 14")))))
 
 ;; 隐藏菜单栏
 (menu-bar-mode 0)
@@ -47,15 +47,12 @@
 
 ;; 高亮当前行
 (global-hl-line-mode t)
+
 ;; 高亮当前列
-;; (require 'vline)
-;; (vline-global-mode)
-;; ;; (set-face-background vline-face (face-attribute hl-line-face :background))
-;; ;; 上面执行会在每次光标移动的时候重新读取一次背景色值
-;; ;; 所以光标移动到时候会变得卡顿
-;; ;; 正确的做法是直接执行 (face-attribute hl-line-face :background) 获取背景色值
-;; ;; 然后使用下面这行代码设置当前列的背景色值
-;; ;; (set-face-background vline-face "#212026")
+(add-to-list 'load-path "~/.emacs.d/config/highlight-column")
+(require 'col-highlight)
+(column-highlight-mode 1)
+(set-face-attribute 'col-highlight nil :inherit 'hl-line :background)
 
 ;; 设置 Emacs 的缺省工作路径
 (setq default-directory "~/")
