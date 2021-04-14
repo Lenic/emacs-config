@@ -81,6 +81,9 @@
   (setq lsp-ui-sideline-delay 1)
   (setq lsp-ui-sideline-enable t))
 
+;; 加载代码折叠配置
+(use-package origami)
+
 ;; 加载 Web 开发配置
 (require 'pkg-web)
 
