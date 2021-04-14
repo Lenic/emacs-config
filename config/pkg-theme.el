@@ -31,7 +31,7 @@
     (if (spaceline-compile)
         (spaceline-compile))
     ;; 设置高亮列的背景色
-    (set-face-attribute 'col-highlight nil :inherit 'hl-line :background)
+    ;; (set-face-attribute 'col-highlight nil :inherit 'hl-line :background)
     (setq previous-theme current-theme)))
 
 (use-package spacemacs-theme

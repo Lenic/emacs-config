@@ -49,10 +49,10 @@
 (global-hl-line-mode t)
 
 ;; 高亮当前列
-(add-to-list 'load-path "~/.emacs.d/config/highlight-column")
-(require 'col-highlight)
-(column-highlight-mode 1)
-(set-face-attribute 'col-highlight nil :inherit 'hl-line :background)
+;; (add-to-list 'load-path "~/.emacs.d/config/highlight-column")
+;; (require 'col-highlight)
+;; (column-highlight-mode 1)
+;; (set-face-attribute 'col-highlight nil :inherit 'hl-line :background)
 
 ;; 设置 Emacs 的缺省工作路径
 (setq default-directory "~/")
