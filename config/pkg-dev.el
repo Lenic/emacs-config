@@ -89,7 +89,8 @@
   :hook ((css-mode web-mode typescript-mode js-mode json-mode java-mode) . yas-minor-mode)
   :config
   (setq yas-snippet-dirs
-        '("~/.emacs.d/snippets")))
+        '("~/.emacs.d/snippets"))
+  (yas-reload-all))
 
 ;; 加载 Web 开发配置
 (require 'pkg-web)
