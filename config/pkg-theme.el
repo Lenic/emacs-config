@@ -40,25 +40,43 @@
   (setq is-theme-running nil)
   (setq day-theme 'spacemacs-light)
   (setq dark-theme 'spacemacs-dark)
-  ;; 执行主题设置
+  ;; 当前活跃 frame 的数量，默认的数量是 0
+  (setq current-frame-count 0)
+  ;; 当前正在执行的 interval token，默认值为 nil，开始运行主题切换检查后置为 t
+  (setq token-of-interval nil)
+  ;; 执行主题切换检查
   (defun run-theme()
     ;; 加载 spaceline
     (load-spaceline)
     ;; 设置自动主题更换已经运行
-    (setf is-theme-running t)
+    (setq is-theme-running t)
     ;; GUI 模式下才自动运行主题切换：每 10 分钟运行一次检查
     (if (display-graphic-p)
-        (run-with-timer 0 600 'synchronize-theme)
+        (setq token-of-interval (run-with-timer 0 600 'synchronize-theme))
       ;; Terminal 下永久使用 dark-theme 主题
       (load-theme dark-theme t)))
   ;; 启动时不是 daemon 模式就执行主题设置
   (if (eq (daemonp) nil)
-      (run-theme))
+      (progn
+        ;; 初始不是后台的方式启动，设置当前活跃的 frame 数量 +1
+        (setq current-frame-count (+ current-frame-count 1))
+        (run-theme)))
   (add-hook 'after-make-frame-functions
             (lambda (new-frame)
               (select-frame new-frame)
+              ;; 每次新建 frame 设置当前活跃的 frame 数量 +1
+              (setq current-frame-count (+ current-frame-count 1))
               (if (eq is-theme-running nil)
-                  (run-theme)))))
+                  (run-theme))))
+  (add-hook 'after-delete-frame-functions
+            (lambda (deleted-frame)
+              ;; 每次销毁 frame 设置当前活跃的 frame 数量 -1
+              (setq current-frame-count (- current-frame-count 1))
+              ;; 销毁了全部的活跃 frame 后停止主题切换检查，同时复位 is-theme-running
+              (if (eq current-frame-count 0)
+                  (progn
+                    (setq is-theme-running nil)
+                    (cancel-timer token-of-interval))))))
 
 ;; 输入法设置
 (use-package pyim
