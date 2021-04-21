@@ -48,6 +48,9 @@
   (defun run-theme()
     ;; 加载 spaceline
     (load-spaceline)
+    ;; 设置启动后全屏
+    (if (display-graphic-p)
+        (run-with-timer 1 nil 'toggle-frame-fullscreen))
     ;; 设置自动主题更换已经运行
     (setq is-theme-running t)
     ;; GUI 模式下才自动运行主题切换：每 10 分钟运行一次检查
