@@ -35,11 +35,11 @@
 ;;   (define-key company-active-map (kbd "M-n") nil)
 ;;   (define-key company-active-map (kbd "M-p") nil))
 
-(use-package company-quickhelp
-  :init
-  (setq company-dabbrev-downcase nil)
-  :config
-  (add-hook 'company-mode-hook 'company-quickhelp-mode))
+;; (use-package company-quickhelp
+;;   :init
+;;   (setq company-dabbrev-downcase nil)
+;;   :config
+;;   (add-hook 'company-mode-hook 'company-quickhelp-mode))
 
 ;; 设置自动完成时显示图标
 ;; (use-package company-box
