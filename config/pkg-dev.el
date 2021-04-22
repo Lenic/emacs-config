@@ -54,7 +54,7 @@
 
 ;; 自动补全括号
 (use-package autopair
-  :hook ((css-mode web-mode typescript-mode js-mode json-mode java-mode) . autopair-mode))
+  :config (autopair-global-mode))
 
 ;; LSP 模式配置
 (use-package lsp-mode
