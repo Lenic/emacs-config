@@ -22,6 +22,7 @@
   (display-line-numbers-mode +1)
   ;; 开启代码折叠子模式
   (origami-mode +1)
+  (hs-minor-mode +1)
   ;; use eslint with web-mode for jsx files
   ;; (flycheck-add-mode 'javascript-eslint 'web-mode)
   ;; (flycheck-add-mode 'javascript-eslint 'typescript-mode)
