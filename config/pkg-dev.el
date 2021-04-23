@@ -18,6 +18,7 @@
 (use-package company
   :hook ((css-mode web-mode typescript-mode js-mode json-mode emacs-lisp-mode java-mode) . company-mode)
   :config
+  (electric-pair-mode +1)
   (setq company-idle-delay 0.5)
   (setq company-minimum-prefix-length 2)
   (setq company-tooltip-align-annotations t) ;; aligns annotation to the right hand side
@@ -51,10 +52,6 @@
   :bind
   (("C-c i" . symbol-overlay-put)
    ("C-c q" . symbol-overlay-remove-all)))
-
-;; 自动补全括号
-(use-package autopair
-  :config (autopair-global-mode))
 
 ;; LSP 模式配置
 (use-package lsp-mode
