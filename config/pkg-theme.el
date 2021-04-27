@@ -82,7 +82,9 @@
                     (cancel-timer token-of-interval))))))
 
 ;; 输入法设置
+(use-package popup)
 (use-package pyim
+  :after popup
   :demand t
   :config
   ;; 激活 basedict 拼音词库
