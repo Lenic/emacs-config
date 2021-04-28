@@ -21,13 +21,13 @@
   ;; 开启显示行号
   (display-line-numbers-mode +1)
   ;; 开启代码折叠子模式
-  (origami-mode +1)
-  (hs-minor-mode +1)
+  (origami-mode t)
+  (hs-minor-mode t)
   ;; use eslint with web-mode for jsx files
   ;; (flycheck-add-mode 'javascript-eslint 'web-mode)
   ;; (flycheck-add-mode 'javascript-eslint 'typescript-mode)
   ;; 开启代码折叠快捷键
-  (define-key origami-mode-map (kbd "C-c C-f") 'origami-toggle-node))
+  (define-key hs-minor-mode-map (kbd "C-c C-f") 'hs-toggle-hiding))
 
 ;; 设置 CSS 及其它 CSS 预处理语言
 (add-hook 'css-mode-hook
