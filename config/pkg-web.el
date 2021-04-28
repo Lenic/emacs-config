@@ -75,7 +75,7 @@
   (lsp)
   ;; 设置 Company 后端
   (add-to-list (make-local-variable 'company-backends)
-               '(company-capf company-files company-css)))
+               '(company-files company-css)))
 
 (defun my/web-js-setup()
   "Setup for js related."
@@ -83,10 +83,7 @@
   ;; Tide 安装
   (tide-setup)
   ;; 当 tsserver 服务没有启动时自动重新启动
-  (unless (tide-current-server) (tide-restart-server))
-  ;; 设置 Company 后端
-  (add-to-list (make-local-variable 'company-backends)
-               '(company-capf company-files)))
+  (unless (tide-current-server) (tide-restart-server)))
 
 ;; JavaScript/TypeScript 语法检查设置
 (defun my/use-eslint-from-node-modules ()

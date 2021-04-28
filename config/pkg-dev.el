@@ -19,12 +19,10 @@
   :hook ((css-mode web-mode typescript-mode js-mode json-mode emacs-lisp-mode java-mode) . company-mode)
   :config
   (electric-pair-mode +1)
-  (setq company-idle-delay 0)
+  (setq company-idle-delay 0.5)
   (setq company-minimum-prefix-length 2)
   (setq company-tooltip-align-annotations t) ;; aligns annotation to the right hand side
-  (setq company-backends
-        '((company-files company-keywords company-capf)
-          (company-abbrev company-dabbrev))))
+  (setq company-backends '((company-keywords company-files))))
 
 (add-hook 'emacs-lisp-mode-hook (lambda ()
                                   (add-to-list  (make-local-variable 'company-backends) '(company-elisp))))
