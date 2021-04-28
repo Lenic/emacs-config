@@ -46,4 +46,4 @@
 ;; 加载其它语言配置
 (require 'pkg-lang)
 
-(custom-set-variables '(org-agenda-files (quote ("~/task/mj.org" "~/task/me.inbox.org"))))
+(custom-set-variables '(org-agenda-files (quote ("~/task/inbox.org" "~/task/me.inbox.org"))))
