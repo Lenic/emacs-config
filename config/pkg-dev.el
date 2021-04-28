@@ -19,7 +19,7 @@
   :hook ((css-mode web-mode typescript-mode js-mode json-mode emacs-lisp-mode java-mode) . company-mode)
   :config
   (electric-pair-mode +1)
-  (setq company-idle-delay 0.5)
+  (setq company-idle-delay 0)
   (setq company-minimum-prefix-length 2)
   (setq company-tooltip-align-annotations t) ;; aligns annotation to the right hand side
   (setq company-backends
