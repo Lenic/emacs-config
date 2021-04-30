@@ -18,6 +18,10 @@
   ;; 设置查找特定目录下的文件名查找
   ("C-c f" . counsel-file-jump))
 
+;; 在 swiper 中仍然可以输入中文，只不过换成了 M-i 这个快捷键
+(with-eval-after-load 'ivy
+  (define-key ivy-minibuffer-map (kbd "M-i") 'pyim-convert-string-at-point))
+
 (use-package rg
   :config
   (rg-enable-default-bindings))
