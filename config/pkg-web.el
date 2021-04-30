@@ -23,6 +23,9 @@
   ;; 开启代码折叠子模式
   (origami-mode t)
   (hs-minor-mode t)
+  ;; 设置列参考线：120
+  (setq display-fill-column-indicator-column 120)
+  (display-fill-column-indicator-mode t)
   ;; use eslint with web-mode for jsx files
   ;; (flycheck-add-mode 'javascript-eslint 'web-mode)
   ;; (flycheck-add-mode 'javascript-eslint 'typescript-mode)
