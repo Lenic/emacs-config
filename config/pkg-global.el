@@ -28,7 +28,7 @@
 
 (use-package amx)
 (use-package wgrep)
-(use-package multi-term)
+(use-package vterm)
 
 (use-package multiple-cursors)
 
