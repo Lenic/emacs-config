@@ -110,10 +110,11 @@
                   pyim-probe-punctuation-after-punctuation))
   ;; 开启拼音搜索功能
   ;; (pyim-isearch-mode 1)
-  ;; 使用 popup-el 来绘制选词框, 如果用 emacs26, 建议设置
-  ;; 为 'posframe, 速度很快并且菜单不会变形，不过需要用户
-  ;; 手动安装 posframe 包。
-  (setq pyim-page-tooltip 'popup)
+  ;; 设置选词框的绘制方式
+  (setq pyim-page-tooltip nil)
+  ;; (if (posframe-workable-p)
+  ;;     (setq pyim-page-tooltip 'posframe)
+  ;;   (setq pyim-page-tooltip 'popup))
   ;; 选词框显示5个候选词
   (setq pyim-page-length 5)
   ;; 指示弹窗只显示一行，非两行的拼音和候选词显示
