@@ -27,24 +27,6 @@
 (add-hook 'emacs-lisp-mode-hook (lambda ()
                                   (add-to-list  (make-local-variable 'company-backends) '(company-elisp))))
 
-;; 设置自动完成快捷键
-;; (with-eval-after-load 'company
-;;   (define-key company-active-map (kbd "\C-n") #'company-select-next)
-;;   (define-key company-active-map (kbd "\C-p") #'company-select-previous)
-;;   (define-key company-active-map (kbd "M-n") nil)
-;;   (define-key company-active-map (kbd "M-p") nil))
-
-;; (use-package company-quickhelp
-;;   :init
-;;   (setq company-dabbrev-downcase nil)
-;;   :config
-;;   (add-hook 'company-mode-hook 'company-quickhelp-mode))
-
-;; 设置自动完成时显示图标
-;; (use-package company-box
-;;   :after company
-;;   :hook (company-mode . company-box-mode))
-
 ;; 指定符号高亮
 (use-package symbol-overlay
   :bind
@@ -91,6 +73,14 @@
 (require 'pkg-web)
 
 ;; 加载 Java 开发配置
-(require 'pkg-java)
+;; (require 'pkg-java)
+
+;; ediff 文件比对设置
+(defmacro csetq (variable value)
+  `(funcall (or (get ',variable 'custom-set)
+                'set-default)
+            ',variable ,value))
+(csetq ediff-window-setup-function 'ediff-setup-windows-plain)
+(csetq ediff-split-window-function 'split-window-horizontally)
 
 (provide 'pkg-dev)
