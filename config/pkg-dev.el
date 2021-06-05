@@ -12,6 +12,8 @@
 ;; 设置 Git 管理快捷键
 (use-package magit
   :bind ("C-x m" . magit-status)
+  :config
+  (setq magit-diff-refine-hunk (quote all))
   :hook ((magit-post-commit-hook) . 'git-gutter:update-all-windows))
 
 ;; 设置自动完成
