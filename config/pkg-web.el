@@ -124,6 +124,10 @@
                                    ((member web-mode-content-type '("jsx"))
                                     (my/web-js-setup))))))
 
+(use-package lsp-tailwindcss
+  :init
+  (setq lsp-tailwindcss-add-on-mode t))
+
 (use-package typescript-mode
   :mode "\\.ts[x]?\\'"
   :init
