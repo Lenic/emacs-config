@@ -9,6 +9,8 @@
   ;; 设置全局 Git 状态显示
   (global-git-gutter-mode t))
 
+(use-package git-timemachine)
+
 ;; 设置 Git 管理快捷键
 (use-package magit
   :bind ("C-x m" . magit-status)
