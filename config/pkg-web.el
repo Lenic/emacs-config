@@ -85,6 +85,8 @@
   (message "web-mode use js related setup")
   ;; Tide 安装
   (tide-setup)
+  ;; 设置 Company 后端
+  (add-to-list (make-local-variable 'company-backends) '(company-capf))
   ;; 当 tsserver 服务没有启动时自动重新启动
   (unless (tide-current-server) (tide-restart-server)))
 
