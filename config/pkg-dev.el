@@ -42,6 +42,7 @@
 (use-package lsp-mode
   :commands lsp
   :config
+  (add-to-list 'lsp-language-id-configuration '(".*\\.less" . "css"))
   (setq lsp-enable-snippet nil
         lsp-eldoc-enable-hover t
         lsp-disabled-clients '(eslint)
