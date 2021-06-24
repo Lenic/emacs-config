@@ -84,11 +84,16 @@
   "Setup for js related."
   (message "web-mode use js related setup")
   ;; Tide 安装
-  (tide-setup)
+  ;; (tide-setup)
   ;; 设置 Company 后端
   (add-to-list (make-local-variable 'company-backends) '(company-capf))
   ;; 当 tsserver 服务没有启动时自动重新启动
-  (unless (tide-current-server) (tide-restart-server)))
+  ;; (unless (tide-current-server) (tide-restart-server)))
+  ;; 开启 LSP 模式自动完成
+  (lsp)
+  ;; 设置 Company 后端
+  (add-to-list (make-local-variable 'company-backends)
+               '(company-files company-css)))
 
 ;; JavaScript/TypeScript 语法检查设置
 (defun my/use-eslint-from-node-modules ()
@@ -139,9 +144,14 @@
   (add-hook 'typescript-mode-hook '(lambda()
                                      (web-dev-attached)
                                      ;; Tide 安装
-                                     (tide-setup)
+                                     ;; (tide-setup)
                                      ;; 当 tsserver 服务没有启动时自动重新启动
-                                     (unless (tide-current-server) (tide-restart-server)))))
+                                     ;; (unless (tide-current-server) (tide-restart-server)))))
+                                     ;; 开启 LSP 模式自动完成
+                                     (lsp)
+                                     ;; 设置 Company 后端
+                                     (add-to-list (make-local-variable 'company-backends)
+                                                  '(company-files company-css)))))
 
 ;; 直接编辑 HTML 文件时的设置
 (add-hook 'mhtml-mode-hook 'web-dev-attached)
