@@ -4,7 +4,7 @@
       (setq initial-frame-alist
             '(
               (tool-bar-lines . 0)
-              (font . "Noto Sans Mono CJK SC 14")
+              (font . "等距更纱黑体 SC 14")
               (width . 140) ; chars
               (height . 30) ; lines
               (left . 0)
@@ -12,7 +12,7 @@
       (setq default-frame-alist
             '(
               (tool-bar-lines . 0)
-              (font . "Noto Sans Mono CJK SC 14")
+              (font . "等距更纱黑体 SC 14")
               (width . 140)
               (height . 30)
               (left . 0)
@@ -31,7 +31,7 @@
                   (set-frame-position (selected-frame) 0 0)
                   (set-frame-width (selected-frame) 140)
                   (set-frame-height (selected-frame) 30)
-                  (set-frame-font "Noto Sans Mono CJK SC 14")))))
+                  (set-frame-font "等距更纱黑体 SC 14")))))
 
 ;; 隐藏菜单栏
 (menu-bar-mode 0)
