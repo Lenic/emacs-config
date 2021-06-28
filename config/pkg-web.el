@@ -86,14 +86,13 @@
   ;; Tide 安装
   ;; (tide-setup)
   ;; 设置 Company 后端
-  (add-to-list (make-local-variable 'company-backends) '(company-capf))
+  ;; (add-to-list (make-local-variable 'company-backends) '(company-capf))
   ;; 当 tsserver 服务没有启动时自动重新启动
   ;; (unless (tide-current-server) (tide-restart-server)))
   ;; 开启 LSP 模式自动完成
   (lsp)
   ;; 设置 Company 后端
-  (add-to-list (make-local-variable 'company-backends)
-               '(company-files company-css)))
+  (add-to-list (make-local-variable 'company-backends) '(company-files company-css)))
 
 ;; JavaScript/TypeScript 语法检查设置
 (defun my/use-eslint-from-node-modules ()
