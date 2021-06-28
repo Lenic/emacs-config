@@ -43,7 +43,9 @@
 (use-package ace-jump-mode
   :bind
   ("C-c j" . ace-jump-word-mode)
-  ("C-c l" .  ace-jump-line-mode))
+  ("C-c l" .  ace-jump-line-mode)
+  :config
+  (setq ace-jump-mode-scope 'window))
 
 ;; 拷贝当前 Buffer 到剪切板
 (defun copy-buffer-path ()
