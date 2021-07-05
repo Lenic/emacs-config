@@ -9,6 +9,7 @@
   (setq-default elfeed-search-filter "@1-week-ago +unread ")
   (global-set-key (kbd "C-x w") 'elfeed)
   (setq elfeed-feeds
-        '("https://sspai.com/feed")))
+        '("https://sspai.com/feed"
+          "https://www.ifanr.com/feed")))
 
 (provide 'pkg-lang)
