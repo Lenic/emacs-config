@@ -14,9 +14,25 @@
   ;; 设置 RG 全文搜索
   ("C-c k" . counsel-rg)
   ;; 设置 Git 控制下的文件名查找
-  ("C-c p" . counsel-git)
+  ;; ("C-c p" . counsel-git)
   ;; 设置查找特定目录下的文件名查找
   ("C-c f" . counsel-file-jump))
+
+(use-package projectile
+  :init
+  (projectile-mode +1)
+  :config
+  (setq projectile-project-search-path '("~/workspace/")
+        projectile-require-project-root nil
+        projectile-completion-system 'ivy)
+  (projectile-register-project-type 'npm '("package.json")
+                                    :project-file "package.json"
+				                    :compile "npm ci"
+				                    :test "npm test"
+				                    :run "npm run serve"
+				                    :test-suffix ".spec")
+  :bind (:map projectile-mode-map
+              ("C-c p" . projectile-find-file)))
 
 ;; 在 swiper 中仍然可以输入中文，只不过换成了 M-i 这个快捷键
 (with-eval-after-load 'ivy
