@@ -4,4 +4,11 @@
 
 (use-package yaml-mode)
 
+(use-package elfeed
+  :config
+  (setq-default elfeed-search-filter "@1-week-ago +unread ")
+  (global-set-key (kbd "C-x w") 'elfeed)
+  (setq elfeed-feeds
+        '("https://sspai.com/feed")))
+
 (provide 'pkg-lang)
