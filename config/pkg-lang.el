@@ -10,6 +10,8 @@
   (global-set-key (kbd "C-x w") 'elfeed)
   (setq elfeed-feeds
         '("https://sspai.com/feed"
+          "https://feed.iplaysoft.com"
+          "https://www.appinn.com/feed"
           "https://www.ifanr.com/feed")))
 
 (provide 'pkg-lang)
