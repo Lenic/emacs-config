@@ -24,7 +24,8 @@
   :config
   (setq projectile-project-search-path '("~/workspace/")
         projectile-require-project-root nil
-        projectile-completion-system 'ivy)
+        projectile-completion-system 'ivy
+        projectile-switch-project-action 'neotree-projectile-action)
   (projectile-register-project-type 'npm '("package.json")
                                     :project-file "package.json"
 				                    :compile "npm ci"
