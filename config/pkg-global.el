@@ -22,7 +22,7 @@
   :init
   (projectile-mode +1)
   :config
-  (setq projectile-project-search-path '("~/workspace/")
+  (setq projectile-project-search-path '("~/workspace/" "~/example/" "~/test/")
         projectile-require-project-root nil
         projectile-completion-system 'ivy
         projectile-switch-project-action 'neotree-projectile-action)
