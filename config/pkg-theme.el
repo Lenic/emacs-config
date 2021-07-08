@@ -30,8 +30,8 @@
     (load-theme current-theme t)
     ;; 更改中文时光标的色值
     (if (string= current-theme-name (symbol-name day-theme))
-        (setq pyim-indicator-cursor-color (list "purple"))
-      (setq pyim-indicator-cursor-color (list "#ff72ff")))
+        (setq pyim-indicator-cursor-color (list "purple" "black"))
+      (setq pyim-indicator-cursor-color (list "#ff72ff" "white")))
     ;; 重新编译 Spaceline
     (if (spaceline-compile)
         (spaceline-compile))
