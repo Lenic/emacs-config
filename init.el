@@ -12,7 +12,12 @@
 
 ;; reduce the frequency of garbage collection by making it happen on
 ;; each 50MB of allocated data (the default is on every 0.76MB)
-(setq gc-cons-threshold 50000000)
+;; (setq gc-cons-threshold 50000000)
+(setq gc-cons-threshold (* 512 1024 1024))
+(setq gc-cons-percentage 0.5)
+(run-with-idle-timer 5 t #'garbage-collect)
+;; 显示垃圾回收信息，这个可以作为调试用
+(setq garbage-collection-messages t)
 ;; warn when opening files bigger than 100MB
 (setq large-file-warning-threshold 100000000)
 
