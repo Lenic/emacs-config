@@ -1,5 +1,6 @@
 (use-package counsel
   :config
+  (setq counsel-fzf-cmd "rg -l -L --glob '!.git' --hidden . | fzf -f \"%s\"")
   (custom-set-variables
    '(ivy-more-chars-alist '((counsel-grep . 2) (t . 2))))
   :bind
@@ -13,8 +14,8 @@
   ("C-x C-f" . counsel-find-file)
   ;; 设置 RG 全文搜索
   ("C-c k" . counsel-rg)
-  ;; 设置 Git 控制下的文件名查找
-  ;; ("C-c p" . counsel-git)
+  ;; 设置项目下的文件名查找
+  ("C-c p" . counsel-fzf)
   ;; 设置查找特定目录下的文件名查找
   ("C-c f" . counsel-file-jump))
 
@@ -31,9 +32,7 @@
 				                    :compile "npm ci"
 				                    :test "npm test"
 				                    :run "npm run serve"
-				                    :test-suffix ".spec")
-  :bind (:map projectile-mode-map
-              ("C-c p" . projectile-find-file)))
+				                    :test-suffix ".spec"))
 
 ;; 在 swiper 中仍然可以输入中文，只不过换成了 M-i 这个快捷键
 (with-eval-after-load 'ivy
