@@ -31,8 +31,8 @@
     ;; 更改中文时光标的色值
     (if (string= current-theme-name (symbol-name day-theme))
         (progn
-          (set-cursor-color "black")
-          (setq pyim-indicator-cursor-color (list "purple" "black")))
+          (set-cursor-color "#666")
+          (setq pyim-indicator-cursor-color (list "purple" "#666")))
       (progn
         (set-cursor-color "#b2b2b2")
         (setq pyim-indicator-cursor-color (list "#ff72ff" "#b2b2b2"))))
