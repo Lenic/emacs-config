@@ -28,14 +28,15 @@
       (disable-theme previous-theme))
     ;; 更新主题
     (load-theme current-theme t)
-    ;; 更改中文时光标的色值
-    (if (string= current-theme-name (symbol-name day-theme))
-        (progn
-          (set-cursor-color "#666")
-          (setq pyim-indicator-cursor-color (list "purple" "#666")))
-      (progn
-        (set-cursor-color "#b2b2b2")
-        (setq pyim-indicator-cursor-color (list "#ff72ff" "#b2b2b2"))))
+    ;; 更改中文时光标的色值：延迟 1s 执行
+    (run-with-timer 1 nil (lambda ()
+                            (if (string= current-theme-name (symbol-name day-theme))
+                                (progn
+                                  (set-cursor-color "#666")
+                                  (setq pyim-indicator-cursor-color (list "purple" "#666")))
+                              (progn
+                                (set-cursor-color "#b2b2b2")
+                                (setq pyim-indicator-cursor-color (list "#ff72ff" "#b2b2b2"))))))    
     ;; 重新编译 Spaceline
     (if (spaceline-compile)
         (spaceline-compile))
