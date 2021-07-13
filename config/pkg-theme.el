@@ -15,6 +15,7 @@
 (setq previous-theme-name "")
 (setq previous-theme nil)
 (defun synchronize-theme ()
+  (interactive)
   (setq hour (string-to-number (substring (current-time-string) 11 13)))
   (setq current-theme nil)
   (if (member hour (number-sequence 6 17))
@@ -24,8 +25,7 @@
   (unless (string= previous-theme-name current-theme-name)
     (setq previous-theme-name current-theme-name)
     (unless (equal nil previous-theme)
-      (disable-theme previous-theme)
-      (setq previous-theme nil))
+      (disable-theme previous-theme))
     ;; 更新主题
     (load-theme current-theme t)
     ;; 更改中文时光标的色值
