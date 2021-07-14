@@ -67,6 +67,8 @@
 
 ;; 当前主题检查循环是否正在运行
 (setq is-theme-running nil)
+;; 当前正在执行的 interval token，默认值为 nil，开始运行主题切换检查后置为 t
+(setq token-of-interval nil)
 ;; 执行主题切换检查
 (defun run-theme()
   (if (eq is-theme-running nil)
@@ -93,8 +95,6 @@
   (setq dark-theme 'spacemacs-dark)
   ;; 当前活跃 frame 的数量，默认的数量是 0
   (setq current-frame-count 0)
-  ;; 当前正在执行的 interval token，默认值为 nil，开始运行主题切换检查后置为 t
-  (setq token-of-interval nil)
   ;; 启动时不是 daemon 模式就执行主题设置
   (if (eq (daemonp) nil)
       (progn
@@ -117,7 +117,8 @@
               (if (= current-frame-count 0)
                   (progn
                     (setq is-theme-running nil)
-                    (cancel-timer token-of-interval))))))
+                    (cancel-timer token-of-interval)
+                    (setq token-of-interval nil))))))
 
 ;; 输入法设置
 (use-package pyim
