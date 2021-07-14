@@ -29,12 +29,10 @@
       ;; 是明亮主题就切换为明亮主题；否则就反过来
       (if (eq target-theme day-theme)
           (progn
-            (message "day-theme")
             (load-theme day-theme t)
             (set-cursor-color "#666")
             (setq pyim-indicator-cursor-color (list "purple" "#666")))
         (progn
-          (message "dark-theme")
           (load-theme dark-theme t)
           (set-cursor-color "#b2b2b2")
           (setq pyim-indicator-cursor-color (list "#ff72ff" "#b2b2b2"))))))
@@ -46,7 +44,7 @@
   ;; 获取当前处于几点：24 小时制
   (setq hour (string-to-number (substring (current-time-string) 11 13)))
   ;; 判断当前是否处于白天：从早上 6 点开始到晚上过了 17 点
-  (setq is-in-day (member hour (number-sequence 6 17)))
+  (setq is-in-day (not (eq nil (member hour (number-sequence 6 17)))))
   ;; 获取当前主题
   (setq current-theme (get-current-theme))
   ;; 设置是否已经执行了主题切换
