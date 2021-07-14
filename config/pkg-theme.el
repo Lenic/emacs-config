@@ -15,9 +15,7 @@
 
 ;; 获取当前主题
 (defun get-current-theme ()
-  (setq current-theme nil)
-  (if (= (length custom-enabled-themes) 0)
-      (setq current-theme (nth 0 custom-enabled-themes))))
+  (nth 0 custom-enabled-themes))
 
 ;; 切换编辑器主题
 (defun switch-theme (&optional target-theme)
