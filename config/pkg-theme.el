@@ -24,16 +24,21 @@
       (setq target-theme (get-current-theme)))
   ;; 只有设置了主题才能继续
   (if (not (eq target-theme nil))
-      ;; 是明亮主题就切换为明亮主题；否则就反过来
-      (if (eq target-theme day-theme)
+      (progn
+        ;; 如果当前主题不是 nil 就首先卸掉当前主题
+        (setq current-theme (get-current-theme))
+        (if (not (eq current-theme nil))
+            (disable-theme (get-current-theme)))
+        ;; 是明亮主题就切换为明亮主题；否则就反过来
+        (if (eq target-theme day-theme)
+            (progn
+              (load-theme day-theme t)
+              (set-cursor-color "#666")
+              (setq pyim-indicator-cursor-color (list "purple" "#666")))
           (progn
-            (load-theme day-theme t)
-            (set-cursor-color "#666")
-            (setq pyim-indicator-cursor-color (list "purple" "#666")))
-        (progn
-          (load-theme dark-theme t)
-          (set-cursor-color "#b2b2b2")
-          (setq pyim-indicator-cursor-color (list "#ff72ff" "#b2b2b2"))))))
+            (load-theme dark-theme t)
+            (set-cursor-color "#b2b2b2")
+            (setq pyim-indicator-cursor-color (list "#ff72ff" "#b2b2b2")))))))
 
 ;; 自动切换编辑器主题
 (defun synchronize-theme ()
