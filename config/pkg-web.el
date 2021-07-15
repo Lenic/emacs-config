@@ -9,10 +9,10 @@
 
 (use-package company-web)
 
-(use-package tide
-  :config
-  (tide-hl-identifier-mode +1)
-  (setq tide-completion-enable-autoimport-suggestions t))
+;; (use-package tide
+;;   :config
+;;   (tide-hl-identifier-mode +1)
+;;   (setq tide-completion-enable-autoimport-suggestions t))
 
 ;; 附加 Web 开发的各种插件
 (defun web-dev-attached ()
@@ -108,7 +108,8 @@
       (setq-local flycheck-javascript-eslint-executable eslint))))
 
 (use-package web-mode
-  :after (tide lsp-mode)
+  ;; :after (tide lsp-mode)
+  :after lsp-mode
   :mode ("\\.js[x]?\\'" "\\.vue\\'" "\\.html\\'")
   :init
   (setq web-mode-content-types-alist
