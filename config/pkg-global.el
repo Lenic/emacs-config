@@ -82,6 +82,10 @@
 (use-package so-long
   :ensure nil
   :config (global-so-long-mode 1))
+
+;; 可以正常处理驼峰单词了：使用 M-f/b 时在每个驼峰单词之间停顿
+(use-package subword
+  :hook (after-init . global-subword-mode))
 ;; 拷贝当前 Buffer 到剪切板
 (defun copy-buffer-path ()
   (interactive)
