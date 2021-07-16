@@ -67,6 +67,10 @@
   :config
   (setq ace-jump-mode-scope 'window))
 
+;; 处理特别长的行，避免带来一些性能问题
+(use-package so-long
+  :ensure nil
+  :config (global-so-long-mode 1))
 ;; 拷贝当前 Buffer 到剪切板
 (defun copy-buffer-path ()
   (interactive)
