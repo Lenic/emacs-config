@@ -96,7 +96,6 @@
 
 ;; JavaScript/TypeScript 语法检查设置
 (defun my/use-eslint-from-node-modules ()
-  (setq-default flycheck-disabled-checkers (append flycheck-disabled-checkers '(javascript-jshint)))
   (let* ((root (locate-dominating-file
                 (or (buffer-file-name) default-directory)
                 "node_modules"))
