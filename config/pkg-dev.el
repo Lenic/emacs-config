@@ -82,6 +82,11 @@
 ;; 加载 Java 开发配置
 ;; (require 'pkg-java)
 
+;; ediff 结束后恢复到原来的布局
+(use-package ediff
+  :ensure nil
+  :hook (ediff-quit . winner-undo))
+
 ;; ediff 文件比对设置
 (defmacro csetq (variable value)
   `(funcall (or (get ',variable 'custom-set)

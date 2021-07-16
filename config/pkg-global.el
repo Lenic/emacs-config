@@ -86,6 +86,13 @@
 ;; 可以正常处理驼峰单词了：使用 M-f/b 时在每个驼峰单词之间停顿
 (use-package subword
   :hook (after-init . global-subword-mode))
+
+;; 开启全局窗口变动记录
+(use-package winner-mode
+  :ensure nil
+  :hook (after-init . winner-mode)
+  :config (setq winner-dont-bind-my-keys nil))
+
 ;; 拷贝当前 Buffer 到剪切板
 (defun copy-buffer-path ()
   (interactive)
