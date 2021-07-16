@@ -67,6 +67,17 @@
   :config
   (setq ace-jump-mode-scope 'window))
 
+;; 显示行尾空白字符
+(use-package whitespace
+  :ensure nil
+  :config
+  (setq whitespace-style '(face trailing)
+        whitespace-global-modes '(not markdown-mode))
+  :hook ((after-init . global-whitespace-mode)
+         (before-save . (lambda () (progn
+                                     (untabify (point-min) (point-max))
+                                     (whitespace-cleanup))))))
+
 ;; 处理特别长的行，避免带来一些性能问题
 (use-package so-long
   :ensure nil
