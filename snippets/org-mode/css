@@ -1,0 +1,9 @@
+# -*- mode: snippet -*-
+# name: css for html export
+# key: css
+# --
+#+TITLE: ${1:`(file-name-base buffer-file-name)`}
+#+OPTIONS: toc:nil num:3 H:4 ^:nil pri:t
+#+HTML_HEAD: <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/@lenic/my-cdn@1.0.0/css/org.css"/>
+
+$0
