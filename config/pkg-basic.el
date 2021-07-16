@@ -16,16 +16,11 @@
               (width . 140)
               (height . 30)
               (left . 0)
-              (top . 0))))
-  (progn
-    (setq initial-frame-alist '( (tool-bar-lines . 0)))
-    (setq default-frame-alist '( (tool-bar-lines . 0)))))
+              (top . 0)))))
 
 (add-hook 'after-make-frame-functions
           (lambda (new-frame)
             (select-frame new-frame)
-            ;; 隐藏菜单栏
-            (menu-bar-mode 0)
             (if (display-graphic-p)
                 (progn
                   (set-frame-position (selected-frame) 0 0)
