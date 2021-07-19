@@ -7,7 +7,7 @@
   :init (setq emmet-expand-jsx-className? t)
   :hook (web-mode typescript-mode js-mode))
 
-(use-package company-web)
+;; (use-package company-web)
 
 ;; (use-package tide
 ;;   :config
