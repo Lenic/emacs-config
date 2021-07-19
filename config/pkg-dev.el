@@ -31,7 +31,8 @@
   (setq company-backends '((company-keywords company-files))))
 
 (add-hook 'emacs-lisp-mode-hook (lambda ()
-                                  (add-to-list  (make-local-variable 'company-backends) '(company-elisp))))
+                                  (with-eval-after-load 'company
+                                    (add-to-list  (make-local-variable 'company-backends) '(company-elisp)))))
 
 ;; 指定符号高亮
 (use-package symbol-overlay
