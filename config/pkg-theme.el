@@ -13,6 +13,9 @@
 (setq day-theme nil)
 (setq dark-theme nil)
 
+;; 指示当前主题的类别：t 表示日间主题，nil 表示夜间主题
+(setq is-day-theme nil)
+
 ;; 获取当前主题
 (defun get-current-theme ()
   (nth 0 custom-enabled-themes))
@@ -33,12 +36,10 @@
         (if (eq target-theme day-theme)
             (progn
               (load-theme day-theme t)
-              (set-cursor-color "#666")
-              (setq pyim-indicator-cursor-color (list "purple" "#666")))
+              (setq is-day-theme t))
           (progn
             (load-theme dark-theme t)
-            (set-cursor-color "#b2b2b2")
-            (setq pyim-indicator-cursor-color (list "#ff72ff" "#b2b2b2")))))))
+            (setq is-day-theme nil))))))
 
 ;; 自动切换编辑器主题
 (defun synchronize-theme ()
@@ -92,6 +93,23 @@
           ;; Terminal 下永久使用 dark-theme 主题
           (load-theme dark-theme t)))))
 
+;; 设置光标颜色：同步兼容 PYIM 的光标颜色设置
+(defun my-pyim-indicator-with-cursor-color (input-method chinese-input-p)
+  (if (not (equal input-method "pyim"))
+      ;; pyim 关闭时的颜色
+      (if is-day-theme
+          (set-cursor-color "#666")
+        (set-cursor-color "#b2b2b2"))
+    (if chinese-input-p
+        ;; pyim 输入中文时的颜色
+        (if is-day-theme
+            (set-cursor-color "purple")
+          (set-cursor-color "#ff72ff"))
+      ;; pyim 输入英文时的颜色
+      (if is-day-theme
+          (set-cursor-color "#666")
+        (set-cursor-color "#b2b2b2")))))
+
 (use-package spacemacs-theme
   :defer t
   :init
@@ -139,6 +157,8 @@
   (setq pyim-default-scheme 'microsoft-shuangpin)
   ;; 设置不使用模糊拼音
   (setq pyim-pinyin-fuzzy-alist '())
+  ;; 设置光标颜色
+  (setq pyim-indicator-list (list #'my-pyim-indicator-with-cursor-color #'pyim-indicator-with-modeline))
   ;; 设置 pyim 探针设置，这是 pyim 高级功能设置，可以实现 *无痛* 中英文切换 :-)
   ;; 我自己使用的中英文动态切换规则是：
   ;; 1. 光标只有在注释里面时，才可以输入中文。
