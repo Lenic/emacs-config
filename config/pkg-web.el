@@ -69,7 +69,7 @@
   (lsp)
   ;; 设置 Company 后端
   (add-to-list (make-local-variable 'company-backends)
-               '(company-web-html company-files company-css company-capf company-dabbrev)))
+               '(company-files company-css company-capf company-dabbrev)))
 
 (defun my/web-vue-setup()
   "Setup for vue related."
@@ -92,7 +92,7 @@
   ;; 开启 LSP 模式自动完成
   (lsp)
   ;; 设置 Company 后端
-  (add-to-list (make-local-variable 'company-backends) '(company-files company-css)))
+  (add-to-list (make-local-variable 'company-backends) '(company-files company-css company-capf company-dabbrev)))
 
 ;; JavaScript/TypeScript 语法检查设置
 (defun my/use-eslint-from-node-modules ()
