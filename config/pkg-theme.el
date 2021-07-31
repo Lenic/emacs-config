@@ -98,8 +98,8 @@
   (if (not (equal input-method "pyim"))
       ;; pyim 关闭时的颜色
       (if is-day-theme
-          (set-cursor-color "#666")
-        (set-cursor-color "#b2b2b2"))
+          (set-cursor-color "#100a14")
+        (set-cursor-color "#e3dedd"))
     (if chinese-input-p
         ;; pyim 输入中文时的颜色
         (if is-day-theme
@@ -107,8 +107,8 @@
           (set-cursor-color "#ff72ff"))
       ;; pyim 输入英文时的颜色
       (if is-day-theme
-          (set-cursor-color "#666")
-        (set-cursor-color "#b2b2b2")))))
+          (set-cursor-color "#100a14")
+        (set-cursor-color "#e3dedd")))))
 
 (use-package spacemacs-theme
   :defer t
