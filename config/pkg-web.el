@@ -133,7 +133,7 @@
 (use-package lsp-tailwindcss
   :init
   (setq lsp-tailwindcss-add-on-mode t
-        lsp-tailwindcss-server-version "0.6.12"))
+        lsp-tailwindcss-server-version "0.6.13"))
 
 (use-package typescript-mode
   :mode "\\.ts[x]?\\'"
