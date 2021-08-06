@@ -14,6 +14,7 @@
 ;; each 50MB of allocated data (the default is on every 0.76MB)
 ;; (setq gc-cons-threshold 50000000)
 (setq gc-cons-threshold (* 512 1024 1024))
+(setq read-process-output-max (* 3 1024 1024))
 (setq gc-cons-percentage 0.5)
 (run-with-idle-timer 5 t #'garbage-collect)
 ;; 显示垃圾回收信息，这个可以作为调试用
