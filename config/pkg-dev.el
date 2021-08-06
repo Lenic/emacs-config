@@ -48,7 +48,7 @@
 
 ;; LSP 模式配置
 (use-package lsp-mode
-  :defer 3
+  :defer 5
   :commands lsp
   :config
   (add-to-list 'lsp-language-id-configuration '(".*\\.less$" . "css"))
@@ -74,6 +74,13 @@
   (setq lsp-ui-sideline-delay 1)
   (setq lsp-ui-sideline-enable t))
 
+;; LSP 服务相关配置 - eglot
+(use-package eglot
+  :defer 5
+  :config
+  (add-to-list 'eglot-server-programs '(css-mode . ("css-languageserver" "--stdio")))
+  (add-to-list 'eglot-server-programs '(less-css-mode . ("css-languageserver" "--stdio"))))
+
 ;; 加载代码折叠配置
 (use-package origami
   :defer 3)
@@ -81,7 +88,7 @@
 ;; 代码片断自动补全工具
 (use-package yasnippet
   :defer 3
-  :hook ((css-mode web-mode typescript-mode js-mode json-mode java-mode) . yas-minor-mode)
+  :hook ((web-mode typescript-mode) . yas-minor-mode)
   :config
   (setq yas-snippet-dirs
         '("~/.emacs.d/snippets"))

@@ -9,8 +9,22 @@
   :init (setq emmet-expand-jsx-className? t)
   :hook (web-mode typescript-mode js-mode))
 
+;; JavaScript/TypeScript 语法检查设置
+(defun my/use-eslint-from-node-modules ()
+  (let* ((root (locate-dominating-file
+                (or (buffer-file-name) default-directory)
+                "node_modules"))
+         (eslint
+          (and root
+               (expand-file-name "node_modules/.bin/eslint"
+                                 root))))
+    (when (and eslint (file-executable-p eslint))
+      (setq-local flycheck-javascript-eslint-executable eslint))))
+
 ;; 附加 Web 开发的各种插件
 (defun web-dev-attached ()
+  ;; 设置开启 flycheck 语法检查
+  (my/use-eslint-from-node-modules)
   ;; 设置关闭自动换行
   (setq truncate-lines t)
   ;; 开启显示行号
@@ -21,9 +35,6 @@
   ;; 设置列参考线：120
   (setq display-fill-column-indicator-column 120)
   (display-fill-column-indicator-mode t)
-  ;; use eslint with web-mode for jsx files
-  ;; (flycheck-add-mode 'javascript-eslint 'web-mode)
-  ;; (flycheck-add-mode 'javascript-eslint 'typescript-mode)
   ;; 开启代码折叠快捷键
   (define-key hs-minor-mode-map (kbd "C-c C-f") 'hs-toggle-hiding))
 
@@ -31,7 +42,7 @@
 (add-hook 'css-mode-hook
           (lambda ()
             ;; 开启 LSP 模式自动完成
-            (lsp)
+            (eglot-ensure)
             ;; 设置自动缩进的宽度
             (setq css-indent-offset 2)
             ;; 设置 Company 后端
@@ -42,12 +53,14 @@
 
 (use-package json-mode
   :defer 3
+  :after eglot
   :mode "\\.json\\'"
   :config
+  (add-to-list 'eglot-server-programs '(json-mode . ("vscode-json-languageserver" "--stdio")))
   (add-hook 'json-mode-hook
             (lambda ()
               ;; 开启 LSP 模式自动完成
-              (lsp)
+              (eglot-ensure)
               ;; 设置自动缩进的宽度
               (make-local-variable 'js-indent-level)
               (setq js-indent-level 2)
@@ -63,7 +76,7 @@
   "Setup for web-mode html files."
   (message "web-mode use html related setup")
   ;; 开启 LSP 模式自动完成
-  (lsp)
+  (eglot-ensure)
   ;; 设置 Company 后端
   (add-to-list (make-local-variable 'company-backends)
                '(company-files company-css company-capf company-dabbrev)))
@@ -72,60 +85,47 @@
   "Setup for vue related."
   (message "web-mode use vue related setup")
   ;; 开启 LSP 模式自动完成
-  (lsp)
+  (eglot-ensure)
   ;; 设置 Company 后端
-  (add-to-list (make-local-variable 'company-backends)
-               '(company-files company-css)))
+  (add-to-list (make-local-variable 'company-backends) '(company-files company-css)))
 
 (defun my/web-js-setup()
   "Setup for js related."
   (message "web-mode use js related setup")
-  ;; Tide 安装
-  ;; (tide-setup)
-  ;; 设置 Company 后端
-  ;; (add-to-list (make-local-variable 'company-backends) '(company-capf))
-  ;; 当 tsserver 服务没有启动时自动重新启动
-  ;; (unless (tide-current-server) (tide-restart-server)))
   ;; 开启 LSP 模式自动完成
-  (lsp)
+  (eglot-ensure)
   ;; 设置 Company 后端
   (add-to-list (make-local-variable 'company-backends) '(company-files company-css company-capf company-dabbrev)))
 
-;; JavaScript/TypeScript 语法检查设置
-(defun my/use-eslint-from-node-modules ()
-  (let* ((root (locate-dominating-file
-                (or (buffer-file-name) default-directory)
-                "node_modules"))
-         (eslint
-          (and root
-               (expand-file-name "node_modules/.bin/eslint"
-                                 root))))
-    (when (and eslint (file-executable-p eslint))
-      (setq-local flycheck-javascript-eslint-executable eslint))))
-
 (use-package web-mode
-  ;; :after (tide lsp-mode)
-  :after lsp-mode
-  :mode ("\\.js[x]?\\'" "\\.vue\\'" "\\.html\\'")
+  :after eglot
   :init
-  (setq web-mode-content-types-alist
-        '(("vue" . "\\.vue\\'")
-          ("jsx"  . "\\.js[x]?\\'")))
   (setq web-mode-css-indent-offset 2                  ;; CSS 默认缩进 2 空格：包含 HTML 的 CSS 部分以及纯 CSS/LESS/SASS 文件等
         web-mode-code-indent-offset 2                 ;; JavaScript 默认缩进 2 空格：包含 HTML 的 SCRIPT 部分以及纯 JS/JSX/TS/TSX 文件等
         web-mode-markup-indent-offset 2               ;; HTML 默认缩进 2 空格：包含 HTML 文件以及 Vue 文件的 TEMPLATE 部分
         web-mode-enable-css-colorization t            ;; 开启 CSS 部分色值的展示：展示的时候会有光标显示位置异常
         web-mode-enable-current-column-highlight nil)
-  :config
-  (add-hook 'web-mode-hook (lambda()
-                             (web-dev-attached)
-                             (my/use-eslint-from-node-modules)
-                             (cond ((equal web-mode-content-type "html")
-                                    (my/web-html-setup))
-                                   ((member web-mode-content-type '("vue"))
-                                    (my/web-vue-setup))
-                                   ((member web-mode-content-type '("jsx"))
-                                    (my/web-js-setup))))))
+  ;; 构建一个专门为 Vue 文件开启的 web-mode 子模式
+  (define-derived-mode my-vue-mode web-mode "Vue"
+    "A major mode derived from web-mode, for editing .vue files with LSP support.")
+  (add-to-list 'auto-mode-alist '("\\.vue\\'" . my-vue-mode))
+  (add-hook 'my-vue-mode-hook 'my/web-vue-setup)
+  (add-to-list 'eglot-server-programs '(my-vue-mode "vls"))
+  (add-to-list 'eglot-server-programs '(my-vue-mode . ("css-languageserver" "--stdio")))
+  ;; 构建一个专门为 html 文件开启的 web-mode 子模式
+  (define-derived-mode my-html-mode web-mode "Html"
+    "A major mode derived from web-mode, for editing .vue files with LSP support.")
+  (add-to-list 'auto-mode-alist '("\\.html\\'" . my-html-mode))
+  (add-hook 'my-html-mode-hook 'my/web-html-setup)
+  (add-to-list 'eglot-server-programs '(my-html-mode . ("html-languageserver" "--stdio")))
+  (add-to-list 'eglot-server-programs '(my-html-mode . ("css-languageserver" "--stdio")))
+  ;; 构建一个专门为 js/jsx 文件开启的 web-mode 子模式
+  (define-derived-mode my-jsx-mode web-mode "JSX"
+    "A major mode derived from web-mode, for editing .vue files with LSP support.")
+  (add-to-list 'auto-mode-alist '("\\.js[x]?\\'" . my-jsx-mode))
+  (add-hook 'my-jsx-mode-hook 'my/web-js-setup)
+  (add-to-list 'eglot-server-programs '(my-jsx-mode . ("typescript-language-server" "--stdio")))
+  (add-to-list 'eglot-server-programs '(my-jsx-mode . ("css-languageserver" "--stdio"))))
 
 (use-package lsp-tailwindcss
   :defer 3
@@ -135,6 +135,7 @@
 
 (use-package typescript-mode
   :defer 3
+  :after eglot
   :mode "\\.ts[x]?\\'"
   :init
   ;; 设置缩进两个空格
@@ -142,12 +143,8 @@
   :config
   (add-hook 'typescript-mode-hook '(lambda()
                                      (web-dev-attached)
-                                     ;; Tide 安装
-                                     ;; (tide-setup)
-                                     ;; 当 tsserver 服务没有启动时自动重新启动
-                                     ;; (unless (tide-current-server) (tide-restart-server)))))
                                      ;; 开启 LSP 模式自动完成
-                                     (lsp)
+                                     (eglot-ensure)
                                      ;; 设置 Company 后端
                                      (add-to-list (make-local-variable 'company-backends)
                                                   '(company-files company-css)))))
