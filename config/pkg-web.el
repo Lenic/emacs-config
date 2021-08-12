@@ -29,6 +29,8 @@
   (setq truncate-lines t)
   ;; 开启显示行号
   (display-line-numbers-mode +1)
+  ;; 开启部分仍然保留的 LSP
+  (lsp)
   ;; 开启代码折叠子模式
   (origami-mode t)
   (hs-minor-mode t)
@@ -98,7 +100,7 @@
   (add-to-list (make-local-variable 'company-backends) '(company-files company-css company-capf company-dabbrev)))
 
 (use-package web-mode
-  :after eglot
+  :after lsp-mode
   :init
   (setq web-mode-css-indent-offset 2                  ;; CSS 默认缩进 2 空格：包含 HTML 的 CSS 部分以及纯 CSS/LESS/SASS 文件等
         web-mode-code-indent-offset 2                 ;; JavaScript 默认缩进 2 空格：包含 HTML 的 SCRIPT 部分以及纯 JS/JSX/TS/TSX 文件等
@@ -110,7 +112,7 @@
     "A major mode derived from web-mode, for editing .vue files with LSP support.")
   (add-to-list 'auto-mode-alist '("\\.vue\\'" . my-vue-mode))
   (add-hook 'my-vue-mode-hook 'my/web-vue-setup)
-  (add-to-list 'eglot-server-programs '(my-vue-mode "vls"))
+  (add-to-list 'eglot-server-programs '(my-vue-mode . ("vls")))
   (add-to-list 'eglot-server-programs '(my-vue-mode . ("css-languageserver" "--stdio")))
   ;; 构建一个专门为 html 文件开启的 web-mode 子模式
   (define-derived-mode my-html-mode web-mode "Html"
@@ -128,9 +130,10 @@
   (add-to-list 'eglot-server-programs '(my-jsx-mode . ("css-languageserver" "--stdio"))))
 
 (use-package lsp-tailwindcss
-  :defer 3
-  :init
+  :after lsp-mode
+  :config
   (setq lsp-tailwindcss-add-on-mode t
+        lsp-client-packages nil
         lsp-tailwindcss-server-version "0.6.13"))
 
 (use-package typescript-mode
