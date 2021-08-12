@@ -1,32 +1,14 @@
-;; 设置字体、窗口的宽和高、窗口位置
-(if (display-graphic-p)
-    (progn
-      (setq initial-frame-alist
-            '(
-              (tool-bar-lines . 0)
-              (font . "Sarasa Mono SC 14")
-              (width . 140) ; chars
-              (height . 30) ; lines
-              (left . 0)
-              (top . 0)))
-      (setq default-frame-alist
-            '(
-              (tool-bar-lines . 0)
-              (font . "Sarasa Mono SC 14")
-              (width . 140)
-              (height . 30)
-              (left . 0)
-              (top . 0)))))
+;; 设置 frame 的缺省值
+(setq default-frame-alist '((tool-bar-lines . 0) ;; 不显示工具栏
+                            (font . "Sarasa Mono SC 14") ;; 设置字体
+                            (width . 140) ;; 设置窗口宽度
+                            (height . 30) ;; 设置窗口高度
+                            (left . 0) ;; 设置窗口左边沿在屏幕上的坐标
+                            (top . 0))) ;; 设置窗口上边沿在屏幕上的坐标
 
-(add-hook 'after-make-frame-functions
-          (lambda (new-frame)
-            (select-frame new-frame)
-            (if (display-graphic-p)
-                (progn
-                  (set-frame-position (selected-frame) 0 0)
-                  (set-frame-width (selected-frame) 140)
-                  (set-frame-height (selected-frame) 30)
-                  (set-frame-font "Sarasa Mono SC 14")))))
+(add-hook 'after-make-frame-functions (lambda (new-frame)
+                                        ;; 激活这个新的 frame
+                                        (select-frame new-frame)))
 
 ;; 隐藏菜单栏
 (menu-bar-mode 0)
@@ -93,18 +75,6 @@
 (global-set-key (kbd "M-N") 'scroll-up-half)
 (global-set-key (kbd "M-P") 'scroll-down-half)
 
-;; 窗口快捷跳转操作
-(use-package ace-window
-  :config
-  (setq aw-keys '(?a ?s ?d ?f ?g ?h ?j ?k ?l))
-  :bind
-  ("C-x i" . ace-window))
-
-;; 和系统剪切板相关设置
-(use-package xclip
-  :config
-  (xclip-mode))
-
 ;; 备份设置
 (setq backup-by-copying t ; 自动备份
       backup-directory-alist '(("." . "~/.em_backup")) ; 自动备份在目录"~/.em_backup"下
@@ -139,26 +109,22 @@
 ;; 高亮匹配括号
 (show-paren-mode t)
 
-;; 设置 Ctrl-h 为删除前一个字符
-;; (unbind-key "C-h")
-;; (global-set-key (kbd "C-h") 'delete-backward-char)
-;; (global-set-key (kbd "M-h") 'backward-kill-word)
-
 ;; 设置光标样式
 (setq-default cursor-type 'box)
 
+;; 设置系统内置的 isearch 在删除待搜索字符时不变动光标位置
 (use-package isearch
   :ensure nil
   :bind (:map isearch-mode-map
-         ([remap isearch-delete-char] . isearch-del-char))
+              ([remap isearch-delete-char] . isearch-del-char))
+  :config
+  ;; 设置每次前进或者后退搜索后将目标位置放置在屏幕垂直居中
+  (defadvice isearch-repeat-forward (after isearch-repeat-forward-recenter activate) (recenter))
+  (defadvice isearch-repeat-backward (after isearch-repeat-backward-recenter activate) (recenter))
+  (ad-activate 'isearch-repeat-forward)
+  (ad-activate 'isearch-repeat-backward)
   :custom
   (isearch-lazy-count t)
   (lazy-count-prefix-format "%s/%s "))
-
-;; 设置每次前进或者后退搜索后将目标位置放置在屏幕垂直居中
-(defadvice isearch-repeat-forward (after isearch-repeat-forward-recenter activate) (recenter))
-(defadvice isearch-repeat-backward (after isearch-repeat-backward-recenter activate) (recenter))
-(ad-activate 'isearch-repeat-forward)
-(ad-activate 'isearch-repeat-backward)
 
 (provide 'pkg-basic)

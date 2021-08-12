@@ -1,3 +1,17 @@
+;; 窗口快捷跳转操作
+(use-package ace-window
+  :defer 3
+  :config
+  (setq aw-keys '(?a ?s ?d ?f ?g ?h ?j ?k ?l))
+  :bind
+  ("C-x i" . ace-window))
+
+;; 和系统剪切板相关设置
+(use-package xclip
+  :defer 3
+  :config
+  (xclip-mode))
+
 (use-package counsel
   :config
   ;; 设置 counsel-fzf 命令使用 rg 作为核心输出端
@@ -43,19 +57,22 @@
   (define-key ivy-minibuffer-map (kbd "M-i") 'pyim-convert-string-at-point))
 
 (use-package rg
+  :defer 3
   :config
   (rg-enable-default-bindings))
 
 (use-package amx)
-(use-package wgrep)
+(use-package wgrep
+  :defer 3)
 
-(use-package multiple-cursors)
+(use-package multiple-cursors
+  :defer 3)
 
 (use-package undo-tree
-  :init
+  :defer 3
+  :config
   (setq undo-tree-visualizer-timestamps t
         undo-tree-visualizer-diff t)
-  :config
   ;; 设置显示可视化撤销树形结构
   (global-undo-tree-mode))
 
@@ -69,6 +86,7 @@
 
 ;; 显示行尾空白字符
 (use-package whitespace
+  :defer 3
   :ensure nil
   :config
   (setq whitespace-style '(face trailing)
@@ -80,15 +98,18 @@
 
 ;; 处理特别长的行，避免带来一些性能问题
 (use-package so-long
+  :defer 3
   :ensure nil
   :config (global-so-long-mode 1))
 
 ;; 可以正常处理驼峰单词了：使用 M-f/b 时在每个驼峰单词之间停顿
 (use-package subword
+  :defer 3
   :hook (after-init . global-subword-mode))
 
 ;; 开启全局窗口变动记录
 (use-package winner-mode
+  :defer 3
   :ensure nil
   :hook (after-init . winner-mode)
   :config (setq winner-dont-bind-my-keys nil))

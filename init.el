@@ -10,11 +10,11 @@
 (setenv "PATH" (concat (getenv "PATH") ":/usr/local/bin"))
 (setq exec-path (append exec-path '("/usr/local/bin")))
 
-;; reduce the frequency of garbage collection by making it happen on
-;; each 50MB of allocated data (the default is on every 0.76MB)
-;; (setq gc-cons-threshold 50000000)
-(setq gc-cons-threshold (* 512 1024 1024))
+;; 设置可以读取的最大容量为 3MB
 (setq read-process-output-max (* 3 1024 1024))
+
+;; 垃圾回收设置阈值 100MB
+(setq gc-cons-threshold (* 100 1024 1024))
 (setq gc-cons-percentage 0.5)
 (run-with-idle-timer 5 t #'garbage-collect)
 ;; 显示垃圾回收信息，这个可以作为调试用
@@ -26,10 +26,22 @@
   (package-refresh-contents)
   (package-install 'use-package))
 (require 'use-package)
-;; (setq use-package-verbose t)
 (setq use-package-always-ensure t)
 
-(setq byte-compile-warnings '(cl-functions))
+;; (let (
+;;       ;; 加载的时候临时增大`gc-cons-threshold'以加速启动速度。
+;;       (gc-cons-threshold most-positive-fixnum)
+;;       ;; 清空避免加载远程文件的时候分析文件。
+;;       (file-name-handler-alist nil))
+;;   (require 'benchmark-init-modes)
+;;   (require 'benchmark-init)
+;;   (benchmark-init/activate)
+;;
+;;   ;; 下面才写你的其它配置
+;;   )
+
+;; 查看已安装的包数量
+;; (length package-alist)
 
 (add-to-list 'load-path "~/.emacs.d/config")
 
@@ -43,7 +55,8 @@
 (require 'pkg-basic)
 
 ;; 加载 org-mode 配置
-(require 'pkg-org)
+;; (require 'pkg-org)
+;; (custom-set-variables '(org-agenda-files (quote ("~/task/inbox.org" "~/task/me.inbox.org"))))
 
 ;; 加载开发配置
 (require 'pkg-dev);
@@ -53,5 +66,16 @@
 
 ;; 加载其它语言配置
 (require 'pkg-lang)
-
-(custom-set-variables '(org-agenda-files (quote ("~/task/inbox.org" "~/task/me.inbox.org"))))
+(custom-set-variables
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(package-selected-packages
+   '(benchmark-init yasnippet yaml-mode xclip web-mode use-package undo-tree tide symbol-overlay spacemacs-theme spaceline solarized-theme ripgrep rg pyim-basedict pyim projectile prettier-js popup origami org-bullets neotree multiple-cursors magit lsp-ui lsp-tailwindcss json-mode htmlize gruvbox-theme git-timemachine git-gutter emmet-mode elfeed eglot dockerfile-mode counsel company amx ace-window ace-jump-mode)))
+(custom-set-faces
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ )

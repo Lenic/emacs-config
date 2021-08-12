@@ -1,5 +1,6 @@
 ;; 设置打开 NeoTree
 (use-package neotree
+  :defer 3
   :after projectile
   :config
   (setq neo-theme 'ascii           ; NeoTree 图标的样式
@@ -7,14 +8,17 @@
   :bind ("C-c o" . projectile-switch-project))
 
 (use-package git-gutter
+  :defer 3
   :config
   ;; 设置全局 Git 状态显示
   (global-git-gutter-mode t))
 
-(use-package git-timemachine)
+(use-package git-timemachine
+  :defer 3)
 
 ;; 设置 Git 管理快捷键
 (use-package magit
+  :defer 3
   :bind ("C-x m" . magit-status)
   :config
   (setq magit-diff-refine-hunk (quote all))
@@ -22,6 +26,7 @@
 
 ;; 设置自动完成
 (use-package company
+  :defer 3
   :hook ((css-mode web-mode typescript-mode js-mode json-mode emacs-lisp-mode java-mode) . company-mode)
   :config
   (electric-pair-mode +1)
@@ -36,12 +41,14 @@
 
 ;; 指定符号高亮
 (use-package symbol-overlay
+  :defer 3
   :bind
   (("C-c i" . symbol-overlay-put)
    ("C-c q" . symbol-overlay-remove-all)))
 
 ;; LSP 模式配置
 (use-package lsp-mode
+  :defer 3
   :commands lsp
   :config
   (add-to-list 'lsp-language-id-configuration '(".*\\.less$" . "css"))
@@ -59,6 +66,7 @@
 
 ;; LSP 模式的帮助文档相关
 (use-package lsp-ui
+  :after lsp-mode
   :commands lsp-ui-mode
   :config
   (setq lsp-ui-doc-delay 3)
@@ -67,10 +75,12 @@
   (setq lsp-ui-sideline-enable t))
 
 ;; 加载代码折叠配置
-(use-package origami)
+(use-package origami
+  :defer 3)
 
 ;; 代码片断自动补全工具
 (use-package yasnippet
+  :defer 3
   :hook ((css-mode web-mode typescript-mode js-mode json-mode java-mode) . yas-minor-mode)
   :config
   (setq yas-snippet-dirs
@@ -85,6 +95,7 @@
 
 ;; ediff 结束后恢复到原来的布局
 (use-package ediff
+  :defer 3
   :ensure nil
   :hook (ediff-quit . winner-undo))
 

@@ -4,10 +4,9 @@
     :config
     (spaceline-emacs-theme)
     (spaceline-toggle-buffer-size-off)
+    (setq powerline-default-separator 'slant)
     ;; 延迟一秒后编译 spaceline
-    (run-with-timer 1 nil 'spaceline-compile)
-    :init
-    (setq powerline-default-separator 'slant)))
+    (run-with-timer 1 nil 'spaceline-compile)))
 
 ;; 设置日间主题和夜间主题
 (setq day-theme nil)
@@ -146,6 +145,7 @@
 
 ;; 输入法设置
 (use-package pyim
+  :defer 3
   :demand t
   :config
   ;; 激活 basedict 拼音词库

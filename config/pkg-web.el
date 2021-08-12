@@ -1,18 +1,13 @@
 ;; 设置保存后自动格式化代码
 (use-package prettier-js
+  :defer 3
   :hook ((css-mode web-mode typescript-mode js-mode json-mode) . prettier-js-mode))
 
 ;; 快速编写 HTML 代码
 (use-package emmet-mode
+  :defer 3
   :init (setq emmet-expand-jsx-className? t)
   :hook (web-mode typescript-mode js-mode))
-
-;; (use-package company-web)
-
-;; (use-package tide
-;;   :config
-;;   (tide-hl-identifier-mode +1)
-;;   (setq tide-completion-enable-autoimport-suggestions t))
 
 ;; 附加 Web 开发的各种插件
 (defun web-dev-attached ()
@@ -46,6 +41,7 @@
             (web-dev-attached)))
 
 (use-package json-mode
+  :defer 3
   :mode "\\.json\\'"
   :config
   (add-hook 'json-mode-hook
@@ -60,6 +56,7 @@
 
 ;; 语法检查包
 (use-package flycheck
+  :defer 3
   :hook ((css-mode json-mode web-mode typescript-mode) . flycheck-mode))
 
 (defun my/web-html-setup()
@@ -131,11 +128,13 @@
                                     (my/web-js-setup))))))
 
 (use-package lsp-tailwindcss
+  :defer 3
   :init
   (setq lsp-tailwindcss-add-on-mode t
         lsp-tailwindcss-server-version "0.6.13"))
 
 (use-package typescript-mode
+  :defer 3
   :mode "\\.ts[x]?\\'"
   :init
   ;; 设置缩进两个空格
