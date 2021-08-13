@@ -100,7 +100,7 @@
   (add-to-list (make-local-variable 'company-backends) '(company-files company-css company-capf company-dabbrev)))
 
 (use-package web-mode
-  :after lsp-mode
+  :after (eglot lsp-mode)
   :init
   (setq web-mode-css-indent-offset 2                  ;; CSS 默认缩进 2 空格：包含 HTML 的 CSS 部分以及纯 CSS/LESS/SASS 文件等
         web-mode-code-indent-offset 2                 ;; JavaScript 默认缩进 2 空格：包含 HTML 的 SCRIPT 部分以及纯 JS/JSX/TS/TSX 文件等
@@ -138,7 +138,7 @@
 
 (use-package typescript-mode
   :defer 3
-  :after eglot
+  :after (eglot lsp-mode)
   :mode "\\.ts[x]?\\'"
   :init
   ;; 设置缩进两个空格
