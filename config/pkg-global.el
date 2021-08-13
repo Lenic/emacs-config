@@ -108,6 +108,7 @@
 ;; 可以正常处理驼峰单词了：使用 M-f/b 时在每个驼峰单词之间停顿
 (use-package subword
   :defer 3
+  :ensure nil
   :hook (after-init . global-subword-mode))
 
 ;; 开启全局窗口变动记录
