@@ -145,7 +145,7 @@
 
 ;; 输入法设置
 (use-package pyim
-  :defer 3
+  :defer 5
   :demand t
   :config
   ;; 激活 basedict 拼音词库

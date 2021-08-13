@@ -1,5 +1,6 @@
 ;; Java 配置
 (use-package lsp-java
+  :defer 3
   :after lsp-mode
   :config (add-hook 'java-mode-hook '(lambda()
                                        (lsp)

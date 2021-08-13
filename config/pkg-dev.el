@@ -97,14 +97,14 @@
 (use-package ediff
   :defer 3
   :ensure nil
-  :hook (ediff-quit . winner-undo))
-
-;; ediff 文件比对设置
-(defmacro csetq (variable value)
-  `(funcall (or (get ',variable 'custom-set)
-                'set-default)
-            ',variable ,value))
-(csetq ediff-window-setup-function 'ediff-setup-windows-plain)
-(csetq ediff-split-window-function 'split-window-horizontally)
+  :hook (ediff-quit . winner-undo)
+  :config
+  ;; ediff 文件比对设置
+  (defmacro csetq (variable value)
+    `(funcall (or (get ',variable 'custom-set)
+                  'set-default)
+              ',variable ,value))
+  (csetq ediff-window-setup-function 'ediff-setup-windows-plain)
+  (csetq ediff-split-window-function 'split-window-horizontally))
 
 (provide 'pkg-dev)

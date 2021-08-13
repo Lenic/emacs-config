@@ -1,6 +1,6 @@
 ;; 窗口快捷跳转操作
 (use-package ace-window
-  :defer 3
+  :defer 5
   :config
   (setq aw-keys '(?a ?s ?d ?f ?g ?h ?j ?k ?l))
   :bind
@@ -8,7 +8,7 @@
 
 ;; 和系统剪切板相关设置
 (use-package xclip
-  :defer 3
+  :defer 5
   :config
   (xclip-mode))
 
@@ -38,6 +38,7 @@
   ("C-c f" . counsel-file-jump))
 
 (use-package projectile
+  :defer 2
   :init
   (projectile-mode +1)
   :config
@@ -61,7 +62,8 @@
   :config
   (rg-enable-default-bindings))
 
-(use-package amx)
+(use-package amx
+  :defer 3)
 (use-package wgrep
   :defer 3)
 
@@ -78,6 +80,7 @@
 
 ;; 设置 Ace-Jump
 (use-package ace-jump-mode
+  :defer 3
   :bind
   ("C-c j" . ace-jump-word-mode)
   ("C-c l" .  ace-jump-line-mode)
