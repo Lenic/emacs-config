@@ -1,3 +1,15 @@
+;; (let (
+;;       ;; 加载的时候临时增大`gc-cons-threshold'以加速启动速度。
+;;       (gc-cons-threshold most-positive-fixnum)
+;;       ;; 清空避免加载远程文件的时候分析文件。
+;;       (file-name-handler-alist nil))
+;;   (require 'benchmark-init-modes)
+;;   (require 'benchmark-init)
+;;   (benchmark-init/activate)
+;;
+;;   ;; 下面才写你的其它配置
+;;   )
+
 ;; 设置中国镜像源，提升第三方包的下载速度
 (setq package-archives '(("gnu"   . "http://elpa.emacs-china.org/gnu/")
                          ("melpa" . "http://elpa.emacs-china.org/melpa/")))
@@ -5,7 +17,8 @@
 ;;                          ("melpa" . "http://mirrors.cloud.tencent.com/elpa/melpa/")))
 ;; (setq package-archives '(("gnu"   . "http://mirrors.tuna.tsinghua.edu.cn/elpa/gnu/")
 ;;                          ("melpa" . "http://mirrors.tuna.tsinghua.edu.cn/elpa/melpa/")))
-(package-initialize)
+(when (< emacs-major-version 27)
+  (package-initialize))
 
 (setenv "PATH" (concat (getenv "PATH") ":/usr/local/bin"))
 (setq exec-path (append exec-path '("/usr/local/bin")))
@@ -30,18 +43,6 @@
 
 ;; 禁用 cl 库警告
 (setq byte-compile-warnings '(cl-functions))
-
-;; (let (
-;;       ;; 加载的时候临时增大`gc-cons-threshold'以加速启动速度。
-;;       (gc-cons-threshold most-positive-fixnum)
-;;       ;; 清空避免加载远程文件的时候分析文件。
-;;       (file-name-handler-alist nil))
-;;   (require 'benchmark-init-modes)
-;;   (require 'benchmark-init)
-;;   (benchmark-init/activate)
-;;
-;;   ;; 下面才写你的其它配置
-;;   )
 
 ;; 查看已安装的包数量
 ;; (length package-alist)
