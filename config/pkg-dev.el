@@ -8,7 +8,7 @@
   :bind ("C-c o" . projectile-switch-project))
 
 (use-package git-gutter
-  :defer 3
+  :defer 5
   :config
   ;; 设置全局 Git 状态显示
   (global-git-gutter-mode t))
