@@ -28,6 +28,9 @@
 (require 'use-package)
 (setq use-package-always-ensure t)
 
+;; 禁用 cl 库警告
+(setq byte-compile-warnings '(cl-functions))
+
 ;; (let (
 ;;       ;; 加载的时候临时增大`gc-cons-threshold'以加速启动速度。
 ;;       (gc-cons-threshold most-positive-fixnum)
@@ -66,16 +69,3 @@
 
 ;; 加载其它语言配置
 (require 'pkg-lang)
-(custom-set-variables
- ;; custom-set-variables was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(package-selected-packages
-   '(benchmark-init yasnippet yaml-mode xclip web-mode use-package undo-tree tide symbol-overlay spacemacs-theme spaceline solarized-theme ripgrep rg pyim-basedict pyim projectile prettier-js popup origami org-bullets neotree multiple-cursors magit lsp-ui lsp-tailwindcss json-mode htmlize gruvbox-theme git-timemachine git-gutter emmet-mode elfeed eglot dockerfile-mode counsel company amx ace-window ace-jump-mode)))
-(custom-set-faces
- ;; custom-set-faces was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- )
