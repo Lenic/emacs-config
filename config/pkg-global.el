@@ -39,9 +39,8 @@
 
 (use-package projectile
   :defer 2
-  :init
-  (projectile-mode +1)
   :config
+  (projectile-mode +1)
   (setq projectile-project-search-path '("~/workspace/" "~/example/" "~/test/")
         projectile-require-project-root nil
         projectile-completion-system 'ivy
