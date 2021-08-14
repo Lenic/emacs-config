@@ -45,7 +45,8 @@
   (setq projectile-project-search-path '("~/workspace/" "~/example/" "~/test/")
         projectile-require-project-root nil
         projectile-completion-system 'ivy
-        projectile-switch-project-action 'neotree-projectile-action)
+        projectile-switch-project-action 'neotree-projectile-action
+        projectile-mode-line-function '(lambda () " Projectile"))
   (projectile-register-project-type 'npm '("package.json")
                                     :project-file "package.json"
                                     :compile "npm ci"
