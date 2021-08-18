@@ -89,6 +89,11 @@
         '("~/.emacs.d/snippets"))
   (yas-reload-all))
 
+;; 添加选区扩展功能插件
+(use-package expand-region
+  :defer 5
+  :bind ("C-=" . er/expand-region))
+
 ;; 加载 Web 开发配置
 (require 'pkg-web)
 
