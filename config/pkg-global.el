@@ -39,7 +39,6 @@
 
 (use-package projectile
   :defer 2
-  :pin melpa-stable
   :config
   (projectile-mode +1)
   (setq projectile-project-search-path '("~/workspace/" "~/example/" "~/test/")

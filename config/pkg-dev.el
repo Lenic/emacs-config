@@ -51,7 +51,6 @@
 ;; LSP 模式配置
 (use-package lsp-mode
   :defer 3
-  :pin melpa-stable
   :commands lsp
   :config
   (add-to-list 'lsp-language-id-configuration '(".*\\.less$" . "css"))
@@ -70,7 +69,6 @@
 ;; LSP 模式的帮助文档相关
 (use-package lsp-ui
   :after lsp-mode
-  :pin melpa-stable
   :commands lsp-ui-mode
   :config
   (setq lsp-ui-doc-delay 3)
