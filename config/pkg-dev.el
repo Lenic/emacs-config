@@ -15,7 +15,7 @@
   (global-git-gutter-mode t))
 
 (use-package git-timemachine
-  :defer 3)
+  :defer 10)
 
 ;; 设置 Git 管理快捷键
 (use-package magit
@@ -78,11 +78,11 @@
 
 ;; 加载代码折叠配置
 (use-package origami
-  :defer 3)
+  :defer 10)
 
 ;; 代码片断自动补全工具
 (use-package yasnippet
-  :defer 3
+  :defer 10
   :hook ((css-mode web-mode typescript-mode js-mode json-mode java-mode) . yas-minor-mode)
   :config
   (setq yas-snippet-dirs
@@ -91,7 +91,7 @@
 
 ;; 添加选区扩展功能插件
 (use-package expand-region
-  :defer 5
+  :defer 10
   :bind ("C-=" . er/expand-region))
 
 ;; 加载 Web 开发配置
@@ -102,7 +102,7 @@
 
 ;; ediff 结束后恢复到原来的布局
 (use-package ediff
-  :defer 3
+  :defer 10
   :ensure nil
   :hook (ediff-quit . winner-undo)
   :config

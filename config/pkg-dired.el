@@ -1,5 +1,5 @@
 (use-package dired
-  :defer 3
+  :defer 10
   :ensure nil
   :config
   ;; 在 macOS 上，ls 不支持 --dired 选项，而在 Linux 上则受支持

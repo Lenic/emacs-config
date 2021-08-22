@@ -13,6 +13,7 @@
   (xclip-mode))
 
 (use-package counsel
+  :defer t
   :config
   ;; 设置 counsel-fzf 命令使用 rg 作为核心输出端
   (setq counsel-fzf-cmd "rg -l -L --glob '!.git' --hidden . | fzf -f \"%s\"")
@@ -58,20 +59,20 @@
   (define-key ivy-minibuffer-map (kbd "M-i") 'pyim-convert-string-at-point))
 
 (use-package rg
-  :defer 3
+  :defer 10
   :config
   (rg-enable-default-bindings))
 
 (use-package amx
   :defer 3)
 (use-package wgrep
-  :defer 3)
+  :defer 10)
 
 (use-package multiple-cursors
-  :defer 3)
+  :defer 10)
 
 (use-package undo-tree
-  :defer 3
+  :defer 10
   :config
   (setq undo-tree-visualizer-timestamps t
         undo-tree-visualizer-diff t)
@@ -80,7 +81,7 @@
 
 ;; 设置 Ace-Jump
 (use-package ace-jump-mode
-  :defer 3
+  :defer 10
   :bind
   ("C-c j" . ace-jump-word-mode)
   ("C-c l" .  ace-jump-line-mode)
@@ -89,7 +90,7 @@
 
 ;; 显示行尾空白字符
 (use-package whitespace
-  :defer 3
+  :defer 10
   :ensure nil
   :config
   (setq whitespace-style '(face trailing)
@@ -101,19 +102,19 @@
 
 ;; 处理特别长的行，避免带来一些性能问题
 (use-package so-long
-  :defer 3
+  :defer 10
   :ensure nil
   :config (global-so-long-mode 1))
 
 ;; 可以正常处理驼峰单词了：使用 M-f/b 时在每个驼峰单词之间停顿
 (use-package subword
-  :defer 3
+  :defer 10
   :ensure nil
   :hook (after-init . global-subword-mode))
 
 ;; 开启全局窗口变动记录
 (use-package winner-mode
-  :defer 3
+  :defer 10
   :ensure nil
   :hook (after-init . winner-mode)
   :config (setq winner-dont-bind-my-keys nil))

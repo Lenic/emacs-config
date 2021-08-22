@@ -115,6 +115,7 @@
 ;; 设置系统内置的 isearch 在删除待搜索字符时不变动光标位置
 (use-package isearch
   :ensure nil
+  :defer 10
   :bind (:map isearch-mode-map
               ([remap isearch-delete-char] . isearch-del-char))
   :config
