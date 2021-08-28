@@ -12,8 +12,7 @@
 
 ;; 设置中国镜像源，提升第三方包的下载速度
 (setq package-archives '(("gnu"   . "http://elpa.emacs-china.org/gnu/")
-                         ("melpa" . "http://elpa.emacs-china.org/melpa/")
-                         ("melpa-stable" . "http://elpa.emacs-china.org/melpa-stable/")))
+                         ("melpa" . "http://elpa.emacs-china.org/melpa/")))
 ;; (setq package-archives '(("gnu"   . "http://mirrors.cloud.tencent.com/elpa/gnu/")
 ;;                          ("melpa" . "http://mirrors.cloud.tencent.com/elpa/melpa/")))
 ;; (setq package-archives '(("gnu"   . "http://mirrors.tuna.tsinghua.edu.cn/elpa/gnu/")
