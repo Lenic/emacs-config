@@ -50,6 +50,29 @@
   :defer t
   :commands lsp
   :config
+  ;; 自动清理 lsp-mode 中的内存泄露
+  (defun my/lsp-client-clear-leak-handlers (lsp-client)
+    "Clear leaking handlers in LSP-CLIENT."
+    (let ((response-handlers (lsp--client-response-handlers lsp-client))
+          to-delete-keys)
+      (maphash (lambda (key value)
+                 (when (> (time-convert (time-since (nth 3 value)) 'integer)
+                          (* 2 lsp-response-timeout))
+                   (push key to-delete-keys)))
+               response-handlers)
+      (when to-delete-keys
+        (message "Deleting %d handlers in %s lsp-client..."
+                 (length to-delete-keys)
+                 (lsp--client-server-id lsp-client))
+        (mapc (lambda (k) (remhash k response-handlers))
+              to-delete-keys))))
+  (defun my/lsp-clear-leak ()
+    "Clear all leaks"
+    (maphash (lambda (_ client)
+               (my/lsp-client-clear-leak-handlers client))
+             lsp-clients))
+  (setq my/lsp-clear-leak-timer
+        (run-with-timer 5 5 #'my/lsp-clear-leak))
   (add-to-list 'lsp-language-id-configuration '(".*\\.less$" . "css"))
   (setq lsp-enable-snippet nil
         lsp-eldoc-enable-hover t
