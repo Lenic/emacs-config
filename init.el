@@ -18,8 +18,7 @@
 ;;                          ("melpa" . "http://mirrors.cloud.tencent.com/elpa/melpa/")))
 ;; (setq package-archives '(("gnu"   . "http://mirrors.tuna.tsinghua.edu.cn/elpa/gnu/")
 ;;                          ("melpa" . "http://mirrors.tuna.tsinghua.edu.cn/elpa/melpa/")))
-(when (< emacs-major-version 27)
-  (package-initialize))
+(package-initialize)
 
 (setenv "PATH" (concat (getenv "PATH") ":/usr/local/bin"))
 (setq exec-path (append exec-path '("/usr/local/bin")))

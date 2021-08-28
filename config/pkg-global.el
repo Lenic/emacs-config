@@ -39,7 +39,6 @@
   ("C-c f" . counsel-file-jump))
 
 (use-package projectile
-  :defer 2
   :config
   (projectile-mode +1)
   (setq projectile-project-search-path '("~/workspace/" "~/example/" "~/test/")

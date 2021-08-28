@@ -1,6 +1,5 @@
 ;; 设置打开 NeoTree
 (use-package neotree
-  :defer 3
   :after projectile
   :config
   (setq neo-theme 'ascii           ; NeoTree 图标的样式
@@ -8,8 +7,7 @@
   :bind ("C-c o" . projectile-switch-project))
 
 (use-package git-gutter
-  :defer 5
-  :pin melpa-stable
+  :defer 3
   :config
   ;; 设置全局 Git 状态显示
   (global-git-gutter-mode t))
@@ -43,14 +41,13 @@
 ;; 指定符号高亮
 (use-package symbol-overlay
   :defer 3
-  :pin melpa-stable
   :bind
   (("C-c i" . symbol-overlay-put)
    ("C-c q" . symbol-overlay-remove-all)))
 
 ;; LSP 模式配置
 (use-package lsp-mode
-  :defer 3
+  :defer t
   :commands lsp
   :config
   (add-to-list 'lsp-language-id-configuration '(".*\\.less$" . "css"))
