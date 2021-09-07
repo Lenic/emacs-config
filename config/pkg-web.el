@@ -89,7 +89,7 @@
   ;; 开启 LSP 模式自动完成
   (lsp)
   ;; 设置 Company 后端
-  (add-to-list (make-local-variable 'company-backends) '(company-files company-css company-capf company-dabbrev)))
+  (add-to-list (make-local-variable 'company-backends) '(company-files company-css company-capf company-dabbrev-code :separate)))
 
 ;; JavaScript/TypeScript 语法检查设置
 (defun my/use-eslint-from-node-modules ()
@@ -148,7 +148,7 @@
                                      (lsp)
                                      ;; 设置 Company 后端
                                      (add-to-list (make-local-variable 'company-backends)
-                                                  '(company-files company-css)))))
+                                                  '(company-files company-css company-capf company-dabbrev-code :separate)))))
 
 ;; 直接编辑 HTML 文件时的设置
 (add-hook 'mhtml-mode-hook 'web-dev-attached)
