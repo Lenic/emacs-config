@@ -104,8 +104,7 @@
       (setq-local flycheck-javascript-eslint-executable eslint))))
 
 (use-package web-mode
-  ;; :after (tide lsp-mode)
-  :after lsp-mode
+  :defer 1
   :mode ("\\.js[x]?\\'" "\\.vue\\'" "\\.html\\'")
   :init
   (setq web-mode-content-types-alist
@@ -130,8 +129,7 @@
 (use-package lsp-tailwindcss
   :defer 3
   :init
-  (setq lsp-tailwindcss-add-on-mode t
-        lsp-tailwindcss-server-version "0.6.13"))
+  (setq lsp-tailwindcss-add-on-mode t))
 
 (use-package typescript-mode
   :defer 3

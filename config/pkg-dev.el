@@ -47,7 +47,6 @@
 
 ;; LSP 模式配置
 (use-package lsp-mode
-  :defer t
   :commands lsp
   :config
   ;; 自动清理 lsp-mode 中的内存泄露
