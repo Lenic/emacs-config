@@ -54,9 +54,37 @@
               ;; 其它开发设置
               (web-dev-attached))))
 
+;; JavaScript/TypeScript 语法检查设置
+(defun my/use-eslint-from-node-modules ()
+  (let* ((root (locate-dominating-file
+                (or (buffer-file-name) default-directory)
+                "node_modules"))
+         (eslint
+          (and root
+               (expand-file-name "node_modules/.bin/eslint"
+                                 root))))
+    (when (and eslint (file-executable-p eslint))
+      (setq-local flycheck-javascript-eslint-executable eslint))))
+
+;; CSS/LESS 语法检查设置
+(defun my/use-stylelint-from-node-modules ()
+  (let* ((root (locate-dominating-file
+                (or (buffer-file-name) default-directory)
+                "node_modules"))
+         (stylelint
+          (and root
+               (expand-file-name "node_modules/.bin/stylelint"
+                                 root))))
+    (when (and stylelint (file-executable-p stylelint))
+      (setq-local flycheck-css-stylelint-executable stylelint)
+      (setq-local flycheck-less-stylelint-executable stylelint))))
+
 ;; 语法检查包
 (use-package flycheck
   :defer 3
+  :config
+  (add-hook 'flycheck-mode-hook 'my/use-eslint-from-node-modules)
+  (add-hook 'flycheck-mode-hook 'my/use-stylelint-from-node-modules)
   :hook ((css-mode json-mode web-mode typescript-mode) . flycheck-mode))
 
 (defun my/web-html-setup()
@@ -91,18 +119,6 @@
   ;; 设置 Company 后端
   (add-to-list (make-local-variable 'company-backends) '(company-files company-css company-capf company-dabbrev-code :separate)))
 
-;; JavaScript/TypeScript 语法检查设置
-(defun my/use-eslint-from-node-modules ()
-  (let* ((root (locate-dominating-file
-                (or (buffer-file-name) default-directory)
-                "node_modules"))
-         (eslint
-          (and root
-               (expand-file-name "node_modules/.bin/eslint"
-                                 root))))
-    (when (and eslint (file-executable-p eslint))
-      (setq-local flycheck-javascript-eslint-executable eslint))))
-
 (use-package web-mode
   :defer 1
   :mode ("\\.js[x]?\\'" "\\.vue\\'" "\\.html\\'")
@@ -118,7 +134,6 @@
   :config
   (add-hook 'web-mode-hook (lambda()
                              (web-dev-attached)
-                             (my/use-eslint-from-node-modules)
                              (cond ((equal web-mode-content-type "html")
                                     (my/web-html-setup))
                                    ((member web-mode-content-type '("vue"))
