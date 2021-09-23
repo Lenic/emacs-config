@@ -121,10 +121,11 @@
 
 (use-package web-mode
   :defer 1
-  :mode ("\\.js[x]?\\'" "\\.vue\\'" "\\.html\\'")
+  :mode ("\\.tsx\\'" "\\.js[x]?\\'" "\\.vue\\'" "\\.html\\'")
   :init
   (setq web-mode-content-types-alist
         '(("vue" . "\\.vue\\'")
+          ("jsx" . "\\.tsx\\'")
           ("jsx"  . "\\.js[x]?\\'")))
   (setq web-mode-css-indent-offset 2                  ;; CSS 默认缩进 2 空格：包含 HTML 的 CSS 部分以及纯 CSS/LESS/SASS 文件等
         web-mode-code-indent-offset 2                 ;; JavaScript 默认缩进 2 空格：包含 HTML 的 SCRIPT 部分以及纯 JS/JSX/TS/TSX 文件等
@@ -148,7 +149,7 @@
 
 (use-package typescript-mode
   :defer 3
-  :mode "\\.ts[x]?\\'"
+  :mode "\\.ts\\'"
   :init
   ;; 设置缩进两个空格
   (setq typescript-indent-level 2)
