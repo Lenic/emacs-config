@@ -108,6 +108,12 @@
         '("~/.emacs.d/snippets"))
   (yas-reload-all))
 
+;; 注释编辑工具
+(use-package separedit
+  :defer 5
+  :config
+  (setq separedit-default-mode 'markdown-mode))
+
 ;; 添加选区扩展功能插件
 (use-package expand-region
   :defer 10
