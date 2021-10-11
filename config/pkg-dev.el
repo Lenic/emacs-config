@@ -80,10 +80,19 @@
         lsp-signature-render-documentation t
         lsp-completion-show-detail t
         lsp-completion-show-kind t
-        lsp-diagnostic-package :none
+        ;; lsp-diagnostic-package :none
         lsp-enable-symbol-highlighting nil
         lsp-headerline-breadcrumb-enable nil
-        lsp-completion-enable-additional-text-edit nil))
+        lsp-completion-enable-additional-text-edit nil)
+  (defun creature/lsp-eslint-checker-init ()
+    (when (and flycheck-mode
+               (flycheck-valid-checker-p 'lsp)
+               (flycheck-valid-checker-p 'javascript-eslint))
+      (make-local-variable 'flycheck-checkers)
+      (flycheck-add-next-checker 'lsp 'javascript-eslint)))
+
+  (with-eval-after-load 'lsp-diagnostics
+    (add-hook 'lsp-diagnostics-mode-hook #'creature/lsp-eslint-checker-init)))
 
 ;; LSP 模式的帮助文档相关
 (use-package lsp-ui

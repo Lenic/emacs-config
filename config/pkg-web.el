@@ -21,9 +21,6 @@
   ;; 设置列参考线：120
   (setq display-fill-column-indicator-column 120)
   (display-fill-column-indicator-mode t)
-  ;; use eslint with web-mode for jsx files
-  ;; (flycheck-add-mode 'javascript-eslint 'web-mode)
-  ;; (flycheck-add-mode 'javascript-eslint 'typescript-mode)
   ;; 开启代码折叠快捷键
   (define-key hs-minor-mode-map (kbd "C-c C-f") 'hs-toggle-hiding))
 
