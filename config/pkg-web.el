@@ -37,6 +37,20 @@
             ;; 其它开发设置
             (web-dev-attached)))
 
+;; 设置 Less 文件的样式校验
+(add-hook 'lsp-managed-mode-hook
+          (lambda ()
+            (when (derived-mode-p 'less-css-mode)
+              (let* ((root (locate-dominating-file
+                            (or (buffer-file-name) default-directory)
+                            "node_modules"))
+                     (stylelint
+                      (and root
+                           (expand-file-name "node_modules/.bin/stylelint"
+                                             root))))
+                (when (and stylelint (file-executable-p stylelint))
+                  (flycheck-select-checker 'less-stylelint))))))
+
 (use-package json-mode
   :defer 3
   :mode "\\.json\\'"
