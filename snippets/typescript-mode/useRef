@@ -1,0 +1,6 @@
+# -*- mode: snippet -*-
+# name: useRef
+# key: useRef
+# --
+
+const $1Ref = useRef($0);
