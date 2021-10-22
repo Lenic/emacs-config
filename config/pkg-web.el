@@ -96,11 +96,10 @@
   :config
   (add-hook 'flycheck-mode-hook 'my/use-eslint-from-node-modules)
   (add-hook 'flycheck-mode-hook 'my/use-stylelint-from-node-modules)
-  :hook ((css-mode json-mode web-mode typescript-mode) . flycheck-mode))
+  :hook ((css-mode json-mode web-mode js-mode typescript-mode) . flycheck-mode))
 
 (defun my/web-html-setup()
-  "Setup for web-mode html files."
-  (message "web-mode use html related setup")
+  "Setup for html files."
   ;; 开启 LSP 模式自动完成
   (lsp)
   ;; 设置 Company 后端
@@ -109,7 +108,6 @@
 
 (defun my/web-vue-setup()
   "Setup for vue related."
-  (message "web-mode use vue related setup")
   ;; 开启 LSP 模式自动完成
   (lsp)
   ;; 设置 Company 后端
@@ -118,27 +116,18 @@
 
 (defun my/web-js-setup()
   "Setup for js related."
-  (message "web-mode use js related setup")
-  ;; Tide 安装
-  ;; (tide-setup)
-  ;; 设置 Company 后端
-  ;; (add-to-list (make-local-variable 'company-backends) '(company-capf))
-  ;; 当 tsserver 服务没有启动时自动重新启动
-  ;; (unless (tide-current-server) (tide-restart-server)))
   ;; 开启 LSP 模式自动完成
   (lsp)
   ;; 设置 Company 后端
-  (add-to-list (make-local-variable 'company-backends) '(company-files company-css company-capf company-dabbrev-code :separate)))
+  (add-to-list (make-local-variable 'company-backends)
+               '(company-files company-css company-capf company-dabbrev-code :separate)))
 
 (use-package web-mode
   :defer 1
-  :mode ("\\.tsx\\'" "\\.js[x]?\\'" "\\.vue\\'" "\\.html\\'")
+  :mode ("\\.vue\\'" "\\.html\\'")
   :init
-  (setq web-mode-content-types-alist
-        '(("vue" . "\\.vue\\'")
-          ("jsx" . "\\.tsx\\'")
-          ("jsx"  . "\\.js[x]?\\'")))
-  (setq web-mode-css-indent-offset 2                  ;; CSS 默认缩进 2 空格：包含 HTML 的 CSS 部分以及纯 CSS/LESS/SASS 文件等
+  (setq web-mode-content-types-alist '(("vue" . "\\.vue\\'"))
+        web-mode-css-indent-offset 2                  ;; CSS 默认缩进 2 空格：包含 HTML 的 CSS 部分以及纯 CSS/LESS/SASS 文件等
         web-mode-code-indent-offset 2                 ;; JavaScript 默认缩进 2 空格：包含 HTML 的 SCRIPT 部分以及纯 JS/JSX/TS/TSX 文件等
         web-mode-markup-indent-offset 2               ;; HTML 默认缩进 2 空格：包含 HTML 文件以及 Vue 文件的 TEMPLATE 部分
         web-mode-enable-css-colorization t            ;; 开启 CSS 部分色值的展示：展示的时候会有光标显示位置异常
@@ -149,33 +138,32 @@
                              (cond ((equal web-mode-content-type "html")
                                     (my/web-html-setup))
                                    ((member web-mode-content-type '("vue"))
-                                    (my/web-vue-setup))
-                                   ((member web-mode-content-type '("jsx"))
-                                    (my/web-js-setup))))))
+                                    (my/web-vue-setup))))))
 
 (use-package lsp-tailwindcss
   :defer 3
   :init
   (setq lsp-tailwindcss-add-on-mode t))
 
+(use-package js
+  :ensure nil
+  :init
+  (setq js-indent-level 2)
+  :config
+  (add-hook 'js-mode-hook (lambda()
+                            (web-dev-attached)
+                            (my/web-js-setup))))
+
 (use-package typescript-mode
   :defer 3
-  :mode "\\.ts\\'"
+  :mode "\\.ts[x]?\\'"
   :init
   ;; 设置缩进两个空格
   (setq typescript-indent-level 2)
   :config
-  (add-hook 'typescript-mode-hook '(lambda()
-                                     (web-dev-attached)
-                                     ;; Tide 安装
-                                     ;; (tide-setup)
-                                     ;; 当 tsserver 服务没有启动时自动重新启动
-                                     ;; (unless (tide-current-server) (tide-restart-server)))))
-                                     ;; 开启 LSP 模式自动完成
-                                     (lsp)
-                                     ;; 设置 Company 后端
-                                     (add-to-list (make-local-variable 'company-backends)
-                                                  '(company-files company-css company-capf company-dabbrev-code :separate)))))
+  (add-hook 'typescript-mode-hook (lambda()
+                             (web-dev-attached)
+                             (my/web-js-setup))))
 
 ;; 直接编辑 HTML 文件时的设置
 (add-hook 'mhtml-mode-hook 'web-dev-attached)
