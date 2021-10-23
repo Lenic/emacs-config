@@ -1,0 +1,3 @@
+[submodule "dependencies/pyim-tsinghua-dict"]
+	path = dependencies/pyim-tsinghua-dict
+	url = https://github.com/redguardtoo/pyim-tsinghua-dict.git

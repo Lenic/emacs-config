@@ -151,6 +151,11 @@
   ;; 激活 basedict 拼音词库
   (use-package pyim-basedict
     :config (pyim-basedict-enable))
+  ;; 激活清华中文开发词库
+  (use-package pyim-tsinghua-dict
+    :ensure nil
+    :load-path "~/.emacs.d/dependencies/pyim-tsinghua-dict"
+    :config (pyim-tsinghua-dict-enable))
   ;; 设置使用拼音输入法
   (setq default-input-method "pyim")
   ;; 我使用全拼
