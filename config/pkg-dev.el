@@ -89,7 +89,7 @@
                (flycheck-valid-checker-p 'lsp)
                (flycheck-valid-checker-p 'javascript-eslint))
       (make-local-variable 'flycheck-checkers)
-      (flycheck-add-next-checker 'lsp 'javascript-eslint)))
+      (flycheck-add-next-checker 'javascript-eslint 'lsp)))
 
   (with-eval-after-load 'lsp-diagnostics
     (add-hook 'lsp-diagnostics-mode-hook #'creature/lsp-eslint-checker-init)))
