@@ -43,7 +43,7 @@
 ;; 设置 Less 文件的样式校验
 (add-hook 'lsp-managed-mode-hook
           (lambda ()
-            (when (derived-mode-p 'less-css-mode)
+            (when (and flycheck-mode (derived-mode-p 'less-css-mode))
               (let* ((root (locate-dominating-file
                             (or (buffer-file-name) default-directory)
                             "node_modules"))
@@ -53,7 +53,8 @@
                                              root))))
                 (when (and stylelint (file-executable-p stylelint))
                   (flycheck-select-checker 'less-stylelint))))
-            (when (or (derived-mode-p 'js-mode) (derived-mode-p 'typescript-mode) (derived-mode-p 'web-mode))
+            ;; 因为 json-mode 是从 js-mode 派生出来的，所以要对 json-mode 排除
+            (when (and flycheck-mode (or (derived-mode-p 'js-mode) (derived-mode-p 'typescript-mode) (derived-mode-p 'web-mode)) (not (derived-mode-p 'json-mode)))
               (let* ((root (locate-dominating-file
                             (or (buffer-file-name) default-directory)
                             "node_modules"))
@@ -61,8 +62,12 @@
                       (and root
                            (expand-file-name "node_modules/.bin/eslint"
                                              root))))
-                (when (and eslint (file-executable-p eslint))
-                  (flycheck-select-checker 'javascript-eslint))))))
+                (when (and (and eslint (file-executable-p eslint))
+                           (flycheck-valid-checker-p 'lsp)
+                           (flycheck-valid-checker-p 'javascript-eslint))
+                  (flycheck-select-checker 'javascript-eslint)
+                  (make-local-variable 'flycheck-checkers)
+                  (flycheck-add-next-checker 'javascript-eslint 'lsp))))))
 
 (use-package json-mode
   :defer 3
@@ -109,7 +114,7 @@
   :config
   (add-hook 'flycheck-mode-hook 'my/use-eslint-from-node-modules)
   (add-hook 'flycheck-mode-hook 'my/use-stylelint-from-node-modules)
-  :hook ((css-mode json-mode web-mode js-mode typescript-mode) . flycheck-mode))
+  :hook ((css-mode web-mode js-mode typescript-mode) . flycheck-mode))
 
 (defun my/web-html-setup()
   "Setup for html files."
