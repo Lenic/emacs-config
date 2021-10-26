@@ -7,7 +7,10 @@
 (use-package emmet-mode
   :defer 3
   :init (setq emmet-expand-jsx-className? t)
-  :hook (web-mode typescript-mode js-mode))
+  :hook (web-mode typescript-mode js-mode)
+  :config
+  (add-to-list 'emmet-jsx-major-modes 'js-mode)
+  (add-to-list 'emmet-jsx-major-modes 'typescript-mode))
 
 ;; 附加 Web 开发的各种插件
 (defun web-dev-attached ()
