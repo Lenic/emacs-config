@@ -98,7 +98,7 @@
       ;; pyim 关闭时的颜色
       (if is-day-theme
           (set-cursor-color "#100a14")
-        (set-cursor-color "#e3dedd"))
+        (set-cursor-color "#839496"))
     (if chinese-input-p
         ;; pyim 输入中文时的颜色
         (if is-day-theme
@@ -107,15 +107,17 @@
       ;; pyim 输入英文时的颜色
       (if is-day-theme
           (set-cursor-color "#100a14")
-        (set-cursor-color "#e3dedd")))))
+        (set-cursor-color "#839496")))))
 
+(use-package solarized-theme)
 (use-package spacemacs-theme
   :defer t
+  :after solarized-theme
   :init
   ;; 设置明亮主题
   (setq day-theme 'spacemacs-light)
   ;; 设置暗黑主题
-  (setq dark-theme 'spacemacs-dark)
+  (setq dark-theme 'solarized-dark)
   ;; 当前活跃 frame 的数量，默认的数量是 0
   (setq current-frame-count 0)
   ;; 启动时不是 daemon 模式就执行主题设置
