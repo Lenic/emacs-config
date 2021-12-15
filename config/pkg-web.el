@@ -18,6 +18,8 @@
   (setq truncate-lines t)
   ;; 开启显示行号
   (display-line-numbers-mode +1)
+  ;; 启动行号左侧对齐，并且不随着宽度变化而变化
+  (setq display-line-numbers-width-start t)
   ;; 开启代码折叠子模式
   (origami-mode t)
   (hs-minor-mode t)
