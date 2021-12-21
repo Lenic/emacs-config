@@ -113,7 +113,9 @@
 
 ;; 光标定位高亮
 (use-package beacon
-  :defer 10)
+  :defer 10
+  :init
+  (beacon-mode t))
 
 ;; 开启全局窗口变动记录
 (use-package winner-mode
