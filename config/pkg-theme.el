@@ -46,8 +46,8 @@
   (setq is-in-day nil)
   ;; 获取当前处于几点：24 小时制
   (setq hour (string-to-number (substring (current-time-string) 11 13)))
-  ;; 判断当前是否处于白天：从早上 6 点开始到晚上过了 17 点
-  (setq is-in-day (not (eq nil (member hour (number-sequence 6 17)))))
+  ;; 判断当前是否处于白天：从早上 6 点开始到晚上过了 16 点
+  (setq is-in-day (not (eq nil (member hour (number-sequence 6 16)))))
   ;; (setq is-in-day (eq 1 (mod (nth 2 (current-time)) 2)))
   ;; 获取当前主题
   (setq current-theme (get-current-theme))
@@ -97,25 +97,23 @@
   (if (not (equal input-method "pyim"))
       ;; pyim 关闭时的颜色
       (if is-day-theme
-          (set-cursor-color "#100a14")
+          (set-cursor-color "#657b83")
         (set-cursor-color "#839496"))
     (if chinese-input-p
         ;; pyim 输入中文时的颜色
         (if is-day-theme
-            (set-cursor-color "purple")
+            (set-cursor-color "orange")
           (set-cursor-color "#ff72ff"))
       ;; pyim 输入英文时的颜色
       (if is-day-theme
-          (set-cursor-color "#100a14")
+          (set-cursor-color "#657b83")
         (set-cursor-color "#839496")))))
 
 (use-package solarized-theme)
-(use-package spacemacs-theme
   :defer t
-  :after solarized-theme
   :init
   ;; 设置明亮主题
-  (setq day-theme 'spacemacs-light)
+  (setq day-theme 'solarized-light)
   ;; 设置暗黑主题
   (setq dark-theme 'solarized-dark)
   ;; 当前活跃 frame 的数量，默认的数量是 0
