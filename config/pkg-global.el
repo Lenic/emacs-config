@@ -111,6 +111,10 @@
   :ensure nil
   :hook (after-init . global-subword-mode))
 
+;; 光标定位高亮
+(use-package beacon
+  :defer 10)
+
 ;; 开启全局窗口变动记录
 (use-package winner-mode
   :defer 10
