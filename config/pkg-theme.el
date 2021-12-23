@@ -109,7 +109,7 @@
           (set-cursor-color "#657b83")
         (set-cursor-color "#839496")))))
 
-(use-package solarized-theme)
+(use-package solarized-theme
   :defer t
   :init
   ;; 设置明亮主题
