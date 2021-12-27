@@ -61,8 +61,8 @@
 (require 'pkg-basic)
 
 ;; 加载 org-mode 配置
-;; (require 'pkg-org)
-;; (custom-set-variables '(org-agenda-files (quote ("~/task/inbox.org" "~/task/me.inbox.org"))))
+(require 'pkg-org)
+(custom-set-variables '(org-agenda-files (quote ("~/task/inbox.org" "~/task/me.inbox.org"))))
 
 ;; 加载开发配置
 (require 'pkg-dev);
