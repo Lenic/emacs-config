@@ -117,7 +117,7 @@
 ;; 添加选区扩展功能插件
 (use-package expand-region
   :defer 10
-  :bind ("C-=" . er/expand-region))
+  :bind ("C-o" . er/expand-region))
 
 ;; 加载 Web 开发配置
 (require 'pkg-web)
