@@ -1,5 +1,6 @@
 #!/bin/bash
 
-emacs --daemon
-emacs --daemon=work
-emacs --daemon=other
+emacs --daemon=saas
+emacs --daemon=cloud
+emacs --daemon=passport
+emacs --daemon=cms
