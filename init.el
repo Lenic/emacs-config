@@ -65,7 +65,7 @@
 (custom-set-variables '(org-agenda-files (quote ("~/task/inbox.org" "~/task/me.inbox.org"))))
 
 ;; 加载开发配置
-(require 'pkg-dev);
+(require 'pkg-dev)
 
 ;; 加载主题配置
 (require 'pkg-theme)
