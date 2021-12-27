@@ -47,6 +47,7 @@
 
 ;; LSP 模式配置
 (use-package lsp-mode
+  :pin melpa-stable
   :commands lsp
   :config
   ;; 自动清理 lsp-mode 中的内存泄露
@@ -87,6 +88,7 @@
 
 ;; LSP 模式的帮助文档相关
 (use-package lsp-ui
+  :pin melpa-stable
   :after lsp-mode
   :commands lsp-ui-mode
   :config
