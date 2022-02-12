@@ -185,6 +185,16 @@
                              (web-dev-attached)
                              (my/web-js-setup))))
 
+;; 添加结构化 AST 配置
+(use-package tree-sitter
+  :after typescript-mode
+  :hook (typescript-mode . tree-sitter-hl-mode))
+(use-package tree-sitter-langs
+  :after tree-sitter
+  :config
+  (tree-sitter-require 'tsx)
+  (add-to-list 'tree-sitter-major-mode-language-alist '(typescript-mode . tsx)))
+
 ;; 直接编辑 HTML 文件时的设置
 (add-hook 'mhtml-mode-hook 'web-dev-attached)
 
