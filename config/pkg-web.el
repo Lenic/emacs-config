@@ -114,6 +114,8 @@
 (use-package flycheck
   :defer 3
   :config
+  ;; 设置 flycheck 只在文件打开和保存的时候检查语法
+  (setq flycheck-check-syntax-automatically '(save mode-enabled))
   (add-hook 'flycheck-mode-hook 'my/use-eslint-from-node-modules)
   (add-hook 'flycheck-mode-hook 'my/use-stylelint-from-node-modules)
   :hook ((css-mode web-mode js-mode typescript-mode) . flycheck-mode))

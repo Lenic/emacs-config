@@ -82,7 +82,12 @@
         lsp-completion-show-detail t
         lsp-completion-show-kind t
         ;; lsp-diagnostic-package :none
+        lsp-diagnostic-package :flycheck
+        ;; 关闭文件监视
+        lsp-enable-file-watchers nil
         lsp-enable-symbol-highlighting nil
+        ;; 关闭 flycheck 实时语法检查
+        lsp-flycheck-live-reporting nil
         lsp-headerline-breadcrumb-enable nil
         lsp-completion-enable-additional-text-edit nil))
 
