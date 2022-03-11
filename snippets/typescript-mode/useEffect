@@ -1,0 +1,6 @@
+# -*- mode: snippet -*-
+# name: useEffect
+# key: useEffect
+# --
+
+useEffect(() => { $0 }, []);
