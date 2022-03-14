@@ -23,8 +23,8 @@
 ;;                          ("melpa" . "http://mirrors.tuna.tsinghua.edu.cn/elpa/melpa/")))
 (package-initialize)
 
-(setenv "PATH" (concat (getenv "PATH") ":/usr/local/bin"))
-(setq exec-path (append exec-path '("/usr/local/bin")))
+(setenv "PATH" (concat (getenv "PATH") ":/usr/local/bin:/opt/homebrew/bin"))
+(setq exec-path (append exec-path '("/usr/local/bin" "/opt/homebrew/bin")))
 
 ;; 设置可以读取的最大容量为 3MB
 (setq read-process-output-max (* 3 1024 1024))
@@ -42,7 +42,8 @@
   (package-refresh-contents)
   (package-install 'use-package))
 (require 'use-package)
-(setq use-package-always-ensure t)
+(setq use-package-always-ensure t
+      use-package-minimum-reported-time t)
 
 ;; 禁用 cl 库警告
 (setq byte-compile-warnings '(cl-functions))
