@@ -37,7 +37,7 @@
 ;; 工作专区
 ;; 添加一个任务收集
 (add-to-list 'org-capture-templates
-             '("i" "工作相关" entry (file+headline "~/task/inbox.org" "临时任务") "* TODO %?\n%U\n%a\n\n"))
+             '("i" "工作相关" entry (file+headline "~/task/inbox.org" "Tasks") "* TODO %?\n%U\n%a\n\n"))
 
 ;; 私人事务
 ;; 添加一个任务收集
