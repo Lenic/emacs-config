@@ -29,6 +29,9 @@
 ;; 设置可以读取的最大容量为 3MB
 (setq read-process-output-max (* 3 1024 1024))
 
+;; 缓解在快速移动时大量代码的语法高亮
+(setq redisplay-skip-fontification-on-input t)
+
 ;; 垃圾回收设置阈值 100MB
 (setq gc-cons-threshold (* 100 1024 1024))
 (setq gc-cons-percentage 0.5)
