@@ -72,11 +72,12 @@
 
 (use-package undo-tree
   :defer 10
-  :config
-  (setq undo-tree-visualizer-timestamps t
-        undo-tree-visualizer-diff t)
-  ;; 设置显示可视化撤销树形结构
-  (global-undo-tree-mode))
+  :diminish undo-tree-mode
+  :init (global-undo-tree-mode)
+  :custom
+  (undo-tree-visualizer-diff t)
+  (undo-tree-history-directory-alist '(("." . "~/undo-tree")))
+  (undo-tree-visualizer-timestamps t))
 
 ;; 设置 Ace-Jump
 (use-package ace-jump-mode
