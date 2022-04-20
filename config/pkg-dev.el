@@ -102,8 +102,8 @@
   (setq lsp-ui-sideline-delay 1)
   (setq lsp-ui-sideline-enable t))
 
-;; 加载代码折叠配置
-(use-package origami
+;; 加载代码折叠配置：支持 HTML 标签的折叠
+(use-package yafolding
   :defer 10)
 
 ;; 代码片断自动补全工具
