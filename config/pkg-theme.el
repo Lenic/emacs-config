@@ -152,10 +152,10 @@
   (use-package pyim-basedict
     :config (pyim-basedict-enable))
   ;; 激活清华中文开发词库
-  (use-package pyim-tsinghua-dict
-    :ensure nil
-    :load-path "~/.emacs.d/dependencies/pyim-tsinghua-dict"
-    :config (pyim-tsinghua-dict-enable))
+  ;; (use-package pyim-tsinghua-dict
+  ;;   :ensure nil
+  ;;   :load-path "~/.emacs.d/dependencies/pyim-tsinghua-dict"
+  ;;   :config (pyim-tsinghua-dict-enable))
   ;; 设置使用拼音输入法
   (setq default-input-method "pyim")
   ;; 我使用全拼
@@ -179,12 +179,15 @@
   ;; 开启拼音搜索功能
   ;; (pyim-isearch-mode 1)
   ;; 设置选词框的绘制方式
-  (setq pyim-page-tooltip nil)
+  (setq pyim-page-tooltip 'popup)
+  ;; (setq pyim-page-tooltip nil)
   ;; (if (posframe-workable-p)
   ;;     (setq pyim-page-tooltip 'posframe)
   ;;   (setq pyim-page-tooltip 'popup))
   ;; 选词框显示5个候选词
   (setq pyim-page-length 5)
+  ;; 百度输入法的云输入配置
+  (setq pyim-cloudim 'baidu)
   ;; 指示弹窗只显示一行，非两行的拼音和候选词显示
   (setq pyim-page-style 'one-line)
   :bind
