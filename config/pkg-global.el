@@ -41,7 +41,7 @@
 (use-package projectile
   :config
   (projectile-mode +1)
-  (setq projectile-project-search-path '("~/workspace/" "~/example/" "~/test/")
+  (setq projectile-project-search-path '("~/workspace/")
         projectile-require-project-root nil
         projectile-completion-system 'ivy
         projectile-switch-project-action 'neotree-projectile-action
