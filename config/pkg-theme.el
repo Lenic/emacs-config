@@ -144,8 +144,10 @@
                     (setq token-of-interval nil))))))
 
 ;; 输入法设置
+(use-package popup
+  :defer 4)
 (use-package pyim
-  :defer 5
+  :after popup
   :demand t
   :config
   ;; 激活 basedict 拼音词库
@@ -174,8 +176,8 @@
   ;; 开启拼音搜索功能
   ;; (pyim-isearch-mode 1)
   ;; 设置选词框的绘制方式
-  (setq pyim-page-tooltip 'popup)
-  ;; (setq pyim-page-tooltip nil)
+  ;; (setq pyim-page-tooltip 'popup)
+  (setq pyim-page-tooltip nil)
   ;; (if (posframe-workable-p)
   ;;     (setq pyim-page-tooltip 'posframe)
   ;;   (setq pyim-page-tooltip 'popup))
