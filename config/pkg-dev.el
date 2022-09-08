@@ -129,6 +129,9 @@
 ;; 加载 Web 开发配置
 (require 'pkg-web)
 
+;; 加载 Python 开发配置
+(require 'pkg-python)
+
 ;; 加载 Java 开发配置
 ;; (require 'pkg-java)
 
