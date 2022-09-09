@@ -1,7 +1,12 @@
 ;; Python 开发主模式
 (use-package python-mode
   :defer 3
+  :custom
+  (python-shell-interpreter "python3")
+  (dap-python-executable "python3")
+  (dap-python-debugger 'debugpy)
   :config
+  (require 'dap-python)
   (add-hook 'python-mode-hook
             (lambda ()
               ;; 设置关闭自动换行
@@ -17,6 +22,11 @@
               (display-fill-column-indicator-mode t)
               ;; 开启代码折叠快捷键
               (define-key hs-minor-mode-map (kbd "C-c C-f") 'hs-toggle-hiding))))
+
+(use-package pyvenv
+  :after python-mode
+  :config
+  (pyvenv-mode 1))
 
 ;; LSP 自动完成服务端
 (use-package lsp-pyright
