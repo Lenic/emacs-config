@@ -190,7 +190,9 @@
 ;; 添加结构化 AST 配置
 (use-package tree-sitter
   :after typescript-mode
-  :hook (typescript-mode . tree-sitter-hl-mode))
+  :hook
+  (typescript-mode . tree-sitter-hl-mode)
+  (python-mode . tree-sitter-hl-mode))
 (use-package tree-sitter-langs
   :after tree-sitter
   :config
