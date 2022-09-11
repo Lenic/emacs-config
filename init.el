@@ -23,7 +23,7 @@
 ;;                          ("melpa" . "http://mirrors.tuna.tsinghua.edu.cn/elpa/melpa/")))
 (package-initialize)
 
-(setenv "PATH" (concat (getenv "PATH") ":/usr/local/bin:/opt/homebrew/bin"))
+(setenv "PATH" (concat "/usr/local/bin:/opt/homebrew/bin:" (getenv "PATH")))
 (setq exec-path (append exec-path '("/usr/local/bin" "/opt/homebrew/bin")))
 
 ;; 设置可以读取的最大容量为 3MB
