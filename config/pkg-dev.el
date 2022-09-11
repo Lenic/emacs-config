@@ -128,6 +128,7 @@
 
 ;; DAP
 (use-package dap-mode
+  :demand t
   :commands dap-debug
   :config
   (dap-auto-configure-mode -1)

@@ -1,6 +1,7 @@
 ;; Python 开发主模式
 (use-package python-mode
-  :defer 3
+  :demand t
+  :after (lsp-mode dap-mode)
   :custom
   (python-shell-interpreter "python3")
   (dap-python-executable "python3")
