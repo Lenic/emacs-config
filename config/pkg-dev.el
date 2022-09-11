@@ -128,15 +128,19 @@
 
 ;; DAP
 (use-package dap-mode
-  ;; Uncomment the config below if you want all UI panes to be hidden by default!
-  ;; :custom
-  ;; (lsp-enable-dap-auto-configure nil)
-  ;; :config
-  ;; (dap-ui-mode 1)
   :commands dap-debug
   :config
-  ;; Set up Node debugging
+  (dap-auto-configure-mode -1)
+  (setq dap-auto-configure-features '(locals breakpoints controls))
+  (dap-mode 1)
+  (dap-ui-mode 1)
+  (dap-ui-many-windows-mode 1)
   (require 'dap-hydra))
+
+;;;###autoload
+(defun +dap-debug-a (&rest _)
+  (dap-hydra))
+(advice-add #'dap-debug :after #'+dap-debug-a)
 
 ;; 加载 Web 开发配置
 (require 'pkg-web)
