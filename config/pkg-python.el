@@ -33,7 +33,7 @@
   :after python-mode
   :hook (python-mode . (lambda ()
                          (require 'lsp-pyright)
-                         (lsp))))  ; or lsp-deferred
+                         (lsp-deferred))))  ; or lsp-deferred
 
 ;; Python 保存自动格式化工具
 (use-package python-black

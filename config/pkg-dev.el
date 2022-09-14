@@ -86,6 +86,7 @@
         ;; 关闭文件监视
         lsp-enable-file-watchers nil
         lsp-enable-symbol-highlighting nil
+        lsp-enable-dap-auto-configure nil
         ;; 关闭 flycheck 实时语法检查
         lsp-flycheck-live-reporting nil
         lsp-headerline-breadcrumb-enable nil
