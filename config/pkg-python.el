@@ -26,9 +26,7 @@
               (setq display-fill-column-indicator-column 120)
               (display-fill-column-indicator-mode t)
               ;; 开启代码折叠快捷键
-              (define-key hs-minor-mode-map (kbd "C-c C-f") 'hs-toggle-hiding)))
-  (add-hook 'dap-stopped-hook
-            (lambda (arg) (call-interactively #'dap-hydra))))
+              (define-key hs-minor-mode-map (kbd "C-c C-f") 'hs-toggle-hiding))))
 
 ;; LSP 自动完成服务端
 (use-package lsp-pyright
