@@ -6,6 +6,7 @@
   (python-shell-interpreter "python3")
   (dap-python-executable "python3")
   (dap-python-debugger 'debugpy)
+  (setq python-indent-offset 4)
   :config
   (require 'lsp-mode)
   (require 'lsp-pyright)
@@ -23,6 +24,8 @@
     (python-black-on-save-mode 1)
     ;; 设置使用 Tree Sitter 语法高亮
     (tree-sitter-hl-mode t)
+    ;; 连接 LSP 服务
+    (lsp-deferred)
     ;; 设置关闭自动换行
     (setq truncate-lines t)
     ;; 启动 Flycheck 语法检查
