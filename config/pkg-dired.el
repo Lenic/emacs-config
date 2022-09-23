@@ -1,5 +1,5 @@
 (use-package dired
-  :defer 10
+  :commands dired
   :ensure nil
   :custom
   (dired-kill-when-opening-new-dired-buffer t)

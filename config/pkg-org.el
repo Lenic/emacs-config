@@ -7,8 +7,10 @@
 ;; 设置 Agenda 模块快捷键
 (global-set-key (kbd "C-c a") 'org-agenda)
 
-(use-package htmlize)
+(use-package htmlize
+  :commands org-mode)
 (use-package org-bullets
+  :commands org-mode
   :config
   (add-hook 'org-mode-hook
             (lambda ()

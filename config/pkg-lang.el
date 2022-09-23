@@ -1,14 +1,14 @@
 (use-package markdown-mode
-  :defer 3)
+  :commands markdown-mode)
 
 (use-package dockerfile-mode
-  :defer 3)
+  :commands dockerfile-mode)
 
 (use-package yaml-mode
-  :defer 3)
+  :commands yaml-mode)
 
 (use-package elfeed
-  :defer 3
+  :commands elfeed
   :config
   (setq-default elfeed-search-filter "@1-week-ago +unread ")
   (global-set-key (kbd "C-x w") 'elfeed)

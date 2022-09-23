@@ -145,11 +145,8 @@
                     (setq token-of-interval nil))))))
 
 ;; 输入法设置
-(use-package popup
-  :defer 4)
 (use-package pyim
-  :after popup
-  :demand t
+  :commands pyim-convert-string-at-point
   :config
   ;; 激活 basedict 拼音词库
   (use-package pyim-basedict

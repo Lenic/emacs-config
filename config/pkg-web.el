@@ -1,46 +1,52 @@
 ;; 设置保存后自动格式化代码
 (use-package prettier-js
-  :defer 3
-  :hook ((css-mode web-mode typescript-mode js-mode json-mode) . prettier-js-mode))
+  :commands prettier-js-mode)
+  ;; :hook ((css-mode web-mode typescript-mode js-mode json-mode) . prettier-js-mode))
 
 ;; 快速编写 HTML 代码
 (use-package emmet-mode
-  :defer 3
+  :commands emmet-mode
   :init (setq emmet-expand-jsx-className? t)
-  :hook (web-mode typescript-mode js-mode)
   :config
   (add-to-list 'emmet-jsx-major-modes 'js-mode)
   (add-to-list 'emmet-jsx-major-modes 'typescript-mode))
 
 ;; 附加 Web 开发的各种插件
-(defun web-dev-attached ()
+(defun my/web-dev-attached ()
+  ;; 设置使用 Tree Sitter 语法高亮
+  ;; (tree-sitter-hl-mode t)
+  ;; 加载 Company 显示自动完成列表
+  (company-mode 1)
+  ;; 在文件左侧显示 Git 状态
+  (git-gutter-mode 1)
+  ;; 设置 Prettier 格式化代码
+  (prettier-js-mode 1)
+  ;; 启动 Flycheck 语法检查
+  (flycheck-mode 1)
   ;; 设置关闭自动换行
   (setq truncate-lines t)
   ;; 开启显示行号
   (display-line-numbers-mode +1)
   ;; 启动行号左侧对齐，并且不随着宽度变化而变化
   (setq display-line-numbers-width-start t)
-  ;; 开启代码折叠子模式
-  (origami-mode t)
-  (hs-minor-mode t)
+  ;; 启动代码折叠功能
+  (yafolding-mode t)
   ;; 设置列参考线：120
   (setq display-fill-column-indicator-column 120)
-  (display-fill-column-indicator-mode t)
-  ;; 开启代码折叠快捷键
-  (define-key hs-minor-mode-map (kbd "C-c C-f") 'hs-toggle-hiding))
+  (display-fill-column-indicator-mode t))
 
 ;; 设置 CSS 及其它 CSS 预处理语言
 (add-hook 'css-mode-hook
           (lambda ()
+            ;; 通用前端开发设置
+            (my/web-dev-attached)
             ;; 开启 LSP 模式自动完成
             (lsp)
             ;; 设置自动缩进的宽度
             (setq css-indent-offset 2)
             ;; 设置 Company 后端
             (add-to-list (make-local-variable 'company-backends)
-                         '(company-css company-files company-capf company-dabbrev))
-            ;; 其它开发设置
-            (web-dev-attached)))
+                         '(company-css company-files company-capf company-dabbrev))))
 
 ;; 设置 Less 文件的样式校验
 (add-hook 'lsp-managed-mode-hook
@@ -72,18 +78,20 @@
                   (flycheck-add-next-checker 'javascript-eslint 'lsp))))))
 
 (use-package json-mode
-  :defer 3
+  :commands json-mode
   :mode "\\.json\\'"
   :config
+  ;; 加载 LSP 配置
+  (require 'lsp-mode)
   (add-hook 'json-mode-hook
             (lambda ()
+              ;; 其它开发设置
+              (my/web-dev-attached)
               ;; 开启 LSP 模式自动完成
               (lsp)
               ;; 设置自动缩进的宽度
               (make-local-variable 'js-indent-level)
-              (setq js-indent-level 2)
-              ;; 其它开发设置
-              (web-dev-attached))))
+              (setq js-indent-level 2))))
 
 ;; JavaScript/TypeScript 语法检查设置
 (defun my/use-eslint-from-node-modules ()
@@ -112,7 +120,7 @@
 
 ;; 语法检查包
 (use-package flycheck
-  :defer 3
+  :commands flycheck-mode
   :config
   ;; 设置 flycheck 只在文件打开和保存的时候检查语法
   (setq flycheck-check-syntax-automatically '(save mode-enabled))
@@ -138,6 +146,10 @@
 
 (defun my/web-js-setup()
   "Setup for js related."
+  ;; 加载通用 Web 开发配置
+  (my/web-dev-attached)
+  ;; 启动 Emmet 快速补充 HTML 代码
+  (emmet-mode t)
   ;; 开启 LSP 模式自动完成
   (lsp)
   ;; 设置 Company 后端
@@ -145,7 +157,7 @@
                '(company-files company-css company-capf company-dabbrev-code :separate)))
 
 (use-package web-mode
-  :defer 1
+  :commands web-mode
   :mode ("\\.vue\\'" "\\.html\\'")
   :init
   (setq web-mode-content-types-alist '(("vue" . "\\.vue\\'"))
@@ -156,50 +168,41 @@
         web-mode-enable-current-column-highlight nil)
   :config
   (add-hook 'web-mode-hook (lambda()
-                             (web-dev-attached)
+                             (my/web-dev-attached)
                              (cond ((equal web-mode-content-type "html")
                                     (my/web-html-setup))
                                    ((member web-mode-content-type '("vue"))
                                     (my/web-vue-setup))))))
 
+;; TailwindCSS 插件配置
 (use-package lsp-tailwindcss
-  :defer 3
+  :after lsp-mode
   :init
-  (setq lsp-tailwindcss-add-on-mode t))
+  (setq lsp-tailwindcss-add-on-mode t)
+  :config
+  ;; 第一次加载完成后尝试拉起 TailwindCSS 服务
+  (lsp-deferred))
 
+;; JavaScript 和 JavaScript React 插件配置
 (use-package js
+  :commands js-mode
   :ensure nil
   :init
   (setq js-indent-level 2)
   :config
-  (add-hook 'js-mode-hook (lambda()
-                            (web-dev-attached)
-                            (my/web-js-setup))))
+  (add-hook 'js-mode-hook 'my/web-js-setup))
 
+;; TypeScript 和 TypeScript React 插件配置
 (use-package typescript-mode
-  :defer 3
+  :commands typescript-mode
   :mode "\\.ts[x]?\\'"
   :init
   ;; 设置缩进两个空格
   (setq typescript-indent-level 2)
   :config
-  (add-hook 'typescript-mode-hook (lambda()
-                             (web-dev-attached)
-                             (my/web-js-setup))))
-
-;; 添加结构化 AST 配置
-(use-package tree-sitter
-  :after typescript-mode
-  :hook
-  (typescript-mode . tree-sitter-hl-mode)
-  (python-mode . tree-sitter-hl-mode))
-(use-package tree-sitter-langs
-  :after tree-sitter
-  :config
-  (tree-sitter-require 'tsx)
-  (add-to-list 'tree-sitter-major-mode-language-alist '(typescript-mode . tsx)))
+  (add-hook 'typescript-mode-hook 'my/web-js-setup))
 
 ;; 直接编辑 HTML 文件时的设置
-(add-hook 'mhtml-mode-hook 'web-dev-attached)
+(add-hook 'mhtml-mode-hook 'my/web-dev-attached)
 
 (provide 'pkg-web)

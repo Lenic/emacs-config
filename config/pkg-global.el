@@ -1,6 +1,6 @@
 ;; 窗口快捷跳转操作
 (use-package ace-window
-  :defer 5
+  :commands ace-window
   :config
   (setq aw-keys '(?a ?s ?d ?f ?g ?h ?j ?k ?l))
   :bind
@@ -12,8 +12,9 @@
   :config
   (xclip-mode))
 
+;; 全局基础配置
 (use-package counsel
-  :defer t
+  :commands (swiper-isearch counsel-M-x counsel-ibuffer counsel-find-file counsel-rg counsel-fzf counsel-file-jump)
   :config
   ;; 设置 counsel-fzf 命令使用 rg 作为核心输出端
   (setq counsel-fzf-cmd "rg -l -L --glob '!.git' --hidden . | fzf -f \"%s\"")
@@ -38,40 +39,29 @@
   ;; 设置查找特定目录下的文件名查找
   ("C-c f" . counsel-file-jump))
 
-(use-package projectile
-  :config
-  (projectile-mode +1)
-  (setq projectile-project-search-path '("~/workspace/")
-        projectile-require-project-root nil
-        projectile-completion-system 'ivy
-        projectile-switch-project-action 'neotree-projectile-action
-        projectile-mode-line-function '(lambda () " Projectile"))
-  (projectile-register-project-type 'npm '("package.json")
-                                    :project-file "package.json"
-                                    :compile "npm ci"
-                                    :test "npm test"
-                                    :run "npm run serve"
-                                    :test-suffix ".spec"))
-
-;; 在 swiper 中仍然可以输入中文，只不过换成了 M-i 这个快捷键
-(with-eval-after-load 'ivy
-  (define-key ivy-minibuffer-map (kbd "M-i") 'pyim-convert-string-at-point))
-
-(use-package rg
-  :defer 10
-  :config
-  (rg-enable-default-bindings))
-
+;; 命令使用最近使用方式排序
 (use-package amx
-  :defer 3)
+  :after counsel)
+
+;; 项目内使用 rg 快速查找
+(use-package rg
+  :commands rg-menu
+  :config
+  (rg-enable-default-bindings)
+  :bind ("C-c s" . rg-menu))
+
+;; 对于查找结果的快速编辑功能
 (use-package wgrep
-  :defer 10)
+  :commands wgrep-change-to-wgrep-mode)
 
+;; 多光标编辑功能
 (use-package multiple-cursors
+  :commands mc/mark-next-like-this
   :defer 10)
 
+;; 自动撤销树
 (use-package undo-tree
-  :defer 10
+  :defer 3
   :diminish undo-tree-mode
   :init (global-undo-tree-mode)
   :custom
@@ -81,7 +71,7 @@
 
 ;; 设置 Ace-Jump
 (use-package ace-jump-mode
-  :defer 10
+  :commands (ace-jump-word-mode ace-jump-line-mode)
   :bind
   ("C-c j" . ace-jump-word-mode)
   ("C-c l" .  ace-jump-line-mode)
@@ -120,7 +110,7 @@
 
 ;; 开启全局窗口变动记录
 (use-package winner-mode
-  :defer 10
+  :defer 1
   :ensure nil
   :hook (after-init . winner-mode)
   :config (setq winner-dont-bind-my-keys nil))

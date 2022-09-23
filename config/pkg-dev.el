@@ -1,23 +1,43 @@
-;; 设置打开 NeoTree
+;; 项目列表选择工具
+(use-package projectile
+  :commands (projectile-switch-project projectile-discover-projects-in-search-path)
+  :config
+  (projectile-mode +1)
+  (setq projectile-project-search-path '("~/workspace/")
+        projectile-require-project-root nil
+        projectile-completion-system 'ivy
+        projectile-switch-project-action 'neotree-projectile-action
+        projectile-mode-line-function '(lambda () " Projectile"))
+  (projectile-register-project-type 'npm '("package.json")
+                                    :project-file "package.json"
+                                    :compile "npm ci"
+                                    :test "npm test"
+                                    :run "npm run serve"
+                                    :test-suffix ".spec"))
+
+;; 在 swiper 中仍然可以输入中文，只不过换成了 M-i 这个快捷键
+(with-eval-after-load 'ivy
+  (define-key ivy-minibuffer-map (kbd "M-i") 'pyim-convert-string-at-point))
+
+;; 设置打开 NeoTree 树形列表展示
 (use-package neotree
-  :after projectile
+  :commands projectile-switch-project
   :config
   (setq neo-theme 'ascii           ; NeoTree 图标的样式
         neo-window-fixed-size nil) ; 设置 NeoTree 窗口的宽度可以使用鼠标调整
   :bind ("C-c o" . projectile-switch-project))
 
+;; 在文件左侧显示 Git 状态
 (use-package git-gutter
-  :defer 3
-  :config
-  ;; 设置全局 Git 状态显示
-  (global-git-gutter-mode t))
+  :commands git-gutter-mode)
 
+;; 当前文件的修改历史展示
 (use-package git-timemachine
-  :defer 10)
+  :commands git-timemachine)
 
 ;; 设置 Git 管理快捷键
 (use-package magit
-  :defer 3
+  :commands magit-status
   :bind ("C-x m" . magit-status)
   :config
   (setq magit-diff-refine-hunk (quote all))
@@ -25,8 +45,7 @@
 
 ;; 设置自动完成
 (use-package company
-  :defer 3
-  :hook ((css-mode web-mode typescript-mode js-mode json-mode emacs-lisp-mode java-mode) . company-mode)
+  :commands company-mode
   :config
   (electric-pair-mode +1)
   (setq company-idle-delay 0.5)
@@ -34,13 +53,22 @@
   (setq company-tooltip-align-annotations t) ;; aligns annotation to the right hand side
   (setq company-backends '((company-keywords company-files))))
 
-(add-hook 'emacs-lisp-mode-hook (lambda ()
-                                  (with-eval-after-load 'company
-                                    (add-to-list  (make-local-variable 'company-backends) '(company-elisp)))))
+;; 添加结构化 AST 语法高亮
+(use-package tree-sitter
+  :commands (tree-sitter-mode tree-sitter-hl-mode)
+  :hook
+  (js-mode . tree-sitter-hl-mode)
+  (typescript-mode . tree-sitter-hl-mode)
+  (python-mode . tree-sitter-hl-mode))
+(use-package tree-sitter-langs
+  :after tree-sitter
+  :config
+  (tree-sitter-require 'tsx)
+  (add-to-list 'tree-sitter-major-mode-language-alist '(typescript-mode . tsx)))
 
 ;; 指定符号高亮
 (use-package symbol-overlay
-  :defer 3
+  :commands symbol-overlay-put
   :bind
   (("C-c i" . symbol-overlay-put)
    ("C-c q" . symbol-overlay-remove-all)))
@@ -48,7 +76,7 @@
 ;; LSP 模式配置
 (use-package lsp-mode
   :pin melpa-stable
-  :commands lsp
+  :commands (lsp lsp-deferred)
   :config
   ;; 自动清理 lsp-mode 中的内存泄露
   (defun my/lsp-client-clear-leak-handlers (lsp-client)
@@ -105,32 +133,31 @@
 
 ;; 加载代码折叠配置：支持 HTML 标签的折叠
 (use-package yafolding
-  :defer 10)
+  :commands (yafolding-mode)
+  :bind ("C-<return>" . yafolding-toggle-element))
 
 ;; 代码片断自动补全工具
 (use-package yasnippet
-  :defer 10
-  :hook ((css-mode web-mode typescript-mode js-mode json-mode java-mode) . yas-minor-mode)
+  :commands yas-minor-mode
+  ;; :hook ((css-mode web-mode typescript-mode js-mode json-mode java-mode) . yas-minor-mode)
   :config
-  (setq yas-snippet-dirs
-        '("~/.emacs.d/snippets"))
+  (setq yas-snippet-dirs '("~/.emacs.d/snippets"))
   (yas-reload-all))
 
 ;; 注释编辑工具
 (use-package separedit
-  :defer 5
+  :commands separedit
   :config
   (setq separedit-default-mode 'markdown-mode))
 
 ;; 添加选区扩展功能插件
 (use-package expand-region
-  :defer 10
+  :commands (er/expand-region er/mark-word)
   :bind ("C-o" . er/expand-region))
 
 ;; DAP
 (use-package dap-mode
-  :demand t
-  :commands dap-debug
+  :commands (dap-debug dap-breakpoint-toggle)
   :config
   (dap-auto-configure-mode -1)
   (setq dap-auto-configure-features '(locals breakpoints controls))
@@ -155,7 +182,7 @@
 
 ;; ediff 结束后恢复到原来的布局
 (use-package ediff
-  :defer 10
+  :commands ediff
   :ensure nil
   :hook (ediff-quit . winner-undo)
   :config
@@ -166,5 +193,20 @@
               ',variable ,value))
   (csetq ediff-window-setup-function 'ediff-setup-windows-plain)
   (csetq ediff-split-window-function 'split-window-horizontally))
+
+;; Elisp 模式的必要设置
+(add-hook 'emacs-lisp-mode-hook (lambda ()
+                                  ;; 加载 Company 显示自动完成列表
+                                  (company-mode 1)
+                                  ;; 在文件左侧显示 Git 状态
+                                  (git-gutter-mode 1)
+                                  ;; 设置关闭自动换行
+                                  (setq truncate-lines t)
+                                  ;; 显示行号
+                                  (display-line-numbers-mode 1)
+                                  ;; 启动代码折叠功能
+                                  (yafolding-mode 1)
+                                  ;; 为 company 的自动完成列表添加 Elisp 自身的配置
+                                  (add-to-list  (make-local-variable 'company-backends) '(company-elisp))))
 
 (provide 'pkg-dev)
