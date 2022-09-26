@@ -14,7 +14,7 @@
 
 ;; 全局基础配置
 (use-package counsel
-  :commands (swiper-isearch counsel-M-x counsel-ibuffer counsel-find-file counsel-rg counsel-fzf counsel-file-jump)
+  :commands (swiper-isearch counsel-M-x counsel-ibuffer counsel-find-file counsel-rg counsel-fzf counsel-file-jump ivy)
   :config
   ;; 设置 counsel-fzf 命令使用 rg 作为核心输出端
   (setq counsel-fzf-cmd "rg -l -L --glob '!.git' --hidden . | fzf -f \"%s\"")
@@ -56,7 +56,7 @@
 
 ;; 多光标编辑功能
 (use-package multiple-cursors
-  :commands mc/mark-next-like-this
+  :commands (mc/mark-next-like-this mc/mark-all-like-this)
   :defer 10)
 
 ;; 自动撤销树
