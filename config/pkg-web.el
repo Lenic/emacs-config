@@ -1,7 +1,6 @@
 ;; 设置保存后自动格式化代码
 (use-package prettier-js
   :commands prettier-js-mode)
-  ;; :hook ((css-mode web-mode typescript-mode js-mode json-mode) . prettier-js-mode))
 
 ;; 快速编写 HTML 代码
 (use-package emmet-mode
@@ -170,6 +169,8 @@
         web-mode-enable-current-column-highlight nil)
   :config
   (add-hook 'web-mode-hook (lambda()
+                             ;; 启动 Emmet 快速补充 HTML 代码
+                             (emmet-mode t)
                              (my/web-dev-attached)
                              (cond ((equal web-mode-content-type "html")
                                     (my/web-html-setup))
