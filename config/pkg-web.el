@@ -6,10 +6,10 @@
 ;; 快速编写 HTML 代码
 (use-package emmet-mode
   :commands emmet-mode
-  :init (setq emmet-expand-jsx-className? t)
+  :init
+  (setq emmet-expand-jsx-className? t)
   :config
-  (add-to-list 'emmet-jsx-major-modes 'js-mode)
-  (add-to-list 'emmet-jsx-major-modes 'typescript-mode))
+  (unbind-key "<C-return>" emmet-mode-keymap))
 
 ;; 附加 Web 开发的各种插件
 (defun my/web-dev-attached ()
@@ -23,6 +23,8 @@
   (prettier-js-mode 1)
   ;; 启动 Flycheck 语法检查
   (flycheck-mode 1)
+  ;; 打开自动完成模式
+  (yas-minor-mode 1)
   ;; 设置关闭自动换行
   (setq truncate-lines t)
   ;; 开启显示行号
@@ -30,7 +32,7 @@
   ;; 启动行号左侧对齐，并且不随着宽度变化而变化
   (setq display-line-numbers-width-start t)
   ;; 启动代码折叠功能
-  (yafolding-mode t)
+  (yafolding-mode 1)
   ;; 设置列参考线：120
   (setq display-fill-column-indicator-column 120)
   (display-fill-column-indicator-mode t))
@@ -146,10 +148,10 @@
 
 (defun my/web-js-setup()
   "Setup for js related."
-  ;; 加载通用 Web 开发配置
-  (my/web-dev-attached)
   ;; 启动 Emmet 快速补充 HTML 代码
   (emmet-mode t)
+  ;; 加载通用 Web 开发配置
+  (my/web-dev-attached)
   ;; 开启 LSP 模式自动完成
   (lsp)
   ;; 设置 Company 后端

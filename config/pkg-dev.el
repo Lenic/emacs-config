@@ -133,8 +133,7 @@
 
 ;; 加载代码折叠配置：支持 HTML 标签的折叠
 (use-package yafolding
-  :commands (yafolding-mode)
-  :bind ("C-<return>" . yafolding-toggle-element))
+  :commands (yafolding-mode))
 
 ;; 代码片断自动补全工具
 (use-package yasnippet

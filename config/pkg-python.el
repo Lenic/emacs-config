@@ -32,15 +32,15 @@
     (flycheck-mode 1)
     ;; 开启显示行号
     (display-line-numbers-mode +1)
+    ;; 开启文件左侧 Git 变更状态标识
+    (git-gutter-mode 1)
     ;; 启动行号左侧对齐，并且不随着宽度变化而变化
     (setq display-line-numbers-width-start t)
-    ;; 开启代码折叠子模式
-    (hs-minor-mode t)
+    ;; 启动代码折叠功能
+    (yafolding-mode 1)
     ;; 设置列参考线：120
     (setq display-fill-column-indicator-column 120)
-    (display-fill-column-indicator-mode t)
-    ;; 开启代码折叠快捷键
-    (define-key hs-minor-mode-map (kbd "C-c C-f") 'hs-toggle-hiding))
+    (display-fill-column-indicator-mode t))
   (add-hook 'python-mode-hook 'my/python-loader))
 
 ;; LSP 自动完成服务端
