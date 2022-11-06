@@ -1,6 +1,6 @@
 ;; 设置 frame 的缺省值
 (setq default-frame-alist '((tool-bar-lines . 0) ;; 不显示工具栏
-                            (font . "Sarasa Mono SC 14") ;; 设置字体
+                            (font . "Sarasa Mono SC Nerd 14") ;; 设置字体
                             (width . 140) ;; 设置窗口宽度
                             (height . 30) ;; 设置窗口高度
                             (left . 0) ;; 设置窗口左边沿在屏幕上的坐标
