@@ -172,6 +172,7 @@
                              ;; 启动 Emmet 快速补充 HTML 代码
                              (emmet-mode t)
                              (my/web-dev-attached)
+                             (flycheck-add-mode 'javascript-eslint 'web-mode)
                              (cond ((equal web-mode-content-type "html")
                                     (my/web-html-setup))
                                    ((member web-mode-content-type '("vue"))
