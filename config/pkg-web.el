@@ -214,10 +214,10 @@
 (defun my/format-with-eslint ()
   "Call prettier on current file."
   (interactive)
-  (print (projectile-project-root))
-  (print (buffer-file-name))
-  (call-process-shell-command (format "cd %s ; npx eslint --fix %s"
-                                      (projectile-project-root)
-                                      (buffer-file-name))))
+  (setq my/current-file-format-command (format "cd %s ; npx eslint --fix %s"
+                                               (projectile-project-root)
+                                               (buffer-file-name)))
+  (print my/current-file-format-command)
+  (call-process-shell-command my/current-file-format-command))
 
 (provide 'pkg-web)
