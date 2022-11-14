@@ -19,7 +19,8 @@
   ;; 在文件左侧显示 Git 状态
   (git-gutter-mode 1)
   ;; 设置 Prettier 格式化代码
-  (prettier-js-mode 1)
+  (when (or (file-exists-p (format "%s/.prettierrc" (projectile-project-root))) (file-exists-p (format "%s/.prettierignore" (projectile-project-root))))
+    (prettier-js-mode 1))
   ;; 启动 Flycheck 语法检查
   (flycheck-mode 1)
   ;; 打开自动完成模式
@@ -208,5 +209,15 @@
 
 ;; 直接编辑 HTML 文件时的设置
 (add-hook 'mhtml-mode-hook 'my/web-dev-attached)
+
+;; 使用 ESLint 格式化当前 Buffer
+(defun my/format-with-eslint ()
+  "Call prettier on current file."
+  (interactive)
+  (print (projectile-project-root))
+  (print (buffer-file-name))
+  (call-process-shell-command (format "cd %s ; npx eslint --fix %s"
+                                      (projectile-project-root)
+                                      (buffer-file-name))))
 
 (provide 'pkg-web)
