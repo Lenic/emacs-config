@@ -22,8 +22,8 @@
 ;; 设置自动加载已修改文件
 (global-auto-revert-mode t)
 
-;; 设置弹窗窗口出现纵向分隔的极限值：这个值能在 Mac 1440 分辨率下仍然以上下的方式分隔弹出窗口
-(setq split-width-threshold 180)
+;; 设置弹窗窗口出现纵向分隔的极限值：这个值能在 Mac 正常分辨率下仍然以上下的方式分隔弹出窗口
+(setq split-width-threshold 1800)
 
 ;; 高亮当前行
 (global-hl-line-mode t)
