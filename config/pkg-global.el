@@ -21,7 +21,7 @@
   ;; 设置 counsel-rg 命令同样搜索快捷方式内部的内容
   ;; (push "--follow" (cdr (nthcdr 0 counsel-rg-base-command)))
   (setq counsel-rg-base-command
-        "rg --max-columns 300 --with-filename --no-heading --line-number --color never --follow %s")
+        "rg --max-columns 500 --with-filename --no-heading --line-number --color never --follow %s")
   ;; 设置输入两个字符后就开始执行匹配
   (custom-set-variables
    '(ivy-more-chars-alist '((counsel-grep . 2) (t . 2))))
