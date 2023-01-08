@@ -175,10 +175,10 @@
   ;; (pyim-isearch-mode 1)
   ;; 设置选词框的绘制方式
   ;; (setq pyim-page-tooltip 'popup)
-  (setq pyim-page-tooltip nil)
-  ;; (if (posframe-workable-p)
-  ;;     (setq pyim-page-tooltip 'posframe)
-  ;;   (setq pyim-page-tooltip 'popup))
+  ;; (setq pyim-page-tooltip nil)
+  (if (posframe-workable-p)
+      (setq pyim-page-tooltip 'posframe)
+    (setq pyim-page-tooltip 'popup))
   ;; 选词框显示5个候选词
   (setq pyim-page-length 5)
   ;; 百度输入法的云输入配置
