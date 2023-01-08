@@ -10,6 +10,18 @@
                                         ;; 激活这个新的 frame
                                         (select-frame new-frame)))
 
+;;;###autoload
+(defun my/font-increment ()
+  "Format the current file with ESLint."
+  (interactive)
+  (set-face-attribute 'default nil :font "Sarasa Mono SC Nerd 16" ))
+
+;;;###autoload
+(defun my/font-decrement ()
+  "Format the current file with ESLint."
+  (interactive)
+  (set-face-attribute 'default nil :font "Sarasa Mono SC Nerd 14" ))
+
 ;; 隐藏菜单栏
 (menu-bar-mode 0)
 
