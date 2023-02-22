@@ -14,8 +14,6 @@
 (defun my/web-dev-attached ()
   ;; 设置使用 Tree Sitter 语法高亮
   ;; (tree-sitter-hl-mode t)
-  ;; 加载 Company 显示自动完成列表
-  (company-mode 1)
   ;; 在文件左侧显示 Git 状态
   (git-gutter-mode 1)
   ;; 设置 Prettier 格式化代码
@@ -42,55 +40,17 @@
           (lambda ()
             ;; 通用前端开发设置
             (my/web-dev-attached)
-            ;; 开启 LSP 模式自动完成
-            (lsp)
             ;; 设置自动缩进的宽度
-            (setq css-indent-offset 2)
-            ;; 设置 Company 后端
-            (add-to-list (make-local-variable 'company-backends)
-                         '(company-css company-files company-capf company-dabbrev))))
-
-;; 设置 Less 文件的样式校验
-(add-hook 'lsp-managed-mode-hook
-          (lambda ()
-            (when (and flycheck-mode (derived-mode-p 'less-css-mode))
-              (let* ((root (locate-dominating-file
-                            (or (buffer-file-name) default-directory)
-                            "node_modules"))
-                     (stylelint
-                      (and root
-                           (expand-file-name "node_modules/.bin/stylelint"
-                                             root))))
-                (when (and stylelint (file-executable-p stylelint))
-                  (flycheck-select-checker 'less-stylelint))))
-            ;; 因为 json-mode 是从 js-mode 派生出来的，所以要对 json-mode 排除
-            (when (and flycheck-mode (or (derived-mode-p 'js-mode) (derived-mode-p 'typescript-mode) (derived-mode-p 'web-mode)) (not (derived-mode-p 'json-mode)))
-              (let* ((root (locate-dominating-file
-                            (or (buffer-file-name) default-directory)
-                            "node_modules"))
-                     (eslint
-                      (and root
-                           (expand-file-name "node_modules/.bin/eslint"
-                                             root))))
-                (when (and (and eslint (file-executable-p eslint))
-                           (flycheck-valid-checker-p 'lsp)
-                           (flycheck-valid-checker-p 'javascript-eslint))
-                  (flycheck-select-checker 'javascript-eslint)
-                  (make-local-variable 'flycheck-checkers)
-                  (flycheck-add-next-checker 'javascript-eslint 'lsp))))))
+            (setq css-indent-offset 2)))
 
 (use-package json-mode
   :commands json-mode
   :mode "\\.json\\'"
   :config
-  ;; 加载 LSP 配置
-  (require 'lsp-mode)
   (add-hook 'json-mode-hook
             (lambda ()
               ;; 其它开发设置
               (my/web-dev-attached)
-              ;; 开启 LSP 模式自动完成
-              (lsp)
               ;; 设置自动缩进的宽度
               (make-local-variable 'js-indent-level)
               (setq js-indent-level 2))))
@@ -132,31 +92,18 @@
 
 (defun my/web-html-setup()
   "Setup for html files."
-  ;; 开启 LSP 模式自动完成
-  (lsp)
-  ;; 设置 Company 后端
-  (add-to-list (make-local-variable 'company-backends)
-               '(company-files company-css company-capf company-dabbrev)))
+  )
 
 (defun my/web-vue-setup()
   "Setup for vue related."
-  ;; 开启 LSP 模式自动完成
-  (lsp)
-  ;; 设置 Company 后端
-  (add-to-list (make-local-variable 'company-backends)
-               '(company-files company-css)))
+  )
 
 (defun my/web-js-setup()
   "Setup for js related."
   ;; 启动 Emmet 快速补充 HTML 代码
   (emmet-mode t)
   ;; 加载通用 Web 开发配置
-  (my/web-dev-attached)
-  ;; 开启 LSP 模式自动完成
-  (lsp)
-  ;; 设置 Company 后端
-  (add-to-list (make-local-variable 'company-backends)
-               '(company-files company-css company-capf company-dabbrev-code :separate)))
+  (my/web-dev-attached))
 
 (use-package web-mode
   :commands web-mode
@@ -178,15 +125,6 @@
                                     (my/web-html-setup))
                                    ((member web-mode-content-type '("vue"))
                                     (my/web-vue-setup))))))
-
-;; TailwindCSS 插件配置
-(use-package lsp-tailwindcss
-  :after lsp-mode
-  :init
-  (setq lsp-tailwindcss-add-on-mode t)
-  :config
-  ;; 第一次加载完成后尝试拉起 TailwindCSS 服务
-  (lsp-deferred))
 
 ;; JavaScript 和 JavaScript React 插件配置
 (use-package js
@@ -217,7 +155,42 @@
   (setq my/current-file-format-command (format "cd %s ; npx eslint --fix %s"
                                                (projectile-project-root)
                                                (buffer-file-name)))
-  (print my/current-file-format-command)
+  (call-process-shell-command my/current-file-format-command)
+  (message "format completed."))
+
+(defun my/use-eslint-from-node-modules ()
+  (let* ((root (locate-dominating-file
+                (or (buffer-file-name) default-directory)
+                "node_modules"))
+         (eslint
+          (and root
+               (expand-file-name "node_modules/.bin/eslint"
+                                 root))))
+    (when (and eslint (file-executable-p eslint))
+      (setq-local flycheck-javascript-eslint-executable eslint))))
+
+;;;###autoload
+(defun eslint-fix ()
+  "Format the current file with ESLint."
+  (interactive)
+  (unless buffer-file-name
+    (error "ESLint requires a file-visiting buffer"))
+  (when (buffer-modified-p)
+    (if (y-or-n-p (format "Save file %s? " buffer-file-name))
+        (save-buffer)
+      (error "ESLint may only be run on an unmodified buffer")))
+
+  (setq my/current-file-format-command (format "cd %s ; npx eslint --fix %s"
+                                               (projectile-project-root)
+                                               (buffer-file-name)))
   (call-process-shell-command my/current-file-format-command))
+
+;;;###autoload
+(define-minor-mode eslint-fix-auto-mode
+  "Run `eslint-fix' after save."
+  :group 'eslint-fix
+  (if eslint-fix-auto-mode
+      (add-hook 'after-save-hook #'eslint-fix nil t)
+    (remove-hook 'after-save-hook #'eslint-fix t)))
 
 (provide 'pkg-web)

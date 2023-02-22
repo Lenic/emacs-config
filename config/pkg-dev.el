@@ -43,16 +43,6 @@
   (setq magit-diff-refine-hunk (quote all))
   :hook ((magit-post-commit-hook) . 'git-gutter:update-all-windows))
 
-;; 设置自动完成
-(use-package company
-  :commands company-mode
-  :config
-  (electric-pair-mode +1)
-  (setq company-idle-delay 0.5)
-  (setq company-minimum-prefix-length 2)
-  (setq company-tooltip-align-annotations t) ;; aligns annotation to the right hand side
-  (setq company-backends '((company-keywords company-files))))
-
 ;; 添加结构化 AST 语法高亮
 (use-package tree-sitter
   :commands (tree-sitter-mode tree-sitter-hl-mode)
@@ -72,62 +62,6 @@
   :bind
   (("C-c i" . symbol-overlay-put)
    ("C-c q" . symbol-overlay-remove-all)))
-
-;; LSP 模式配置
-(use-package lsp-mode
-  :commands (lsp lsp-deferred)
-  :config
-  ;; 自动清理 lsp-mode 中的内存泄露
-  (defun my/lsp-client-clear-leak-handlers (lsp-client)
-    "Clear leaking handlers in LSP-CLIENT."
-    (let ((response-handlers (lsp--client-response-handlers lsp-client))
-          to-delete-keys)
-      (maphash (lambda (key value)
-                 (when (> (time-convert (time-since (nth 3 value)) 'integer)
-                          (* 2 lsp-response-timeout))
-                   (push key to-delete-keys)))
-               response-handlers)
-      (when to-delete-keys
-        (message "Deleting %d handlers in %s lsp-client..."
-                 (length to-delete-keys)
-                 (lsp--client-server-id lsp-client))
-        (mapc (lambda (k) (remhash k response-handlers))
-              to-delete-keys))))
-  (defun my/lsp-clear-leak ()
-    "Clear all leaks"
-    (maphash (lambda (_ client)
-               (my/lsp-client-clear-leak-handlers client))
-             lsp-clients))
-  (setq my/lsp-clear-leak-timer
-        (run-with-timer 5 5 #'my/lsp-clear-leak))
-  (add-to-list 'lsp-language-id-configuration '(".*\\.less$" . "css"))
-  (setq lsp-enable-snippet nil
-        lsp-eldoc-enable-hover t
-        lsp-disabled-clients '(eslint)
-        lsp-signature-auto-activate t
-        lsp-signature-render-documentation t
-        lsp-completion-show-detail t
-        lsp-completion-show-kind t
-        ;; lsp-diagnostic-package :none
-        lsp-diagnostic-package :flycheck
-        ;; 关闭文件监视
-        lsp-enable-file-watchers nil
-        lsp-enable-symbol-highlighting nil
-        lsp-enable-dap-auto-configure nil
-        ;; 关闭 flycheck 实时语法检查
-        lsp-flycheck-live-reporting nil
-        lsp-headerline-breadcrumb-enable nil
-        lsp-completion-enable-additional-text-edit nil))
-
-;; LSP 模式的帮助文档相关
-(use-package lsp-ui
-  :after lsp-mode
-  :commands lsp-ui-mode
-  :config
-  (setq lsp-ui-doc-delay 3)
-  (setq lsp-ui-doc-enable nil)
-  (setq lsp-ui-sideline-delay 1)
-  (setq lsp-ui-sideline-enable t))
 
 ;; 加载代码折叠配置：支持 HTML 标签的折叠
 (use-package yafolding
@@ -172,7 +106,7 @@
 (require 'pkg-web)
 
 ;; 加载 Python 开发配置
-(require 'pkg-python)
+;; (require 'pkg-python)
 
 ;; 加载 Java 开发配置
 ;; (require 'pkg-java)
@@ -193,8 +127,6 @@
 
 ;; Elisp 模式的必要设置
 (add-hook 'emacs-lisp-mode-hook (lambda ()
-                                  ;; 加载 Company 显示自动完成列表
-                                  (company-mode 1)
                                   ;; 在文件左侧显示 Git 状态
                                   (git-gutter-mode 1)
                                   ;; 设置关闭自动换行
@@ -202,8 +134,7 @@
                                   ;; 显示行号
                                   (display-line-numbers-mode 1)
                                   ;; 启动代码折叠功能
-                                  (yafolding-mode 1)
-                                  ;; 为 company 的自动完成列表添加 Elisp 自身的配置
-                                  (add-to-list  (make-local-variable 'company-backends) '(company-elisp))))
+                                  (yafolding-mode 1)))
 
 (provide 'pkg-dev)
+
