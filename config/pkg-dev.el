@@ -75,6 +75,12 @@
   (setq yas-snippet-dirs '("~/.emacs.d/snippets"))
   (yas-reload-all))
 
+(use-package lsp-bridge
+  :load-path "~/.emacs.d/lsp-bridge/"
+  :config
+  (setq lsp-bridge-python-command "/opt/homebrew/bin/python3")
+  (global-lsp-bridge-mode))
+
 ;; 注释编辑工具
 (use-package separedit
   :commands separedit

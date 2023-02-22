@@ -14,6 +14,8 @@
 (defun my/web-dev-attached ()
   ;; 设置使用 Tree Sitter 语法高亮
   ;; (tree-sitter-hl-mode t)
+  ;; 设置自动补全括号
+  (electric-pair-mode)
   ;; 在文件左侧显示 Git 状态
   (git-gutter-mode 1)
   ;; 设置 Prettier 格式化代码
