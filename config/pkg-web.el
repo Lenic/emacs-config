@@ -12,8 +12,8 @@
 
 ;; 附加 Web 开发的各种插件
 (defun my/web-dev-attached ()
-  ;; 设置使用 Tree Sitter 语法高亮
-  ;; (tree-sitter-hl-mode t)
+  ;; 打开自动补全括号功能
+  (electric-pair-mode 1)
   ;; 加载 Company 显示自动完成列表
   (company-mode 1)
   ;; 在文件左侧显示 Git 状态
