@@ -220,4 +220,28 @@
   (print my/current-file-format-command)
   (call-process-shell-command my/current-file-format-command))
 
+;;;###autoload
+(defun eslint-fix ()
+  "Format the current file with ESLint."
+  (interactive)
+  (unless buffer-file-name
+    (error "ESLint requires a file-visiting buffer"))
+  (when (buffer-modified-p)
+    (if (y-or-n-p (format "Save file %s? " buffer-file-name))
+        (save-buffer)
+      (error "ESLint may only be run on an unmodified buffer")))
+
+  (setq my/current-file-format-command (format "cd %s ; npx eslint --fix %s"
+                                               (projectile-project-root)
+                                               (buffer-file-name)))
+  (call-process-shell-command my/current-file-format-command))
+
+;;;###autoload
+(define-minor-mode eslint-fix-auto-mode
+  "Run `eslint-fix' after save."
+  :group 'eslint-fix
+  (if eslint-fix-auto-mode
+      (add-hook 'after-save-hook #'eslint-fix nil t)
+    (remove-hook 'after-save-hook #'eslint-fix t)))
+
 (provide 'pkg-web)
