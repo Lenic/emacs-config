@@ -11,13 +11,13 @@
                                         (select-frame new-frame)))
 
 ;;;###autoload
-(defun my/font-increment ()
+(defun my/maximal-font ()
   "Format the current file with ESLint."
   (interactive)
   (set-face-attribute 'default nil :font "Sarasa Mono SC Nerd 16" ))
 
 ;;;###autoload
-(defun my/font-decrement ()
+(defun my/normal-font ()
   "Format the current file with ESLint."
   (interactive)
   (set-face-attribute 'default nil :font "Sarasa Mono SC Nerd 14" ))
