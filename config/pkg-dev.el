@@ -100,7 +100,7 @@
              lsp-clients))
   (setq my/lsp-clear-leak-timer
         (run-with-timer 5 5 #'my/lsp-clear-leak))
-  (add-to-list 'lsp-language-id-configuration '(".*\\.less$" . "css"))
+  ;; (add-to-list 'lsp-language-id-configuration '(".*\\.less$" . "css"))
   (setq lsp-enable-snippet nil
         lsp-eldoc-enable-hover t
         lsp-disabled-clients '(eslint)
