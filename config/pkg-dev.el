@@ -49,6 +49,7 @@
   :config
   (electric-pair-mode +1)
   (setq company-idle-delay 0.5)
+  (setq company-format-margin-function nil) ;; 移除自动补全时最前面的图标
   (setq company-minimum-prefix-length 2)
   (setq company-tooltip-align-annotations t) ;; aligns annotation to the right hand side
   (setq company-backends '((company-keywords company-files))))
