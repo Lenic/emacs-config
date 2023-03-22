@@ -103,9 +103,11 @@
         (run-with-timer 5 5 #'my/lsp-clear-leak))
   ;; (add-to-list 'lsp-language-id-configuration '(".*\\.less$" . "css"))
   (setq lsp-enable-snippet nil
+        lsp-lens-enable nil
         lsp-eldoc-enable-hover t
         lsp-disabled-clients '(eslint)
         lsp-signature-auto-activate t
+        lsp-headerline-breadcrumb-icons-enable nil
         lsp-signature-render-documentation t
         lsp-completion-show-detail t
         lsp-completion-show-kind t
@@ -126,6 +128,8 @@
   :commands lsp-ui-mode
   :config
   (setq lsp-ui-doc-delay 3)
+  (setq lsp-ui-doc-show-with-cursor nil)
+  (setq lsp-ui-doc-show-with-mouse nil)
   (setq lsp-ui-doc-enable nil)
   (setq lsp-ui-sideline-delay 1)
   (setq lsp-ui-sideline-enable t))
