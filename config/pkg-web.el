@@ -27,6 +27,8 @@
   (flycheck-mode 1)
   ;; 打开自动完成模式
   (yas-minor-mode 1)
+  ;; 开启自动 ESLint 修复
+  (eslintd-fix-mode)
   ;; 设置关闭自动换行
   (setq truncate-lines t)
   ;; 开启显示行号
@@ -208,6 +210,10 @@
   (setq typescript-indent-level 2)
   :config
   (add-hook 'typescript-mode-hook 'my/web-js-setup))
+
+;; 开启 ESLint 的自动修复模式：需要预先在全局安装 eslint_d 包
+(use-package eslintd-fix
+  :commands eslintd-fix-mode)
 
 ;; 直接编辑 HTML 文件时的设置
 (add-hook 'mhtml-mode-hook 'my/web-dev-attached)
