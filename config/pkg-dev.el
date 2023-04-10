@@ -104,6 +104,8 @@
   ;; (add-to-list 'lsp-language-id-configuration '(".*\\.less$" . "css"))
   (setq lsp-enable-snippet nil
         lsp-lens-enable nil
+        ;; 关闭 lsp 服务退出时的重启提示
+        lsp-restart 'ignore
         lsp-eldoc-enable-hover t
         lsp-disabled-clients '(eslint)
         lsp-signature-auto-activate t
