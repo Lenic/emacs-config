@@ -44,15 +44,27 @@
   :hook ((magit-post-commit-hook) . 'git-gutter:update-all-windows))
 
 ;; 设置自动完成
-(use-package company
-  :commands company-mode
-  :config
-  (electric-pair-mode +1)
-  (setq company-idle-delay 0.5)
-  (setq company-format-margin-function nil) ;; 移除自动补全时最前面的图标
-  (setq company-minimum-prefix-length 2)
-  (setq company-tooltip-align-annotations t) ;; aligns annotation to the right hand side
-  (setq company-backends '((company-keywords company-files))))
+(use-package corfu
+  :after orderless
+  :custom
+  (corfu-cycle t)                ;; Enable cycling for `corfu-next/previous'
+  (corfu-auto t)                 ;; Enable auto completion
+  (corfu-quit-at-boundary nil)   ;; Never quit at completion boundary
+  (corfu-quit-no-match t)        ;; Quit, if there is no match
+  (corfu-separator ?\s)          ;; Orderless field separator
+  (corfu-scroll-margin 5)        ;; Use scroll margin
+  :init
+  (global-corfu-mode))
+
+;; Optionally use the `orderless' completion style.
+(use-package orderless
+  :init
+  ;; Configure a custom style dispatcher (see the Consult wiki)
+  ;; (setq orderless-style-dispatchers '(+orderless-dispatch)
+  ;;       orderless-component-separator #'orderless-escapable-split-on-space)
+  (setq completion-styles '(orderless basic)
+        completion-category-defaults nil
+        completion-category-overrides '((file (styles . (partial-completion))))))
 
 ;; 添加结构化 AST 语法高亮
 (use-package tree-sitter
@@ -74,8 +86,11 @@
   (("C-c i" . symbol-overlay-put)
    ("C-c q" . symbol-overlay-remove-all)))
 
+(use-package cape)
+
 ;; LSP 模式配置
 (use-package lsp-mode
+  :after orderless
   :commands (lsp lsp-deferred)
   :config
   ;; 自动清理 lsp-mode 中的内存泄露
@@ -101,7 +116,6 @@
              lsp-clients))
   (setq my/lsp-clear-leak-timer
         (run-with-timer 5 5 #'my/lsp-clear-leak))
-  ;; (add-to-list 'lsp-language-id-configuration '(".*\\.less$" . "css"))
   (setq lsp-enable-snippet nil
         lsp-lens-enable nil
         ;; 关闭 lsp 服务退出时的重启提示
@@ -111,7 +125,7 @@
         lsp-signature-auto-activate t
         lsp-headerline-breadcrumb-icons-enable nil
         lsp-signature-render-documentation t
-        lsp-completion-show-detail t
+        lsp-completion-show-detail nil
         lsp-completion-show-kind t
         ;; lsp-diagnostic-package :none
         lsp-diagnostic-package :flycheck
@@ -122,7 +136,26 @@
         ;; 关闭 flycheck 实时语法检查
         lsp-flycheck-live-reporting nil
         lsp-headerline-breadcrumb-enable nil
-        lsp-completion-enable-additional-text-edit nil))
+        lsp-completion-enable-additional-text-edit nil)
+  :custom
+  (lsp-completion-provider :none) ;; we use Corfu!
+
+  :init
+  (defun my/orderless-dispatch-flex-first (_pattern index _total)
+    (and (eq index 0) 'orderless-flex))
+
+  (defun my/lsp-mode-setup-completion ()
+    (setf (alist-get 'styles (alist-get 'lsp-capf completion-category-defaults))
+          '(orderless)))
+
+  ;; Optionally configure the first word as flex filtered.
+  (add-hook 'orderless-style-dispatchers #'my/orderless-dispatch-flex-first nil 'local)
+
+  ;; Optionally configure the cape-capf-buster.
+  (setq-local completion-at-point-functions (list (cape-capf-buster #'lsp-completion-at-point)))
+
+  :hook
+  (lsp-completion-mode . my/lsp-mode-setup-completion))
 
 ;; LSP 模式的帮助文档相关
 (use-package lsp-ui
@@ -132,6 +165,7 @@
   (setq lsp-ui-doc-delay 3)
   (setq lsp-ui-doc-show-with-cursor nil)
   (setq lsp-ui-doc-show-with-mouse nil)
+  (setq lsp-ui-sideline-show-code-actions t)
   (setq lsp-ui-doc-enable nil)
   (setq lsp-ui-sideline-delay 1)
   (setq lsp-ui-sideline-enable t))
@@ -200,8 +234,8 @@
 
 ;; Elisp 模式的必要设置
 (add-hook 'emacs-lisp-mode-hook (lambda ()
-                                  ;; 加载 Company 显示自动完成列表
-                                  (company-mode 1)
+                                  (setq-local corfu-auto t)
+                                  (corfu-mode)
                                   ;; 在文件左侧显示 Git 状态
                                   (git-gutter-mode 1)
                                   ;; 设置关闭自动换行
@@ -209,8 +243,6 @@
                                   ;; 显示行号
                                   (display-line-numbers-mode 1)
                                   ;; 启动代码折叠功能
-                                  (yafolding-mode 1)
-                                  ;; 为 company 的自动完成列表添加 Elisp 自身的配置
-                                  (add-to-list  (make-local-variable 'company-backends) '(company-elisp))))
+                                  (yafolding-mode 1)))
 
 (provide 'pkg-dev)
