@@ -26,6 +26,8 @@
     (tree-sitter-hl-mode t)
     ;; 连接 LSP 服务
     (lsp-deferred)
+    ;; 自动补全括号
+    (electric-pair-mode t)
     ;; 设置关闭自动换行
     (setq truncate-lines t)
     ;; 启动 Flycheck 语法检查
