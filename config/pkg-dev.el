@@ -24,6 +24,7 @@
   :commands projectile-switch-project
   :config
   (setq neo-theme 'ascii           ; NeoTree 图标的样式
+        neo-window-width 35
         neo-window-fixed-size nil) ; 设置 NeoTree 窗口的宽度可以使用鼠标调整
   :bind ("C-c o" . projectile-switch-project))
 
