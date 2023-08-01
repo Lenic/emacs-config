@@ -12,6 +12,11 @@
   :config
   (xclip-mode))
 
+;; GCMH - the Garbage Collector Magic Hack
+(use-package gcmh
+  :config
+  (gcmh-mode))
+
 ;; 全局基础配置
 (use-package counsel
   :commands (swiper-isearch counsel-M-x counsel-ibuffer counsel-find-file counsel-rg counsel-fzf counsel-file-jump ivy)
