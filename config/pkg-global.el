@@ -117,6 +117,20 @@
   :hook (after-init . winner-mode)
   :config (setq winner-dont-bind-my-keys nil))
 
+;; ERC 配置
+(use-package erc
+  :defer 2
+  :ensure nil
+  :config
+  ;; Interpret mIRC-style color commands in IRC chats
+  (setq erc-interpret-mirc-color t)
+  ;; Kill buffers for channels after /part
+  (setq erc-kill-buffer-on-part t)
+  ;; Kill buffers for private queries after quitting the server
+  (setq erc-kill-queries-on-quit t)
+  ;; Kill buffers for server messages after quitting the server
+  (setq erc-kill-server-buffer-on-quit t))
+
 ;; 拷贝当前 Buffer 到剪切板
 (defun copy-buffer-path ()
   (interactive)
