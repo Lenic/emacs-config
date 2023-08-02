@@ -25,6 +25,8 @@
     (prettier-js-mode 1))
   ;; 启动 Flycheck 语法检查
   (flycheck-mode 1)
+  ;; 设置本地的 Tab 宽度
+  (setq-local tab-width 2)
   ;; 打开自动完成模式
   (yas-minor-mode 1)
   ;; 开启自动 ESLint 修复
@@ -68,7 +70,7 @@
                 (when (and stylelint (file-executable-p stylelint))
                   (flycheck-select-checker 'less-stylelint))))
             ;; 因为 json-mode 是从 js-mode 派生出来的，所以要对 json-mode 排除
-            (when (and flycheck-mode (or (derived-mode-p 'js-mode) (derived-mode-p 'typescript-mode) (derived-mode-p 'web-mode)) (not (derived-mode-p 'json-mode)))
+            (when (and flycheck-mode (or (derived-mode-p 'js-ts-mode) (derived-mode-p 'tsx-ts-mode) (derived-mode-p 'web-mode)) (not (derived-mode-p 'json-ts-mode)))
               (let* ((root (locate-dominating-file
                             (or (buffer-file-name) default-directory)
                             "node_modules"))
@@ -83,8 +85,9 @@
                   (make-local-variable 'flycheck-checkers)
                   (flycheck-add-next-checker 'javascript-eslint 'lsp))))))
 
-(use-package json-mode
-  :commands json-mode
+(use-package json-ts-mode
+  :commands json-ts-mode
+  :ensure nil
   :mode "\\.json\\'"
   :config
   ;; 加载 LSP 配置
@@ -94,10 +97,7 @@
               ;; 其它开发设置
               (my/web-dev-attached)
               ;; 开启 LSP 模式自动完成
-              (lsp)
-              ;; 设置自动缩进的宽度
-              (make-local-variable 'js-indent-level)
-              (setq js-indent-level 2))))
+              (lsp))))
 
 ;; JavaScript/TypeScript 语法检查设置
 (defun my/use-eslint-from-node-modules ()
@@ -132,7 +132,7 @@
   (setq flycheck-check-syntax-automatically '(save mode-enabled))
   (add-hook 'flycheck-mode-hook 'my/use-eslint-from-node-modules)
   (add-hook 'flycheck-mode-hook 'my/use-stylelint-from-node-modules)
-  :hook ((css-mode web-mode js-mode typescript-mode) . flycheck-mode))
+  :hook ((css-mode web-mode js-ts-mode tsx-ts-mode) . flycheck-mode))
 
 (defun my/web-html-setup()
   "Setup for html files."
@@ -194,23 +194,11 @@
   (lsp-deferred))
 
 ;; JavaScript 和 JavaScript React 插件配置
-(use-package js
-  :commands js-mode
-  :ensure nil
-  :init
-  (setq js-indent-level 2)
-  :config
-  (add-hook 'js-mode-hook 'my/web-js-setup))
-
+(add-hook 'js-ts-mode-hook 'my/web-js-setup)
 ;; TypeScript 和 TypeScript React 插件配置
-(use-package typescript-mode
-  :commands typescript-mode
-  :mode "\\.ts[x]?\\'"
-  :init
-  ;; 设置缩进两个空格
-  (setq typescript-indent-level 2)
-  :config
-  (add-hook 'typescript-mode-hook 'my/web-js-setup))
+(add-hook 'tsx-ts-mode-hook 'my/web-js-setup)
+
+;; (add-to-list 'tree-sitter-major-mode-language-alist '(web-mode . vue))
 
 ;; 开启 ESLint 的自动修复模式：需要预先在全局安装 eslint_d 包
 (use-package eslintd-fix
@@ -218,39 +206,5 @@
 
 ;; 直接编辑 HTML 文件时的设置
 (add-hook 'mhtml-mode-hook 'my/web-dev-attached)
-
-;; 使用 ESLint 格式化当前 Buffer
-(defun my/format-with-eslint ()
-  "Call prettier on current file."
-  (interactive)
-  (setq my/current-file-format-command (format "cd %s ; npx eslint --fix %s"
-                                               (projectile-project-root)
-                                               (buffer-file-name)))
-  (print my/current-file-format-command)
-  (call-process-shell-command my/current-file-format-command))
-
-;;;###autoload
-(defun eslint-fix ()
-  "Format the current file with ESLint."
-  (interactive)
-  (unless buffer-file-name
-    (error "ESLint requires a file-visiting buffer"))
-  (when (buffer-modified-p)
-    (if (y-or-n-p (format "Save file %s? " buffer-file-name))
-        (save-buffer)
-      (error "ESLint may only be run on an unmodified buffer")))
-
-  (setq my/current-file-format-command (format "cd %s ; npx eslint --fix %s"
-                                               (projectile-project-root)
-                                               (buffer-file-name)))
-  (call-process-shell-command my/current-file-format-command))
-
-;;;###autoload
-(define-minor-mode eslint-fix-auto-mode
-  "Run `eslint-fix' after save."
-  :group 'eslint-fix
-  (if eslint-fix-auto-mode
-      (add-hook 'after-save-hook #'eslint-fix nil t)
-    (remove-hook 'after-save-hook #'eslint-fix t)))
 
 (provide 'pkg-web)

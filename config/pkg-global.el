@@ -92,7 +92,7 @@
   :config
   (setq whitespace-style '(face trailing)
         whitespace-global-modes '(not markdown-mode))
-  :hook (((web-mode typescript-mode emacs-lisp-mode) . whitespace-mode)
+  :hook (((web-mode tsx-ts-mode emacs-lisp-mode) . whitespace-mode)
          (before-save . (lambda () (progn
                                      (untabify (point-min) (point-max))
                                      (whitespace-cleanup))))))
