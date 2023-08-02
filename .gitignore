@@ -20,3 +20,5 @@ meghanada/
 workspace/
 projects
 .log/
+.DS_Store
+tree-sitter/
