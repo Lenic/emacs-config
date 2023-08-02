@@ -1,3 +1,30 @@
+;; 添加 treesit 语言配置
+(setq treesit-language-source-alist
+   '((bash "https://github.com/tree-sitter/tree-sitter-bash")
+     (cmake "https://github.com/uyha/tree-sitter-cmake")
+     (css "https://github.com/tree-sitter/tree-sitter-css")
+     (elisp "https://github.com/Wilfred/tree-sitter-elisp")
+     (go "https://github.com/tree-sitter/tree-sitter-go")
+     (html "https://github.com/tree-sitter/tree-sitter-html")
+     (javascript "https://github.com/tree-sitter/tree-sitter-javascript" "master" "src")
+     (json "https://github.com/tree-sitter/tree-sitter-json")
+     (make "https://github.com/alemuller/tree-sitter-make")
+     (markdown "https://github.com/ikatyang/tree-sitter-markdown")
+     (python "https://github.com/tree-sitter/tree-sitter-python")
+     (toml "https://github.com/tree-sitter/tree-sitter-toml")
+     (tsx "https://github.com/tree-sitter/tree-sitter-typescript" "master" "tsx/src")
+     (typescript "https://github.com/tree-sitter/tree-sitter-typescript" "master" "typescript/src")
+     (yaml "https://github.com/ikatyang/tree-sitter-yaml")
+     (vue "https://github.com/ikatyang/tree-sitter-vue")))
+
+(setq major-mode-remap-alist
+ '((js-mode . js-ts-mode)
+   (typescript-mode . tsx-ts-mode)
+   (typescript-ts-mode . tsx-ts-mode)
+   (json-mode . json-ts-mode)
+   (css-mode . css-ts-mode)
+   (python-mode . python-ts-mode)))
+
 ;; 项目列表选择工具
 (use-package projectile
   :commands (projectile-switch-project projectile-discover-projects-in-search-path)
@@ -54,19 +81,6 @@
   (setq company-minimum-prefix-length 3)
   (setq company-tooltip-align-annotations t) ;; aligns annotation to the right hand side
   (setq company-backends '((company-keywords company-files))))
-
-;; 添加结构化 AST 语法高亮
-(use-package tree-sitter
-  :commands (tree-sitter-mode tree-sitter-hl-mode)
-  :hook
-  (js-mode . tree-sitter-hl-mode)
-  (typescript-mode . tree-sitter-hl-mode)
-  (python-mode . tree-sitter-hl-mode))
-(use-package tree-sitter-langs
-  :after tree-sitter
-  :config
-  (tree-sitter-require 'tsx)
-  (add-to-list 'tree-sitter-major-mode-language-alist '(typescript-mode . tsx)))
 
 ;; 指定符号高亮
 (use-package symbol-overlay
@@ -146,7 +160,6 @@
 ;; 代码片断自动补全工具
 (use-package yasnippet
   :commands yas-minor-mode
-  ;; :hook ((css-mode web-mode typescript-mode js-mode json-mode java-mode) . yas-minor-mode)
   :config
   (setq yas-snippet-dirs '("~/.emacs.d/snippets"))
   (yas-reload-all))
