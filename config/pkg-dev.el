@@ -149,7 +149,26 @@
 ;; 添加选区扩展功能插件
 (use-package expand-region
   :commands (er/expand-region er/mark-word)
-  :bind ("C-o" . er/expand-region))
+  :bind ("C-o" . er/expand-region)
+  :config
+  (defun tree-sitter-mark-bigger-node ()
+    (interactive)
+    (let* ((root (tsc-root-node tree-sitter-tree))
+           (node (tsc-get-descendant-for-position-range root (region-beginning) (region-end)))
+           (node-start (tsc-node-start-position node))
+           (node-end (tsc-node-end-position node)))
+      ;; Node fits the region exactly. Try its parent node instead.
+      (when (and (= (region-beginning) node-start) (= (region-end) node-end))
+        (when-let ((node (tsc-get-parent node)))
+          (setq node-start (tsc-node-start-position node)
+                node-end (tsc-node-end-position node))))
+      (set-mark node-end)
+      (goto-char node-start)))
+
+  (setq er/try-expand-list (append er/try-expand-list
+                                   '(tree-sitter-mark-bigger-node))))
+
+
 
 ;; DAP
 (use-package dap-mode
