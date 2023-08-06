@@ -13,9 +13,9 @@
   (xclip-mode))
 
 ;; GCMH - the Garbage Collector Magic Hack
-(use-package gcmh
-  :config
-  (gcmh-mode))
+;; (use-package gcmh
+;;   :config
+;;   (gcmh-mode))
 
 ;; 全局基础配置
 (use-package counsel
