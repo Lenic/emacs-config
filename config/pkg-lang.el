@@ -7,12 +7,6 @@
 (use-package yaml-mode
   :commands yaml-mode)
 
-(use-package json-ts-mode
-  :ensure nil
-  :commands json-ts-mode
-  :config
-  (toggle-truncate-lines))
-
 (use-package elfeed
   :commands elfeed
   :config
