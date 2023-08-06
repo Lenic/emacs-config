@@ -1,7 +1,7 @@
 ;; Python 开发主模式
 (use-package python
   :ensure nil
-  :commands python-mode
+  :commands python-ts-mode
   :custom
   (python-shell-interpreter "python3")
   (dap-python-executable "python3")
@@ -22,8 +22,6 @@
   (defun my/python-loader ()
     ;; Python 保存自动格式化工具
     (python-black-on-save-mode 1)
-    ;; 设置使用 Tree Sitter 语法高亮
-    (tree-sitter-hl-mode t)
     ;; 连接 LSP 服务
     (lsp-deferred)
     ;; 自动补全括号
@@ -43,14 +41,14 @@
     ;; 设置列参考线：120
     (setq display-fill-column-indicator-column 120)
     (display-fill-column-indicator-mode t))
-  (add-hook 'python-mode-hook 'my/python-loader))
+  (add-hook 'python-ts-mode-hook 'my/python-loader))
 
 ;; LSP 自动完成服务端
 (use-package lsp-pyright
-  :commands python-mode)
+  :commands python-ts-mode)
 
 ;; Python 保存自动格式化工具
 (use-package python-black
-  :commands python-mode)
+  :commands python-ts-mode)
 
 (provide 'pkg-python)
