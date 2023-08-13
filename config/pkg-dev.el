@@ -1,5 +1,6 @@
 ;; 添加 treesit 语言配置
-(setq treesit-language-source-alist
+(setq treesit-font-lock-level 4
+      treesit-language-source-alist
       '((bash "https://github.com/tree-sitter/tree-sitter-bash")
         (cmake "https://github.com/uyha/tree-sitter-cmake")
         (css "https://github.com/tree-sitter/tree-sitter-css")
