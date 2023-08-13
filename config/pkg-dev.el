@@ -94,7 +94,9 @@
   :ensure nil
   :init
   ;; 设置不记录日志
-  (setq eglot-events-buffer-size 0))
+  (setq eglot-events-buffer-size 0
+        ;; 设置自动关闭
+        eglot-autoshutdown t))
 
 ;; 指定符号高亮
 (use-package symbol-overlay
