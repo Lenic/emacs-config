@@ -144,8 +144,10 @@
   (lazy-count-prefix-format "%s/%s "))
 
 ;; 在 modeline 上显示所有的按键和执行的命令
-(use-package keycast
-  :defer 5)
+;; (use-package keycast
+;;   :defer 5
+;;   :init
+;;   (keycast-mode-line-mode t))
 
 ;; 子弹窗需要依赖的包
 (use-package posframe

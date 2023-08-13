@@ -14,8 +14,6 @@
 (defun my/web-dev-attached ()
   ;; 打开自动补全括号功能
   (electric-pair-mode 1)
-  ;; 加载 Company 显示自动完成列表
-  (company-mode 1)
   ;; 在文件左侧显示 Git 状态
   (git-gutter-mode 1)
   ;; 设置 Prettier 格式化代码
@@ -51,10 +49,7 @@
             ;; 开启 LSP 模式自动完成
             (lsp)
             ;; 设置自动缩进的宽度
-            (setq css-indent-offset 2)
-            ;; 设置 Company 后端
-            (add-to-list (make-local-variable 'company-backends)
-                         '(company-css company-files company-capf company-dabbrev))))
+            (setq css-indent-offset 2)))
 
 ;; 设置 Less 文件的样式校验
 (add-hook 'lsp-managed-mode-hook
@@ -137,18 +132,12 @@
 (defun my/web-html-setup()
   "Setup for html files."
   ;; 开启 LSP 模式自动完成
-  (lsp)
-  ;; 设置 Company 后端
-  (add-to-list (make-local-variable 'company-backends)
-               '(company-files company-css company-capf company-dabbrev)))
+  (lsp))
 
 (defun my/web-vue-setup()
   "Setup for vue related."
   ;; 开启 LSP 模式自动完成
-  (lsp)
-  ;; 设置 Company 后端
-  (add-to-list (make-local-variable 'company-backends)
-               '(company-files company-css)))
+  (lsp))
 
 (defun my/web-js-setup()
   "Setup for js related."
@@ -157,10 +146,7 @@
   ;; 加载通用 Web 开发配置
   (my/web-dev-attached)
   ;; 开启 LSP 模式自动完成
-  (lsp)
-  ;; 设置 Company 后端
-  (add-to-list (make-local-variable 'company-backends)
-               '(company-files company-css company-capf company-dabbrev-code :separate)))
+  (lsp))
 
 (use-package web-mode
   :commands web-mode

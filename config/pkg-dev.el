@@ -1,3 +1,5 @@
+;; -*- lexical-binding: t -*-
+
 ;; 添加 treesit 语言配置
 (use-package treesit-auto
   :demand t
@@ -5,7 +7,17 @@
   (setq treesit-auto-install 'prompt)
   (global-treesit-auto-mode))
 
+;; 设置代码高亮力度和现代编辑器相同，比如 VSCode
 (setq treesit-font-lock-level 4)
+
+;; 设置 Major Mode 的自动映射
+(setq major-mode-remap-alist
+      '((js-mode . js-ts-mode)
+        (typescript-mode . tsx-ts-mode)
+        (typescript-ts-mode . tsx-ts-mode)
+        (json-mode . json-ts-mode)
+        (css-mode . css-ts-mode)
+        (python-mode . python-ts-mode)))
 
 ;; 项目列表选择工具
 (use-package projectile
@@ -54,15 +66,28 @@
   :hook ((magit-post-commit-hook) . 'git-gutter:update-all-windows))
 
 ;; 设置自动完成
-(use-package company
-  :commands company-mode
-  :config
-  (electric-pair-mode +1)
-  (setq company-idle-delay 0.5)
-  (setq company-format-margin-function nil) ;; 移除自动补全时最前面的图标
-  (setq company-minimum-prefix-length 3)
-  (setq company-tooltip-align-annotations t) ;; aligns annotation to the right hand side
-  (setq company-backends '((company-keywords company-files))))
+(use-package corfu
+  :defer 3
+  :bind
+  ;; Configure SPC for separator insertion
+  (:map corfu-map ("SPC" . corfu-insert-separator))
+  :init
+  (global-corfu-mode))
+;; 针对 corfu 的一些设置
+(use-package emacs
+  :init
+  ;; 如果只有一个时，按 TAB 时直接补全
+  (setq completion-cycle-threshold 1)
+  ;; 设置按 Tab 键时的功能
+  (setq tab-always-indent 'complete))
+
+;; 自动完成时的模糊匹配功能
+(use-package orderless
+  :after corfu
+  :init
+  (setq completion-styles '(orderless partial-completion basic)
+        completion-category-defaults nil
+        completion-category-overrides nil))
 
 ;; 指定符号高亮
 (use-package symbol-overlay
@@ -74,6 +99,8 @@
 ;; LSP 模式配置
 (use-package lsp-mode
   :commands (lsp lsp-deferred)
+  :custom
+  (lsp-completion-provider :none) ;; we use Corfu!
   :config
   (setq lsp-enable-snippet nil
         lsp-lens-enable nil
@@ -97,7 +124,12 @@
         ;; 关闭 flycheck 实时语法检查
         lsp-flycheck-live-reporting nil
         lsp-headerline-breadcrumb-enable nil
-        lsp-completion-enable-additional-text-edit nil))
+        lsp-completion-enable-additional-text-edit nil)
+  (defun my/lsp-mode-setup-completion ()
+    (setf (alist-get 'styles (alist-get 'lsp-capf completion-category-defaults))
+          '(orderless))) ;; Configure orderless
+  :hook
+  (lsp-completion-mode . my/lsp-mode-setup-completion))
 
 ;; LSP 模式的帮助文档相关
 (use-package lsp-ui
@@ -194,7 +226,7 @@
 ;; Elisp 模式的必要设置
 (add-hook 'emacs-lisp-mode-hook (lambda ()
                                   ;; 加载 Company 显示自动完成列表
-                                  (company-mode 1)
+                                  ;; (company-mode 1)
                                   ;; 在文件左侧显示 Git 状态
                                   (git-gutter-mode 1)
                                   ;; 设置关闭自动换行
@@ -204,6 +236,7 @@
                                   ;; 启动代码折叠功能
                                   (yafolding-mode 1)
                                   ;; 为 company 的自动完成列表添加 Elisp 自身的配置
-                                  (add-to-list  (make-local-variable 'company-backends) '(company-elisp))))
+                                  ;; (add-to-list  (make-local-variable 'company-backends) '(company-elisp))
+                                  ))
 
 (provide 'pkg-dev)
