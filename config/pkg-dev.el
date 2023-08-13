@@ -87,7 +87,14 @@
   :init
   (setq completion-styles '(orderless partial-completion basic)
         completion-category-defaults nil
-        completion-category-overrides nil))
+        completion-category-overrides '((eglot (styles orderless)))))
+
+;; 添加 LSP 配置
+(use-package eglot
+  :ensure nil
+  :init
+  ;; 设置不记录日志
+  (setq eglot-events-buffer-size 0))
 
 ;; 指定符号高亮
 (use-package symbol-overlay
@@ -95,53 +102,6 @@
   :bind
   (("C-c i" . symbol-overlay-put)
    ("C-c q" . symbol-overlay-remove-all)))
-
-;; LSP 模式配置
-(use-package lsp-mode
-  :commands (lsp lsp-deferred)
-  :custom
-  (lsp-completion-provider :none) ;; we use Corfu!
-  :config
-  (setq lsp-enable-snippet nil
-        lsp-lens-enable nil
-        ;; 显示完整的 eldoc 信息
-        lsp-eldoc-render-all t
-        ;; 关闭 lsp 服务退出时的重启提示
-        lsp-restart 'ignore
-        lsp-eldoc-enable-hover t
-        lsp-disabled-clients '(eslint)
-        lsp-signature-auto-activate t
-        lsp-headerline-breadcrumb-icons-enable nil
-        lsp-signature-render-documentation t
-        lsp-completion-show-detail t
-        lsp-completion-show-kind t
-        ;; lsp-diagnostic-package :none
-        lsp-diagnostic-package :flycheck
-        ;; 关闭文件监视
-        lsp-enable-file-watchers nil
-        lsp-enable-symbol-highlighting nil
-        lsp-enable-dap-auto-configure nil
-        ;; 关闭 flycheck 实时语法检查
-        lsp-flycheck-live-reporting nil
-        lsp-headerline-breadcrumb-enable nil
-        lsp-completion-enable-additional-text-edit nil)
-  (defun my/lsp-mode-setup-completion ()
-    (setf (alist-get 'styles (alist-get 'lsp-capf completion-category-defaults))
-          '(orderless))) ;; Configure orderless
-  :hook
-  (lsp-completion-mode . my/lsp-mode-setup-completion))
-
-;; LSP 模式的帮助文档相关
-(use-package lsp-ui
-  :after lsp-mode
-  :commands lsp-ui-mode
-  :config
-  (setq lsp-ui-doc-delay 3)
-  (setq lsp-ui-doc-show-with-cursor nil)
-  (setq lsp-ui-doc-show-with-mouse nil)
-  (setq lsp-ui-doc-enable nil)
-  (setq lsp-ui-sideline-delay 1)
-  (setq lsp-ui-sideline-enable t))
 
 ;; 加载代码折叠配置：支持 HTML 标签的折叠
 (use-package yafolding
