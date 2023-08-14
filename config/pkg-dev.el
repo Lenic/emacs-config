@@ -5,10 +5,10 @@
   :demand t
   :config
   (setq treesit-auto-install 'prompt)
-  (global-treesit-auto-mode))
-
-;; 设置代码高亮力度和现代编辑器相同，比如 VSCode
-(setq treesit-font-lock-level 4)
+  (global-treesit-auto-mode)
+  :init
+  ;; 设置代码高亮力度和现代编辑器相同，比如 VSCode
+  (setq treesit-font-lock-level 4))
 
 ;; 设置 Major Mode 的自动映射
 (setq major-mode-remap-alist
