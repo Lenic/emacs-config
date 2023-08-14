@@ -183,6 +183,7 @@
 (add-to-list 'auto-mode-alist '("\\.\\(js\\|jsx\\)\\'" . js-ts-mode))
 (add-hook 'js-ts-mode-hook 'my/web-js-setup)
 ;; TypeScript 和 TypeScript React 插件配置
+(add-to-list 'auto-mode-alist '("\\.\\(ts\\|tsx\\)\\'" . tsx-ts-mode))
 (add-hook 'tsx-ts-mode-hook 'my/web-js-setup)
 ;; JSON 插件配置
 (add-hook 'json-ts-mode-hook 'my/web-dev-attached)
