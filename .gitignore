@@ -10,7 +10,7 @@ recentf
 projectile*
 transient/
 amx-items
-pyim/
+pyim/dcache/
 .cache/
 .dap-breakpoints
 .lsp-session-v1
