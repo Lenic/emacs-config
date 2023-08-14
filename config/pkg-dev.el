@@ -75,6 +75,7 @@
   (global-corfu-mode))
 ;; 针对 corfu 的一些设置
 (use-package emacs
+  :after corfu
   :init
   ;; 如果只有一个时，按 TAB 时直接补全
   (setq completion-cycle-threshold 1)
