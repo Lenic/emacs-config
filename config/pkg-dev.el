@@ -240,4 +240,10 @@
                                   ;; (add-to-list  (make-local-variable 'company-backends) '(company-elisp))
                                   ))
 
+;; 安装括号高级跳转：在注释中仍然可以做到跳转操作
+(use-package smartparens
+  :defer 10
+  :bind
+  (("C-M-n" . sp-forward-sexp)
+   ("C-M-p" . sp-backward-sexp)))
 (provide 'pkg-dev)
