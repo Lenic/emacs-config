@@ -23,8 +23,6 @@
     (prettier-js-mode 1))
   ;; 启动 Flycheck 语法检查
   (flycheck-mode 1)
-  ;; 自动注释
-  (smartparens-mode)
   ;; 设置本地的 Tab 宽度
   (setq-local tab-width 2)
   ;; 打开自动完成模式
@@ -147,9 +145,6 @@
   (emmet-mode t)
   ;; 加载通用 Web 开发配置
   (my/web-dev-attached)
-  (sp-local-pair 'js-ts-mode "/**" "*/"
-                 :post-handlers '(("|| " "SPC")
-                                  ("* ||\n[i]" "RET")))
   ;; 开启 LSP 模式自动完成
   (lsp))
 
@@ -169,9 +164,6 @@
                              ;; 启动 Emmet 快速补充 HTML 代码
                              (emmet-mode t)
                              (my/web-dev-attached)
-                             (sp-local-pair 'web-mode "/**" "*/"
-                                            :post-handlers '(("|| " "SPC")
-                                                             ("* ||\n[i]" "RET")))
                              (flycheck-add-mode 'javascript-eslint 'web-mode)
                              (cond ((equal web-mode-content-type "html")
                                     (my/web-html-setup))
@@ -192,11 +184,7 @@
 (add-hook 'js-ts-mode-hook 'my/web-js-setup)
 ;; TypeScript 和 TypeScript React 插件配置
 (add-to-list 'auto-mode-alist '("\\.\\(ts\\|tsx\\)\\'" . tsx-ts-mode))
-(add-hook 'tsx-ts-mode-hook (lambda()
-                              (my/web-js-setup)
-                              (sp-local-pair 'tsx-ts-mode "/**" "*/"
-                                             :post-handlers '(("|| " "SPC")
-                                                              ("* ||\n[i]" "RET")))))
+(add-hook 'tsx-ts-mode-hook 'my/web-js-setup)
 ;; JSON 插件配置
 (add-hook 'json-ts-mode-hook 'my/web-dev-attached)
 
