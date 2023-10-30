@@ -154,6 +154,8 @@
     :config (pyim-basedict-enable))
   ;; 设置使用拼音输入法
   (setq default-input-method "pyim")
+  (custom-set-variables
+   '(pyim-dicts '((:name "mine" :file "~/.emacs.d/pyim/mine.pyim"))))
   ;; 我使用全拼
   (setq pyim-default-scheme 'microsoft-shuangpin)
   ;; 设置不使用模糊拼音
