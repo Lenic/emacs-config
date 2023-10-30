@@ -1,23 +1,7 @@
-;; (let (
-;;       ;; 加载的时候临时增大`gc-cons-threshold'以加速启动速度。
-;;       (gc-cons-threshold most-positive-fixnum)
-;;       ;; 清空避免加载远程文件的时候分析文件。
-;;       (file-name-handler-alist nil))
-;;   (require 'benchmark-init-modes)
-;;   (require 'benchmark-init)
-;;   (benchmark-init/activate)
-;;
-;;   ;; 下面才写你的其它配置
-;;   )
-
-;; (setq package-archives
-;;       '(("gnu"   . "https://elpa.gnu.org/packages/")
-;;         ("melpa" . "https://melpa.org/packages/")
-;;         ("melpa-stable" . "https://stable.melpa.org/packages/")))
-;; 设置中国镜像源，提升第三方包的下载速度
-(setq package-archives '(("gnu"    . "http://mirrors.tuna.tsinghua.edu.cn/elpa/gnu/")
-                         ("nongnu" . "http://mirrors.tuna.tsinghua.edu.cn/elpa/nongnu/")
-                         ("melpa"  . "http://mirrors.tuna.tsinghua.edu.cn/elpa/melpa/")))
+(setq package-archives
+      '(("gnu"   . "https://elpa.gnu.org/packages/")
+        ("melpa" . "https://melpa.org/packages/")
+        ("melpa-stable" . "https://stable.melpa.org/packages/")))
 (package-initialize)
 
 (setenv "PATH" (concat "/usr/local/bin:/opt/homebrew/bin:" (getenv "PATH")))
