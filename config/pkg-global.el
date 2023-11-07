@@ -76,14 +76,22 @@
   (undo-tree-history-directory-alist '(("." . "~/undo-tree")))
   (undo-tree-visualizer-timestamps t))
 
-;; 设置 Ace-Jump
-(use-package ace-jump-mode
-  :commands (ace-jump-word-mode ace-jump-line-mode)
-  :bind
-  ("C-c j" . ace-jump-word-mode)
-  ("C-c l" .  ace-jump-line-mode)
+;; Jump to arbitrary positions
+(use-package avy
+  :commands (avy-goto-line avy-goto-char-timer)
+  ;; integrate with isearch and others
+  :bind (("C-c l" . avy-goto-line)
+         ("C-c j" . avy-goto-char-timer))
   :config
-  (setq ace-jump-mode-scope 'window))
+  ;; change the highlight font color and background color
+  (set-face-attribute 'avy-lead-face nil :background "transparent" :foreground "red")
+  (set-face-attribute 'avy-lead-face-0 nil :background "transparent" :foreground "red")
+  :custom
+  (avy-background t)
+  (avy-all-windows nil)
+  (avy-keys '(?a ?s ?d ?f ?g ?h ?j ?k ?l ?q ?w ?e ?r ?u ?i ?o ?p))
+  ;; overlay is used during isearch, `pre' style makes avy keys evident.
+  (avy-styles-alist '((avy-isearch . pre))))
 
 ;; 显示行尾空白字符
 (use-package whitespace
