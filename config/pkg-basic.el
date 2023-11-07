@@ -132,6 +132,8 @@
   :ensure nil
   :defer 10
   :bind (:map isearch-mode-map
+              ;; consistent with ivy-occur
+              ("C-c C-o"                   . isearch-occur)
               ([remap isearch-delete-char] . isearch-del-char))
   :config
   ;; 设置每次前进或者后退搜索后将目标位置放置在屏幕垂直居中
