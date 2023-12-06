@@ -4,9 +4,6 @@
         ("melpa-stable" . "https://stable.melpa.org/packages/")))
 (package-initialize)
 
-(setenv "PATH" (concat "/usr/local/bin:/opt/homebrew/bin:" (getenv "PATH")))
-(setq exec-path (append exec-path '("/usr/local/bin" "/opt/homebrew/bin")))
-
 ;; 设置可以读取的最大容量为 3MB
 (setq read-process-output-max (* 3 1024 1024))
 
