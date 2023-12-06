@@ -88,7 +88,7 @@
   (set-face-attribute 'avy-lead-face-0 nil :background "transparent" :foreground "red")
   :custom
   (avy-background t)
-  (avy-all-windows nil)
+  (avy-all-windows t)
   (avy-keys '(?a ?s ?d ?f ?g ?h ?j ?k ?l ?q ?w ?e ?r ?u ?i ?o ?p))
   ;; overlay is used during isearch, `pre' style makes avy keys evident.
   (avy-styles-alist '((avy-isearch . pre))))
