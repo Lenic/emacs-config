@@ -183,8 +183,6 @@
 
     (add-to-list 'er/try-expand-list 'my/treesit-mark-bigger-node)))
 
-
-
 ;; DAP
 (use-package dap-mode
   :commands (dap-debug dap-breakpoint-toggle)
@@ -242,7 +240,7 @@
 
 (use-package csharp-mode
   :ensure nil
-  :commands python-ts-mode
+  :commands csharp-mode
   :config
   (use-package dap-unity
     :ensure nil))
