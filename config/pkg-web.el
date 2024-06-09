@@ -42,7 +42,7 @@
   (display-fill-column-indicator-mode t))
 
 ;; 设置 CSS 及其它 CSS 预处理语言
-(add-hook 'css-mode-hook
+(add-hook 'css-ts-mode-hook
           (lambda ()
             ;; 通用前端开发设置
             (my/web-dev-attached)
