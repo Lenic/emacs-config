@@ -14,13 +14,13 @@
 (defun my/maximal-font ()
   "Format the current file with ESLint."
   (interactive)
-  (set-face-attribute 'default nil :font "Sarasa Mono SC Nerd 16" ))
+  (set-face-attribute 'default nil :font "Sarasa Term SC Nerd 16" ))
 
 ;;;###autoload
 (defun my/normal-font ()
   "Format the current file with ESLint."
   (interactive)
-  (set-face-attribute 'default nil :font "Sarasa Mono SC Nerd 14" ))
+  (set-face-attribute 'default nil :font "Sarasa Term SC Nerd 14" ))
 
 ;; 设置 Emacs 的缺省工作路径
 (setq default-directory "~/")
