@@ -192,7 +192,17 @@
 
 ;; 开启 ESLint 的自动修复模式：需要预先在全局安装 eslint_d 包
 (use-package eslintd-fix
-  :commands eslintd-fix-mode)
+  :commands eslintd-fix-mode
+  :config
+  (defun eslintd-fix-send-request (request)
+    "Send REQUEST to eslint_d and return the result."
+    (let ((json-array-type 'list))
+      (json-read-from-string
+       (with-output-to-string
+         (with-current-buffer standard-output
+           (call-process eslintd-fix-executable nil t nil
+                         "--stdin" "--stdin-filename" buffer-file-name)
+           (insert request)))))))
 
 ;; 直接编辑 HTML 文件时的设置
 (add-hook 'mhtml-mode-hook 'my/web-dev-attached)
