@@ -129,11 +129,6 @@
   (add-hook 'flycheck-mode-hook 'my/use-stylelint-from-node-modules)
   :hook ((css-mode web-mode js-ts-mode tsx-ts-mode) . flycheck-mode))
 
-(defun my/web-html-setup()
-  "Setup for html files."
-  ;; 开启 LSP 模式自动完成
-  (lsp))
-
 (defun my/web-vue-setup()
   "Setup for vue related."
   ;; 开启 LSP 模式自动完成
@@ -165,10 +160,7 @@
                              (emmet-mode t)
                              (my/web-dev-attached)
                              (flycheck-add-mode 'javascript-eslint 'web-mode)
-                             (cond ((equal web-mode-content-type "html")
-                                    (my/web-html-setup))
-                                   ((member web-mode-content-type '("vue"))
-                                    (my/web-vue-setup))))))
+                             (my/web-vue-setup))))
 
 ;; TailwindCSS 插件配置
 (use-package lsp-tailwindcss
