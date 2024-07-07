@@ -65,84 +65,12 @@
   (setq magit-diff-refine-hunk (quote all))
   :hook ((magit-post-commit-hook) . 'git-gutter:update-all-windows))
 
-;; 设置自动完成
-(use-package corfu
-  :defer 3
-  :bind
-  ;; Configure SPC for separator insertion
-  (:map corfu-map ("SPC" . corfu-insert-separator))
-  :init
-  (global-corfu-mode))
-;; 针对 corfu 的一些设置
-(use-package emacs
-  :after corfu
-  :init
-  ;; 如果只有一个时，按 TAB 时直接补全
-  (setq completion-cycle-threshold 1)
-  ;; 设置按 Tab 键时的功能
-  (setq tab-always-indent 'complete))
-
-;; 自动完成时的模糊匹配功能
-(use-package orderless
-  :after corfu
-  :init
-  (setq completion-styles '(orderless partial-completion basic)
-        completion-category-defaults nil
-        completion-category-overrides nil))
-
 ;; 指定符号高亮
 (use-package symbol-overlay
   :commands symbol-overlay-put
   :bind
   (("C-c i" . symbol-overlay-put)
    ("C-c q" . symbol-overlay-remove-all)))
-
-;; LSP 模式配置
-(use-package lsp-mode
-  :commands (lsp lsp-deferred)
-  :custom
-  (lsp-completion-provider :none) ;; we use Corfu!
-  :config
-  (setq lsp-enable-snippet nil
-        lsp-lens-enable nil
-        ;; 显示完整的 eldoc 信息
-        lsp-eldoc-render-all t
-        ;; 关闭 lsp 服务退出时的重启提示
-        lsp-restart 'ignore
-        lsp-eldoc-enable-hover t
-        lsp-disabled-clients '(eslint)
-        lsp-signature-auto-activate t
-        lsp-headerline-breadcrumb-icons-enable nil
-        lsp-signature-render-documentation t
-        lsp-completion-show-detail t
-        lsp-completion-show-kind t
-        ;; lsp-diagnostic-package :none
-        lsp-diagnostic-package :flycheck
-        ;; 关闭文件监视
-        lsp-enable-file-watchers nil
-        lsp-enable-symbol-highlighting nil
-        lsp-enable-dap-auto-configure nil
-        ;; 关闭 flycheck 实时语法检查
-        lsp-flycheck-live-reporting nil
-        lsp-headerline-breadcrumb-enable nil
-        lsp-completion-enable-additional-text-edit nil)
-  (defun my/lsp-mode-setup-completion ()
-    (setf (alist-get 'styles (alist-get 'lsp-capf completion-category-defaults))
-          '(orderless))) ;; Configure orderless
-  :hook
-  (lsp-completion-mode . my/lsp-mode-setup-completion))
-
-;; LSP 模式的帮助文档相关
-(use-package lsp-ui
-  :after lsp-mode
-  :commands lsp-ui-mode
-  :config
-  (setq lsp-ui-doc-delay 3)
-  (setq lsp-ui-doc-show-with-cursor nil)
-  (setq lsp-ui-doc-show-with-mouse nil)
-  (setq lsp-ui-doc-enable nil)
-  (setq lsp-ui-sideline-delay 1)
-  (setq lsp-ui-sideline-enable t))
 
 ;; 加载代码折叠配置：支持 HTML 标签的折叠
 (use-package yafolding
@@ -244,5 +172,8 @@
   :config
   (use-package dap-unity
     :ensure nil))
+
+;; 加载 lsp 配置
+(require 'pkg-lsp)
 
 (provide 'pkg-dev)
