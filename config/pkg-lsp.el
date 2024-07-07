@@ -97,10 +97,6 @@
     (setf (alist-get 'styles (alist-get 'lsp-capf completion-category-defaults))
           '(orderless)))
 
-  ;; 集成 which-key，提供命令提示
-  (with-eval-after-load 'lsp-mode
-    (add-hook 'lsp-mode-hook #'lsp-enable-which-key-integration))
-
   :hook (lsp-completion-mode . my/lsp-mode-setup-completion))  ; 设置 LSP 补全使用 orderless
 
 ;; 可选：使用 lsp-ui 增强 LSP 功能
