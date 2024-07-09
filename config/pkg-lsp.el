@@ -65,7 +65,7 @@
         lsp-completion-show-detail t                    ; 显示补全的详细信息
         lsp-completion-show-kind t                      ; 显示补全项的类型
         lsp-diagnostic-package :flycheck                ; 使用 flycheck 进行诊断
-        lsp-enable-file-watchers nil                    ; 禁用文件监视
+        lsp-enable-file-watchers t                      ; 启用文件监视
         lsp-enable-symbol-highlighting nil              ; 禁用符号高亮
         lsp-enable-dap-auto-configure nil               ; 禁用 DAP 自动配置
         lsp-flycheck-live-reporting nil                 ; 禁用 flycheck 实时报告
@@ -75,7 +75,8 @@
         lsp-log-io nil                                  ; 禁用日志记录，提高性能
         lsp-auto-guess-root t                           ; 自动猜测项目根目录
         lsp-file-watch-threshold 2000                   ; 限制监视的文件数量
-        lsp-signature-function 'lsp-signature-posframe) ; 使用 posframe 显示签名
+        lsp-signature-function 'lsp-signature-posframe  ; 使用 posframe 显示签名
+        lsp-signature-function 'lsp-lv-message)         ; 使用 minibuffer 显示函数签名
 
   ;; 优化大文件处理，忽略特定文件和目录
   (setq lsp-file-watch-ignored-files
@@ -97,7 +98,8 @@
     (setf (alist-get 'styles (alist-get 'lsp-capf completion-category-defaults))
           '(orderless)))
 
-  :hook (lsp-completion-mode . my/lsp-mode-setup-completion))  ; 设置 LSP 补全使用 orderless
+  :hook ((lsp-mode . eldoc-mode)
+         (lsp-completion-mode . my/lsp-mode-setup-completion)))  ; 设置 LSP 补全使用 orderless
 
 ;; 可选：使用 lsp-ui 增强 LSP 功能
 (use-package lsp-ui
