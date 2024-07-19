@@ -6,6 +6,7 @@
         ("SPC" . corfu-insert-separator))   ; 空格键插入分隔符
   :custom
   (corfu-preselect-first t)                 ; 预选第一个候选项
+  (corfu-scroll-margin 5)                   ; 使用滚动边距
   :init
   (global-corfu-mode))                      ; 全局启用 Corfu 模式
 
@@ -33,6 +34,9 @@
   (lsp-completion-provider :none) ;; 我们使用 Corfu 进行补全
   :config
   (setq lsp-enable-snippet nil                          ; 禁用代码片段
+        lsp-enable-folding nil                          ; 禁用基于 LSP 的代码折叠功能
+        lsp-semantic-tokens-enable nil                  ; 禁用语义令牌功能
+        lsp-typescript-format-enable nil                ; 禁用 TypeScript 代码格式化功能
         lsp-lens-enable nil                             ; 禁用代码镜头功能
         lsp-enable-on-type-formatting nil               ; 关闭类型格式化
         lsp-eldoc-render-all t                          ; 显示所有 eldoc 信息
