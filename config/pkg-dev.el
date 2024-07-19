@@ -43,7 +43,7 @@
 
 ;; 设置打开 NeoTree 树形列表展示
 (use-package neotree
-  :commands projectile-switch-project
+  :commands (projectile-switch-project neotree-dir)
   :config
   (setq neo-theme 'ascii           ; NeoTree 图标的样式
         neo-window-width 35
