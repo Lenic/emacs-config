@@ -10,10 +10,16 @@
 ;; 缓解在快速移动时大量代码的语法高亮
 (setq redisplay-skip-fontification-on-input t)
 
-;; 垃圾回收设置阈值 100MB
-(setq gc-cons-threshold (* 100 1024 1024))
-(setq gc-cons-percentage 0.5)
-(run-with-idle-timer 5 t #'garbage-collect)
+;; 启动时临时增加阈值
+(setq gc-cons-threshold most-positive-fixnum)
+(setq gc-cons-percentage 0.6)
+
+;; 启动后恢复为推荐值
+(add-hook 'emacs-startup-hook
+          (lambda ()
+            (setq gc-cons-threshold 200000000)  ; 恢复为 200 MB
+            (setq gc-cons-percentage 0.6)))     ; 恢复为 60%
+
 ;; 显示垃圾回收信息，这个可以作为调试用
 (setq garbage-collection-messages t)
 ;; warn when opening files bigger than 100MB
