@@ -47,7 +47,7 @@
             ;; 通用前端开发设置
             (my/web-dev-attached)
             ;; 开启 LSP 模式自动完成
-            (lsp)
+            (lsp-deferred)
             ;; 设置自动缩进的宽度
             (setq css-indent-offset 2)))
 
@@ -92,7 +92,7 @@
               ;; 其它开发设置
               (my/web-dev-attached)
               ;; 开启 LSP 模式自动完成
-              (lsp))))
+              (lsp-deferred))))
 
 ;; JavaScript/TypeScript 语法检查设置
 (defun my/use-eslint-from-node-modules ()
@@ -132,7 +132,7 @@
 (defun my/web-vue-setup()
   "Setup for vue related."
   ;; 开启 LSP 模式自动完成
-  (lsp))
+  (lsp-deferred))
 
 (defun my/web-js-setup()
   "Setup for js related."
@@ -141,7 +141,7 @@
   ;; 加载通用 Web 开发配置
   (my/web-dev-attached)
   ;; 开启 LSP 模式自动完成
-  (lsp))
+  (lsp-deferred))
 
 (use-package web-mode
   :commands web-mode
