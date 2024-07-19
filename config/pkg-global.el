@@ -132,7 +132,7 @@
 
 ;; ERC 配置
 (use-package erc
-  :defer 2
+  :commands erc
   :ensure nil
   :config
   ;; Interpret mIRC-style color commands in IRC chats
