@@ -1,6 +1,7 @@
 ;; 优化 Emacs 的启动速度
 (setq gc-cons-threshold most-positive-fixnum)
-(add-hook 'after-init-hook #'(lambda () (setq gc-cons-threshold 800000)))
+(setq gc-cons-percentage 0.6)
+(add-hook 'after-init-hook #'(lambda () (setq gc-cons-threshold 200000000))) ; 200 MB
 
 ;; 操作系统相关变量
 (defvar cabins--os-win (memq system-type '(ms-dos windows-nt cygwin)))
