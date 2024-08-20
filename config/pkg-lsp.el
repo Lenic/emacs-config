@@ -41,6 +41,7 @@
         lsp-enable-on-type-formatting nil               ; 关闭类型格式化
         lsp-eldoc-render-all t                          ; 显示所有 eldoc 信息
         lsp-restart 'ignore                             ; 忽略 LSP 服务器重启提示
+        lsp-clients-typescript-max-ts-server-memory 8192; 设置 TypeScript 可用的最大内存为 8G
         lsp-eldoc-enable-hover t                        ; 启用鼠标悬停文档
         lsp-disabled-clients '(eslint)                  ; 禁用 eslint 客户端
         lsp-signature-auto-activate t                   ; 自动显示函数签名
