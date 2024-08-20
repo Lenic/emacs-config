@@ -1,0 +1,6 @@
+# -*- mode: snippet -*-
+# name: computed
+# key: computed
+# --
+
+computed(() => { $0 });
