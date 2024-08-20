@@ -22,6 +22,12 @@
   (interactive)
   (set-face-attribute 'default nil :font "Sarasa Term SC Nerd 14" ))
 
+;;;###autoload
+(defun my/minimal-font ()
+  "Format the current file with ESLint."
+  (interactive)
+  (set-face-attribute 'default nil :font "Sarasa Term SC Nerd 12" ))
+
 ;; 设置 Emacs 的缺省工作路径
 (setq default-directory "~/")
 
