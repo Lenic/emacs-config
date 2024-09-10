@@ -1,14 +1,14 @@
 (setq my/spaceline-loaded nil)
 
 ;; 设置 mode-line
-(use-package spaceline
-  :defer 1
-  :init
-  (setq powerline-default-separator 'slant)
-  :config
-  (spaceline-emacs-theme)
-  (setq my/spaceline-loaded t)
-  (spaceline-toggle-buffer-size-off))
+;; (use-package spaceline
+;;   :defer 1
+;;   :init
+;;   (setq powerline-default-separator 'slant)
+;;   :config
+;;   (spaceline-emacs-theme)
+;;   (setq my/spaceline-loaded t)
+;;   (spaceline-toggle-buffer-size-off))
 
 ;; 设置日间主题和夜间主题
 (setq day-theme nil)
@@ -70,8 +70,8 @@
         ;; 设置高亮列的背景色
         ;; (set-face-attribute 'col-highlight nil :inherit 'hl-line :background)
         ;; 重新编译 Spaceline
-        (if (eq my/spaceline-loaded t)
-            (spaceline-compile))
+        ;; (if (eq my/spaceline-loaded t)
+        ;;     (spaceline-compile))
         ))
   )
 
