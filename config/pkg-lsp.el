@@ -7,6 +7,10 @@
   :custom
   (corfu-preselect-first t)                 ; 预选第一个候选项
   (corfu-scroll-margin 5)                   ; 使用滚动边距
+  :config
+  (unless (display-graphic-p)
+    (require 'corfu-terminal)
+    (corfu-terminal-mode t))
   :init
   (global-corfu-mode))                      ; 全局启用 Corfu 模式
 
