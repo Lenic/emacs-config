@@ -28,6 +28,13 @@
   (interactive)
   (set-face-attribute 'default nil :font "Sarasa Term SC Nerd 12" ))
 
+;;;###autoload
+(defun clear-kill-ring ()
+  "Clear the kill ring (copy-paste stack)."
+  (interactive)
+  (setq kill-ring nil)
+  (setq kill-ring-yank-pointer nil))
+
 ;; 设置 Emacs 的缺省工作路径
 (setq default-directory "~/")
 
