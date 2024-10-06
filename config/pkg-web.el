@@ -28,7 +28,7 @@
   ;; 打开自动完成模式
   (yas-minor-mode 1)
   ;; 开启自动 ESLint 修复
-  (eslintd-fix-mode)
+  (eslintd-fix-on-save-mode)
   ;; 设置关闭自动换行
   (setq truncate-lines t)
   ;; 开启显示行号
@@ -123,6 +123,7 @@
 (use-package flycheck
   :commands flycheck-mode
   :config
+  (setq flycheck-javascript-eslint-executable "eslint_d")
   ;; 设置 flycheck 只在文件打开和保存的时候检查语法
   (setq flycheck-check-syntax-automatically '(save mode-enabled))
   (add-hook 'flycheck-mode-hook 'my/use-eslint-from-node-modules)
@@ -183,18 +184,14 @@
 ;; (add-to-list 'tree-sitter-major-mode-language-alist '(web-mode . vue))
 
 ;; 开启 ESLint 的自动修复模式：需要预先在全局安装 eslint_d 包
-(use-package eslintd-fix
-  :commands eslintd-fix-mode
+(use-package reformatter
   :config
-  (defun eslintd-fix-send-request (request)
-    "Send REQUEST to eslint_d and return the result."
-    (let ((json-array-type 'list))
-      (json-read-from-string
-       (with-output-to-string
-         (with-current-buffer standard-output
-           (call-process eslintd-fix-executable nil t nil
-                         "--stdin" "--stdin-filename" buffer-file-name)
-           (insert request)))))))
+  (progn
+    (reformatter-define eslintd-fix
+      :program (executable-find "eslint_d")
+      :args (list "--fix-to-stdout" "--stdin" "--stdin-filename" (buffer-file-name))
+      :input-file (reformatter-temp-file-in-current-directory "js")
+      :exit-code-success-p (lambda (code) (or (eq code 1) (eq code 0))))))
 
 ;; 直接编辑 HTML 文件时的设置
 (add-hook 'mhtml-mode-hook 'my/web-dev-attached)
