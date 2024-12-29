@@ -3,6 +3,10 @@
 (setq gc-cons-percentage 0.6)
 (add-hook 'after-init-hook #'(lambda () (setq gc-cons-threshold 200000000))) ; 200 MB
 
+;; 设置 LSP_MODE 使用 plist 进行反序列化
+(setenv "LSP_USE_PLISTS" "true")
+(setq lsp-use-plists t)
+
 ;; 操作系统相关变量
 (defvar cabins--os-win (memq system-type '(ms-dos windows-nt cygwin)))
 (defvar cabins--os-mac (eq system-type 'darwin))

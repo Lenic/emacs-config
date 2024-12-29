@@ -104,7 +104,7 @@
                (expand-file-name "node_modules/.bin/eslint"
                                  root))))
     (when (and eslint (file-executable-p eslint))
-      (setq-local flycheck-javascript-eslint-executable eslint))))
+      (setq-local flycheck-javascript-eslint-executable "eslint_d"))))
 
 ;; CSS/LESS 语法检查设置
 (defun my/use-stylelint-from-node-modules ()
@@ -126,6 +126,8 @@
   (setq flycheck-javascript-eslint-executable "eslint_d")
   ;; 设置 flycheck 只在文件打开和保存的时候检查语法
   (setq flycheck-check-syntax-automatically '(save mode-enabled))
+  (setq flycheck-idle-change-delay 1)
+  (setq flycheck-checker-error-threshold 10000)
   (add-hook 'flycheck-mode-hook 'my/use-eslint-from-node-modules)
   (add-hook 'flycheck-mode-hook 'my/use-stylelint-from-node-modules)
   :hook ((css-mode web-mode js-ts-mode tsx-ts-mode) . flycheck-mode))
@@ -163,12 +165,32 @@
                              (flycheck-add-mode 'javascript-eslint 'web-mode)
                              (my/web-vue-setup))))
 
+;; 从当前 buffer 文件的路径向上查找 tailwind.config.* 文件，直到找到，或者找到根目录仍然没有找到
+(defun find-tailwind-config-upwards ()
+  (let ((current-dir (file-name-directory (buffer-file-name (current-buffer))))
+        (workspace-root (lsp-workspace-root))
+        (config-file nil)
+        (continue t))
+    (while (and continue current-dir (not (equal current-dir workspace-root)))
+      (setq config-file (car (f-glob "tailwind.config.*" current-dir)))
+      (if config-file
+          (progn
+            (message "tailwind css find config file: %s" config-file)
+            (setq continue nil))
+        (setq current-dir (expand-file-name ".." current-dir))))
+    config-file))
+
 ;; TailwindCSS 插件配置
 (use-package lsp-tailwindcss
   :after lsp-mode
   :init
-  (setq lsp-tailwindcss-add-on-mode t)
+  (setq lsp-tailwindcss-add-on-mode t
+        lsp-tailwindcss-server-version "0.12.17")
   :config
+  ;; 覆盖内部的查找方法
+  (defun lsp-tailwindcss--has-config-file ()
+    (or (f-glob "tailwind.config.*" (lsp-workspace-root))
+        (find-tailwind-config-upwards)))
   ;; 第一次加载完成后尝试拉起 TailwindCSS 服务
   (lsp-deferred))
 
