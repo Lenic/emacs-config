@@ -109,7 +109,6 @@
                   node-end (treesit-node-end node))))
         (set-mark node-end)
         (goto-char node-start)))
-
     (add-to-list 'er/try-expand-list 'my/treesit-mark-bigger-node)))
 
 ;; DAP

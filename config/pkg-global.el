@@ -84,8 +84,8 @@
          ("C-c j" . avy-goto-char-timer))
   :config
   ;; change the highlight font color and background color
-  (set-face-attribute 'avy-lead-face nil :background "transparent" :foreground "red")
-  (set-face-attribute 'avy-lead-face-0 nil :background "transparent" :foreground "red")
+  (set-face-attribute 'avy-lead-face nil :background "black" :foreground "red")
+  (set-face-attribute 'avy-lead-face-0 nil :background "black" :foreground "red")
   :custom
   (avy-background t)
   (avy-all-windows t)
