@@ -180,17 +180,50 @@
         (setq current-dir (expand-file-name ".." current-dir))))
     config-file))
 
+(defun check-tailwind-in-parents ()
+  (let* ((current-dir (file-name-directory (buffer-file-name)))
+         (root-dir (expand-file-name "~"))
+         (max-depth 20)  ;; Safety lock to prevent infinite loops
+         found-dir)
+    ;; Use cl-loop for safer iteration with depth counter
+    (cl-loop while (and current-dir
+                        (not (string= current-dir root-dir))
+                        (> max-depth 0))
+             do (progn
+                  (setq max-depth (1- max-depth))
+                  ;; Normalize directory format
+                  (setq current-dir (directory-file-name current-dir))
+                  ;; Use built-in file locator
+                  (if-let ((pkg-path (locate-dominating-file current-dir "package.json")))
+                      (progn
+                        (setq found-dir pkg-path)
+                        (cl-return))
+                    (setq current-dir (file-name-directory current-dir)))))
+
+    (cond
+     ;; Case when package.json is found
+     (found-dir
+      (with-temp-buffer
+        (insert-file-contents (expand-file-name "package.json" found-dir))
+        (if (search-forward "tailwindcss" nil t)
+            t
+          nil)))
+     ;; Reached root directory or exceeded max depth
+     (t
+      nil))))
+
 ;; TailwindCSS 插件配置
 (use-package lsp-tailwindcss
   :after lsp-mode
   :init
   (setq lsp-tailwindcss-add-on-mode t
-        lsp-tailwindcss-server-version "0.12.17")
+        lsp-tailwindcss-server-version "0.14.9")
   :config
   ;; 覆盖内部的查找方法
   (defun lsp-tailwindcss--has-config-file ()
     (or (f-glob "tailwind.config.*" (lsp-workspace-root))
-        (find-tailwind-config-upwards)))
+        (find-tailwind-config-upwards)
+        (check-tailwind-in-parents)))
   ;; 第一次加载完成后尝试拉起 TailwindCSS 服务
   (lsp-deferred))
 
