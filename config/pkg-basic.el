@@ -72,10 +72,8 @@
               ([remap isearch-delete-char] . isearch-del-char))
   :config
   ;; 设置每次前进或者后退搜索后将目标位置放置在屏幕垂直居中
-  (defadvice isearch-repeat-forward (after isearch-repeat-forward-recenter activate) (recenter))
-  (defadvice isearch-repeat-backward (after isearch-repeat-backward-recenter activate) (recenter))
-  (ad-activate 'isearch-repeat-forward)
-  (ad-activate 'isearch-repeat-backward)
+  (advice-add 'isearch-repeat-forward :after #'(lambda (&rest _) (recenter)))
+  (advice-add 'isearch-repeat-backward :after #'(lambda (&rest _) (recenter)))
   :custom
   (isearch-lazy-count t)
   (lazy-count-prefix-format "%s/%s "))
