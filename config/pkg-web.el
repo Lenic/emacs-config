@@ -217,7 +217,7 @@
   :after lsp-mode
   :init
   (setq lsp-tailwindcss-add-on-mode t
-        lsp-tailwindcss-server-version "0.14.9")
+        lsp-tailwindcss-server-version "0.14.24")
   :config
   ;; 覆盖内部的查找方法
   (defun lsp-tailwindcss--has-config-file ()
