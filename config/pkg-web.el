@@ -165,52 +165,52 @@
                              (flycheck-add-mode 'javascript-eslint 'web-mode)
                              (my/web-vue-setup))))
 
-;; 从当前 buffer 文件的路径向上查找 tailwind.config.* 文件，直到找到，或者找到根目录仍然没有找到
-(defun find-tailwind-config-upwards ()
-  (let ((current-dir (file-name-directory (buffer-file-name (current-buffer))))
-        (workspace-root (lsp-workspace-root))
-        (config-file nil)
-        (continue t))
-    (while (and continue current-dir (not (equal current-dir workspace-root)))
-      (setq config-file (car (f-glob "tailwind.config.*" current-dir)))
-      (if config-file
-          (progn
-            (message "tailwind css find config file: %s" config-file)
-            (setq continue nil))
-        (setq current-dir (expand-file-name ".." current-dir))))
-    config-file))
-
 (defun check-tailwind-in-parents ()
-  (let* ((current-dir (file-name-directory (buffer-file-name)))
-         (root-dir (expand-file-name "~"))
-         (max-depth 20)  ;; Safety lock to prevent infinite loops
-         found-dir)
-    ;; Use cl-loop for safer iteration with depth counter
-    (cl-loop while (and current-dir
-                        (not (string= current-dir root-dir))
-                        (> max-depth 0))
-             do (progn
-                  (setq max-depth (1- max-depth))
-                  ;; Normalize directory format
-                  (setq current-dir (directory-file-name current-dir))
-                  ;; Use built-in file locator
-                  (if-let ((pkg-path (locate-dominating-file current-dir "package.json")))
-                      (progn
-                        (setq found-dir pkg-path)
-                        (cl-return))
-                    (setq current-dir (file-name-directory current-dir)))))
+  "从当前文件所在目录向上查找包含 tailwindcss 的 package.json 文件。
+返回 t 如果找到包含 tailwindcss 的 package.json，否则返回 nil。"
+  (let* ((buffer-file (buffer-file-name))
+         (current-dir (and buffer-file (file-name-directory buffer-file)))
+         (home-dir (expand-file-name "~"))
+         (max-depth 20)
+         (depth 0)
+         found-package-json)
 
-    (cond
-     ;; Case when package.json is found
-     (found-dir
-      (with-temp-buffer
-        (insert-file-contents (expand-file-name "package.json" found-dir))
-        (if (search-forward "tailwindcss" nil t)
-            t
-          nil)))
-     ;; Reached root directory or exceeded max depth
-     (t
-      nil))))
+    ;; 如果没有当前文件，直接返回 nil
+    (unless current-dir
+      (cl-return-from check-tailwind-in-parents nil))
+
+    ;; 向上查找 package.json 文件
+    (cl-loop while (and current-dir
+                        (not (string= current-dir home-dir))
+                        (< depth max-depth))
+             do (progn
+                  (setq depth (1+ depth))
+
+                  ;; 检查当前目录是否包含 package.json
+                  (let ((package-json-path (expand-file-name "package.json" current-dir)))
+                    (when (file-exists-p package-json-path)
+                      (setq found-package-json package-json-path)
+                      (cl-return)))
+
+                  ;; 检查是否到达 .git 目录
+                  (let ((git-dir (expand-file-name ".git" current-dir)))
+                    (when (file-directory-p git-dir)
+                      (cl-return)))
+
+                  ;; 获取父目录
+                  (let ((parent-dir (file-name-directory (directory-file-name current-dir))))
+                    (if (and parent-dir (not (string= parent-dir current-dir)))
+                        (setq current-dir parent-dir)
+                      ;; 如果无法获取父目录或父目录相同，退出循环
+                      (cl-return)))))
+
+    ;; 如果找到了 package.json，检查是否包含 tailwindcss
+    (when found-package-json
+      (condition-case nil
+          (with-temp-buffer
+            (insert-file-contents found-package-json)
+            (search-forward "tailwindcss" nil t))
+        (error nil)))))
 
 ;; TailwindCSS 插件配置
 (use-package lsp-tailwindcss
@@ -221,9 +221,7 @@
   :config
   ;; 覆盖内部的查找方法
   (defun lsp-tailwindcss--has-config-file ()
-    (or (f-glob "tailwind.config.*" (lsp-workspace-root))
-        (find-tailwind-config-upwards)
-        (check-tailwind-in-parents)))
+    (check-tailwind-in-parents))
   ;; 第一次加载完成后尝试拉起 TailwindCSS 服务
   (lsp-deferred))
 
