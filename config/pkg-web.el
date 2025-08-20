@@ -17,10 +17,12 @@
   ;; 在文件左侧显示 Git 状态
   (git-gutter-mode 1)
   ;; 设置 Prettier 格式化代码
-  (when (or (file-exists-p (format "%s/.prettierrc" (projectile-project-root)))
-            (file-exists-p (format "%s/.prettierrc.js" (projectile-project-root)))
-            (file-exists-p (format "%s/.prettierignore" (projectile-project-root))))
-    (prettier-js-mode 1))
+  (let ((project-root (projectile-project-root)))
+    (when (and project-root
+               (or (file-exists-p (format "%s/.prettierrc" project-root))
+                   (file-exists-p (format "%s/.prettierrc.js" project-root))
+                   (file-exists-p (format "%s/.prettierignore" project-root))))
+      (prettier-js-mode 1)))
   ;; 启动 Flycheck 语法检查
   (flycheck-mode 1)
   ;; 设置本地的 Tab 宽度
