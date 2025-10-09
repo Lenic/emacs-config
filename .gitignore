@@ -22,3 +22,4 @@ projects
 .log/
 .DS_Store
 tree-sitter/
+eln-cache/
