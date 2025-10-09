@@ -62,7 +62,7 @@
         lsp-completion-enable-additional-text-edit nil  ; 禁用额外的文本编辑
         lsp-idle-delay 0.500                            ; 增加空闲延迟，减少 CPU 使用
         lsp-log-io nil                                  ; 禁用日志记录，提高性能
-        lsp-auto-guess-root t                           ; 自动猜测项目根目录
+        lsp-auto-guess-root nil                         ; 自动猜测项目根目录
         lsp-file-watch-threshold 2000)                  ; 限制监视的文件数量
   ;; 设置 lsp-mode-booster 加速
   (defun lsp-booster--advice-json-parse (old-fn &rest args)
