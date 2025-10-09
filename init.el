@@ -17,7 +17,10 @@
 
 (unless (package-installed-p 'use-package)
   (package-refresh-contents)
-  (package-install 'use-package))
+  (package-install 'use-package)
+  (package-install 'exec-path-from-shell))
+(require 'exec-path-from-shell)
+(exec-path-from-shell-initialize)
 (require 'use-package)
 (setq use-package-always-ensure t
       use-package-minimum-reported-time t)
