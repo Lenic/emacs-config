@@ -3,6 +3,8 @@
 (setq gc-cons-percentage 0.6)
 (add-hook 'after-init-hook #'(lambda () (setq gc-cons-threshold 200000000))) ; 200 MB
 
+(setq native-comp-jit-compilation nil)
+
 ;; 设置 LSP_MODE 使用 plist 进行反序列化
 (setenv "LSP_USE_PLISTS" "true")
 (setq lsp-use-plists t)
