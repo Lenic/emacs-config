@@ -70,7 +70,9 @@
 (use-package undo-tree
   :defer 3
   :diminish undo-tree-mode
-  :init (global-undo-tree-mode)
+  :init
+  (make-directory "~/undo-tree" t) ; 确保目录存在
+  (global-undo-tree-mode)
   :custom
   (undo-tree-visualizer-diff t)
   (undo-tree-history-directory-alist '(("." . "~/undo-tree")))
@@ -124,7 +126,7 @@
   (beacon-mode t))
 
 ;; 开启全局窗口变动记录
-(use-package winner-mode
+(use-package winner
   :defer 1
   :ensure nil
   :hook (after-init . winner-mode)
@@ -149,12 +151,12 @@
   (interactive)
   (if (equal buffer-file-name nil)
       (message "没有文件名")
-    (setq path (vc-find-root buffer-file-name ".git"))
-    (if (equal path nil)
-        (kill-new (message buffer-file-name))
-      (setq absolutePath (expand-file-name path))
-      (setq targetPath (substring buffer-file-name (length absolutePath)))
-      (kill-new (message targetPath)))))
+    (let* ((root (vc-find-root buffer-file-name ".git"))
+           (target-path (if root
+                            (substring buffer-file-name
+                                       (length (expand-file-name root)))
+                          buffer-file-name)))
+      (kill-new (message target-path)))))
 (global-set-key (kbd "C-c C-p") 'copy-buffer-path)
 
 (provide 'pkg-global)

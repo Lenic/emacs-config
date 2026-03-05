@@ -19,11 +19,9 @@
   (package-refresh-contents)
   (package-install 'use-package)
   (package-install 'exec-path-from-shell))
-(require 'exec-path-from-shell)
-(exec-path-from-shell-initialize)
 (require 'use-package)
 (setq use-package-always-ensure t
-      use-package-minimum-reported-time t)
+      use-package-minimum-reported-time 0.1) ; 超过 0.1 秒才报告加载时间
 
 ;; 禁用 cl 库警告
 (setq byte-compile-warnings '(cl-functions))

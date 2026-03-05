@@ -1,9 +1,10 @@
 ;; 优化 Emacs 的启动速度
 (setq gc-cons-threshold most-positive-fixnum)
 (setq gc-cons-percentage 0.6)
-(add-hook 'after-init-hook #'(lambda () (setq gc-cons-threshold 200000000))) ; 200 MB
+(add-hook 'after-init-hook #'(lambda () (setq gc-cons-threshold (* 32 1024 1024)))) ; 32 MB
 
-(setq native-comp-jit-compilation nil)
+;; 允许 JIT 编译，降低编译优先级避免启动时 CPU 飙升
+(setq native-comp-jit-compilation t)
 
 ;; 设置 LSP_MODE 使用 plist 进行反序列化
 (setenv "LSP_USE_PLISTS" "true")

@@ -12,19 +12,19 @@
 
 ;;;###autoload
 (defun my/maximal-font ()
-  "Format the current file with ESLint."
+  "Switch the default font to a larger size (16pt)."
   (interactive)
   (set-face-attribute 'default nil :font "Sarasa Term SC Nerd 16" ))
 
 ;;;###autoload
 (defun my/normal-font ()
-  "Format the current file with ESLint."
+  "Switch the default font to the normal size (14pt)."
   (interactive)
   (set-face-attribute 'default nil :font "Sarasa Term SC Nerd 14" ))
 
 ;;;###autoload
 (defun my/minimal-font ()
-  "Format the current file with ESLint."
+  "Switch the default font to a smaller size (12pt)."
   (interactive)
   (set-face-attribute 'default nil :font "Sarasa Term SC Nerd 12" ))
 

@@ -12,17 +12,25 @@
 
 ;; 附加 Web 开发的各种插件
 (defun my/web-dev-attached ()
-  ;; 打开自动补全括号功能
-  (electric-pair-mode 1)
+  ;; 仅对当前 buffer 开启自动补全括号功能
+  (electric-pair-local-mode 1)
   ;; 在文件左侧显示 Git 状态
   (git-gutter-mode 1)
   ;; 设置 Prettier 格式化代码
-  (let ((project-root (projectile-project-root)))
-    (when (and project-root
-               (or (file-exists-p (format "%s/.prettierrc" project-root))
-                   (file-exists-p (format "%s/.prettierrc.js" project-root))
-                   (file-exists-p (format "%s/.prettierignore" project-root))))
-      (prettier-js-mode 1)))
+  ;; 优化建议：使用 locate-dominating-file 替代 projectile-project-root
+  (let* ((config-files '(".prettierrc"
+                         ".prettierrc.js"
+                         ".prettierignore"
+                         "prettier.config.js")) ;; 顺便补充了标准 js 配置文件
+         (project-root (cl-some (lambda (file)
+                                  (locate-dominating-file default-directory file))
+                                config-files)))
+    (when project-root
+      ;; 您的原有逻辑代码放在这里
+      ;; 注意：这里的 project-root 是找到配置文件的那个目录
+      ;; 如果原有逻辑里使用了 project-root 变量，这里直接复用即可兼容
+      (prettier-js-mode 1)
+      ))
   ;; 启动 Flycheck 语法检查
   (flycheck-mode 1)
   ;; 设置本地的 Tab 宽度
@@ -86,15 +94,11 @@
   :commands json-ts-mode
   :ensure nil
   :mode "\\.json\\'"
-  :config
-  ;; 加载 LSP 配置
-  (require 'lsp-mode)
-  (add-hook 'json-mode-hook
-            (lambda ()
-              ;; 其它开发设置
-              (my/web-dev-attached)
-              ;; 开启 LSP 模式自动完成
-              (lsp-deferred))))
+  :hook (json-ts-mode . (lambda ()
+                          ;; 其它开发设置
+                          (my/web-dev-attached)
+                          ;; 开启 LSP 模式自动完成
+                          (lsp-deferred))))
 
 ;; JavaScript/TypeScript 语法检查设置
 (defun my/use-eslint-from-node-modules ()
@@ -168,8 +172,8 @@
                              (my/web-vue-setup))))
 
 (defun check-tailwind-in-parents ()
-  "从当前文件所在目录向上查找包含 tailwindcss 的 package.json 文件。
-返回 t 如果找到包含 tailwindcss 的 package.json，否则返回 nil。"
+  "Search upward from the current file's directory for a package.json containing tailwindcss.
+Returns t if such a package.json is found, nil otherwise."
   (let* ((buffer-file (buffer-file-name))
          (current-dir (and buffer-file (file-name-directory buffer-file)))
          (home-dir (expand-file-name "~"))
@@ -177,36 +181,35 @@
          (depth 0)
          found-package-json)
 
-    ;; 如果没有当前文件，直接返回 nil
     (unless current-dir
       (cl-return-from check-tailwind-in-parents nil))
 
-    ;; 向上查找 package.json 文件
     (cl-loop while (and current-dir
                         (not (string= current-dir home-dir))
                         (< depth max-depth))
              do (progn
                   (setq depth (1+ depth))
 
-                  ;; 检查当前目录是否包含 package.json
+                  ;; Check .git boundary first; also check package.json at the git root
+                  (let ((git-dir (expand-file-name ".git" current-dir)))
+                    (when (file-directory-p git-dir)
+                      (let ((package-json-path (expand-file-name "package.json" current-dir)))
+                        (when (file-exists-p package-json-path)
+                          (setq found-package-json package-json-path)))
+                      (cl-return)))
+
+                  ;; Check if current directory contains package.json
                   (let ((package-json-path (expand-file-name "package.json" current-dir)))
                     (when (file-exists-p package-json-path)
                       (setq found-package-json package-json-path)
                       (cl-return)))
 
-                  ;; 检查是否到达 .git 目录
-                  (let ((git-dir (expand-file-name ".git" current-dir)))
-                    (when (file-directory-p git-dir)
-                      (cl-return)))
-
-                  ;; 获取父目录
+                  ;; Move up to parent directory
                   (let ((parent-dir (file-name-directory (directory-file-name current-dir))))
                     (if (and parent-dir (not (string= parent-dir current-dir)))
                         (setq current-dir parent-dir)
-                      ;; 如果无法获取父目录或父目录相同，退出循环
                       (cl-return)))))
 
-    ;; 如果找到了 package.json，检查是否包含 tailwindcss
     (when found-package-json
       (condition-case nil
           (with-temp-buffer
