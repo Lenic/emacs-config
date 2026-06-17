@@ -7,6 +7,7 @@
   :commands emmet-mode
   :init
   (setq emmet-expand-jsx-className? t)
+  (setq emmet-indent-after-insert nil)
   :config
   (unbind-key "<C-return>" emmet-mode-keymap))
 
