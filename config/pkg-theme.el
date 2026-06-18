@@ -144,6 +144,8 @@
     :config (pyim-basedict-enable))
   ;; 设置使用拼音输入法
   (setq default-input-method "pyim")
+  (custom-set-variables
+   '(pyim-dicts '((:name "mine" :file "~/.emacs.d/pyim/mine.pyim"))))
   ;; 我使用全拼
   (setq pyim-default-scheme 'microsoft-shuangpin)
   ;; 设置不使用模糊拼音
@@ -162,6 +164,9 @@
   (setq pyim-page-length 5)
   ;; 百度输入法的云输入配置
   (setq pyim-cloudim 'baidu)
+  ;; 设置选词框的绘制方式
+  ;; (setq pyim-page-tooltip 'popup)
+  (setq pyim-page-tooltip nil)
   ;; 指示弹窗只显示一行
   (setq pyim-page-style 'one-line)
   :bind
