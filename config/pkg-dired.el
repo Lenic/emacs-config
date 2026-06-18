@@ -10,6 +10,6 @@
   ;; 设置 Dired 模式显示方式：增加文件大小的可读性
   (setq dired-listing-switches "-alh")
   ;; 设置 ^ 直接回到上一级文件夹
-  (define-key dired-mode-map (kbd "^") (lambda () (interactive) (find-alternate-file ".."))))
+  (define-key dired-mode-map (kbd "^") #'dired-up-directory))
 
 (provide 'pkg-dired)

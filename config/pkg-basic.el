@@ -6,9 +6,10 @@
                             (left . 0) ;; 设置窗口左边沿在屏幕上的坐标
                             (top . 0))) ;; 设置窗口上边沿在屏幕上的坐标
 
-(add-hook 'after-make-frame-functions (lambda (new-frame)
-                                        ;; 激活这个新的 frame
-                                        (select-frame new-frame)))
+(defun my/activate-new-frame (new-frame)
+  "Activate the newly created frame NEW-FRAME."
+  (select-frame new-frame))
+(add-hook 'after-make-frame-functions #'my/activate-new-frame)
 
 ;;;###autoload
 (defun my/maximal-font ()
@@ -72,8 +73,11 @@
               ([remap isearch-delete-char] . isearch-del-char))
   :config
   ;; 设置每次前进或者后退搜索后将目标位置放置在屏幕垂直居中
-  (advice-add 'isearch-repeat-forward :after #'(lambda (&rest _) (recenter)))
-  (advice-add 'isearch-repeat-backward :after #'(lambda (&rest _) (recenter)))
+  (defun my/isearch-recenter (&rest _)
+    "Recenter the window after isearch."
+    (recenter))
+  (advice-add 'isearch-repeat-forward :after #'my/isearch-recenter)
+  (advice-add 'isearch-repeat-backward :after #'my/isearch-recenter)
   :custom
   (isearch-lazy-count t)
   (lazy-count-prefix-format "%s/%s "))

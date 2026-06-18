@@ -8,10 +8,9 @@
   :commands yaml-mode)
 
 (use-package elfeed
-  :commands elfeed
+  :bind ("C-x w" . elfeed)
   :config
   (setq-default elfeed-search-filter "@1-week-ago +unread ")
-  (global-set-key (kbd "C-x w") 'elfeed)
   (setq elfeed-feeds
         '("https://sspai.com/feed"
           "https://feed.iplaysoft.com"

@@ -173,48 +173,14 @@
                              (my/web-vue-setup))))
 
 (defun check-tailwind-in-parents ()
-  "Search upward from the current file's directory for a package.json containing tailwindcss.
-Returns t if such a package.json is found, nil otherwise."
-  (let* ((buffer-file (buffer-file-name))
-         (current-dir (and buffer-file (file-name-directory buffer-file)))
-         (home-dir (expand-file-name "~"))
-         (max-depth 20)
-         (depth 0)
-         found-package-json)
-
-    (unless current-dir
-      (cl-return-from check-tailwind-in-parents nil))
-
-    (cl-loop while (and current-dir
-                        (not (string= current-dir home-dir))
-                        (< depth max-depth))
-             do (progn
-                  (setq depth (1+ depth))
-
-                  ;; Check .git boundary first; also check package.json at the git root
-                  (let ((git-dir (expand-file-name ".git" current-dir)))
-                    (when (file-directory-p git-dir)
-                      (let ((package-json-path (expand-file-name "package.json" current-dir)))
-                        (when (file-exists-p package-json-path)
-                          (setq found-package-json package-json-path)))
-                      (cl-return)))
-
-                  ;; Check if current directory contains package.json
-                  (let ((package-json-path (expand-file-name "package.json" current-dir)))
-                    (when (file-exists-p package-json-path)
-                      (setq found-package-json package-json-path)
-                      (cl-return)))
-
-                  ;; Move up to parent directory
-                  (let ((parent-dir (file-name-directory (directory-file-name current-dir))))
-                    (if (and parent-dir (not (string= parent-dir current-dir)))
-                        (setq current-dir parent-dir)
-                      (cl-return)))))
-
-    (when found-package-json
+  "Search upward for a package.json containing tailwindcss."
+  (when-let* ((buffer-file (buffer-file-name))
+              (pkg-dir (locate-dominating-file buffer-file "package.json"))
+              (pkg-json (expand-file-name "package.json" pkg-dir)))
+    (when (file-exists-p pkg-json)
       (condition-case nil
           (with-temp-buffer
-            (insert-file-contents found-package-json)
+            (insert-file-contents pkg-json)
             (search-forward "tailwindcss" nil t))
         (error nil)))))
 
