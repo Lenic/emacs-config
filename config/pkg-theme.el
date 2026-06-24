@@ -52,7 +52,7 @@
   "Synchronize the theme based on the current hour."
   (let* ((hour (nth 2 (decode-time)))
          ;; 判断当前是否处于白天：从早上 6 点开始到晚上 17 点
-         (is-in-day (and (>= hour 6) (<= hour 16)))
+         (is-in-day (and (>= hour 6) (<= hour 17)))
          (current-theme (my/get-current-theme))
          (theme-changed nil))
     ;; 处于白天并且当前主题不是明亮主题时执行
