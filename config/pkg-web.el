@@ -1,6 +1,17 @@
 ;; 设置保存后自动格式化代码
 (use-package prettier-js
-  :commands prettier-js-mode)
+  :commands prettier-js-mode
+  :hook
+  (prettier-js-mode . my/prettier-use-project-prettier))
+(defun my/prettier-use-project-prettier ()
+  (when-let* ((project (project-current))
+              (root (project-root project))
+              (prettier
+               (expand-file-name
+                "node_modules/.bin/prettier"
+                root)))
+    (when (file-executable-p prettier)
+      (setq-local prettier-js-command prettier))))
 
 ;; 快速编写 HTML 代码
 (use-package emmet-mode
