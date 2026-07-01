@@ -95,7 +95,7 @@
 ;; Settings for exec-path-from-shell
 ;; fix the PATH environment variable issue
 (use-package exec-path-from-shell
-  :defer 3
+  ;; :defer 3
   :when (or (memq window-system '(mac ns x))
         (unless cabins--os-win
           (daemonp)))
