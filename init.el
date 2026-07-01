@@ -42,7 +42,7 @@
 ;; 查看已安装的包数量
 ;; (length package-alist)
 
-(add-to-list 'load-path "~/.emacs.d/config")
+(add-to-list 'load-path (concat user-emacs-directory "config"))
 
 ;; 加载基础配置
 (require 'pkg-basic)
