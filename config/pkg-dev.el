@@ -27,7 +27,7 @@
   (projectile-mode +1)
   (setq projectile-project-search-path '("~/workspace/")
         projectile-require-project-root nil
-        projectile-completion-system 'ivy
+        projectile-completion-system 'ivy-completing-read
         projectile-switch-project-action 'neotree-projectile-action
         projectile-mode-line-function '(lambda () " Projectile"))
   (projectile-register-project-type 'npm '("package.json")

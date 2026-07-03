@@ -19,7 +19,7 @@
 
 ;; 全局基础配置
 (use-package counsel
-  :commands (swiper-isearch counsel-M-x counsel-ibuffer counsel-find-file counsel-rg counsel-fzf counsel-file-jump ivy)
+  :commands (swiper-isearch counsel-M-x counsel-ibuffer counsel-find-file counsel-rg counsel-fzf counsel-file-jump)
   :config
   ;; 设置 counsel-fzf 命令使用 rg 作为核心输出端
   (setq counsel-fzf-cmd "rg -l -L --glob '!.git' --hidden . | fzf -f \"%s\"")
