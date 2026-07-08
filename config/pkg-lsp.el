@@ -31,6 +31,40 @@
   (orderless-component-separator #'orderless-escapable-split-on-space)      ; 使用空格分隔组件
   (orderless-matching-styles '(orderless-literal orderless-regexp)))        ; 设置匹配样式
 
+(defun my/lsp-obj-get (obj key)
+  "从 lsp-mode 返回的对象 OBJ 中取出 KEY 对应的值。
+KEY 是不带冒号的字符串（比如 \"command\"），自动兼容 hash-table 和 plist 两种表示。"
+  (if (hash-table-p obj)
+      (gethash key obj)
+    (plist-get obj (intern (concat ":" key)))))
+
+(defun my/lsp-ts-fixall-handler (command-obj)
+  "拦截 `_typescript.applyFixAllCodeAction`；仅在 tsActionId 为
+\"unusedIdentifier\"（对应“Delete all unused imports”）时改用
+`source.removeUnusedImports`；其它情况照常转发给服务器。"
+  (let* ((args (my/lsp-obj-get command-obj "arguments"))
+         (ts-action-id (and args (> (length args) 0)
+                            (my/lsp-obj-get (elt args 0) "tsActionId"))))
+    (if (equal ts-action-id "unusedIdentifier")
+        (lsp-execute-code-action-by-kind "source.removeUnusedImports")
+      (lsp--send-execute-command (my/lsp-obj-get command-obj "command")
+                                 (my/lsp-obj-get command-obj "arguments")))))
+
+(defun my/lsp-register-action-handler (server-id command handler)
+  "为 SERVER-ID 对应的 lsp client 注册一个本地 action-handler。
+COMMAND 是要拦截的命令名字符串（对应 code action 里 command.command 字段）。
+HANDLER 是接收 command 对象（含 \"command\"/\"arguments\"）的处理函数。"
+  (with-eval-after-load 'lsp-mode
+    (if-let ((client (gethash server-id lsp-clients)))
+        (puthash command handler (lsp--client-action-handlers client))
+      (lsp-warn "未找到 server-id 为 %s 的 lsp client，注册失败" server-id))))
+
+;; 关键：注册动作要等 ts-ls 这个 client 真的加载完才执行
+(with-eval-after-load 'lsp-javascript
+  (my/lsp-register-action-handler 'ts-ls
+                                  "_typescript.applyFixAllCodeAction"
+                                  #'my/lsp-ts-fixall-handler))
+
 ;; LSP 模式配置
 (use-package lsp-mode
   :commands (lsp lsp-deferred)
