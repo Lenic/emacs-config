@@ -98,7 +98,7 @@ HANDLER 是接收 command 对象（含 \"command\"/\"arguments\"）的处理函�
         lsp-enable-dap-auto-configure nil               ; 禁用 DAP 自动配置
         lsp-flycheck-live-reporting nil                 ; 禁用 flycheck 实时报告
         lsp-headerline-breadcrumb-enable nil            ; 禁用面包屑导航
-        lsp-completion-enable-additional-text-edit nil  ; 禁用额外的文本编辑
+        lsp-completion-enable-additional-text-edit t    ; 启用额外的文本编辑
         lsp-idle-delay 0.500                            ; 增加空闲延迟，减少 CPU 使用
         lsp-log-io nil                                  ; 禁用日志记录，提高性能
         lsp-auto-guess-root nil                         ; 自动猜测项目根目录
