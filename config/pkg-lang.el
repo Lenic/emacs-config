@@ -7,6 +7,12 @@
 (use-package yaml-mode
   :commands yaml-mode)
 
+(use-package csv-mode
+  :commands csv-mode
+  :mode "\\.csv\\'"
+  :hook
+  (csv-mode . csv-align-mode))
+
 (use-package elfeed
   :bind ("C-x w" . elfeed)
   :config
