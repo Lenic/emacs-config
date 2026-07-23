@@ -17,9 +17,13 @@
 (use-package emmet-mode
   :commands emmet-mode
   :init
-  (setq emmet-expand-jsx-className? t)
   (setq emmet-indent-after-insert nil)
   :config
+  ;; emmet-jsx-major-modes 里的模式扩展 class 时会展开成 className，
+  ;; 默认列表不包含 tree-sitter 模式，这里补充 js-ts-mode/tsx-ts-mode，
+  ;; 让 web-mode（Vue 等）继续保持默认的 class 展开
+  (add-to-list 'emmet-jsx-major-modes 'js-ts-mode)
+  (add-to-list 'emmet-jsx-major-modes 'tsx-ts-mode)
   (unbind-key "<C-return>" emmet-mode-keymap))
 
 ;; 附加 Web 开发的各种插件
