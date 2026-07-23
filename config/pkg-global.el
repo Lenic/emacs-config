@@ -17,6 +17,15 @@
 ;;   :config
 ;;   (gcmh-mode))
 
+;; 自定义一个找项目根目录的函数
+(defun my/counsel-fzf-project-root ()
+  "优先寻找 package.json，找不到则寻找 .git，作为 counsel-fzf 的搜索根目录。"
+  (interactive)
+  (let* ((root (or (locate-dominating-file default-directory "package.json")
+                   (locate-dominating-file default-directory ".git")
+                   default-directory))) ; 如果都找不到，则使用当前目录
+    (counsel-fzf nil root)))
+
 ;; 全局基础配置
 (use-package counsel
   :commands (swiper-isearch counsel-M-x counsel-ibuffer counsel-find-file counsel-rg counsel-fzf counsel-file-jump)
@@ -45,7 +54,7 @@
   ;; 设置 RG 全文搜索
   ("C-c k" . counsel-rg)
   ;; 设置项目下的文件名查找
-  ("C-c p" . counsel-fzf)
+  ("C-c p" . my/counsel-fzf-project-root)
   ;; 设置查找特定目录下的文件名查找
   ("C-c f" . counsel-file-jump))
 
