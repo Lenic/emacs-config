@@ -1,3 +1,5 @@
+;; -*- lexical-binding: t -*-
+
 ;; 窗口快捷跳转操作
 (use-package ace-window
   :commands ace-window

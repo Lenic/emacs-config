@@ -1,3 +1,5 @@
+;; -*- lexical-binding: t -*-
+
 ;; Python 开发主模式
 (use-package python
   :ensure nil

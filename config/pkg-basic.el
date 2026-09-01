@@ -1,3 +1,5 @@
+;; -*- lexical-binding: t -*-
+
 ;; 设置 frame 的缺省值
 (setq default-frame-alist '((tool-bar-lines . 0) ;; 不显示工具栏
                             (font . "Sarasa Term SC Nerd 14") ;; 设置字体
@@ -100,5 +102,17 @@
         (unless cabins--os-win
           (daemonp)))
   :init (exec-path-from-shell-initialize))
+
+(setopt mode-line-collapse-minor-modes
+        '(projectile-mode
+          whitespace-mode
+          yas-minor-mode
+          emmet-mode
+          undo-tree-mode
+          git-gutter-mode
+          beacon-mode
+          eldoc-mode
+          prettier-js-mode
+          ))
 
 (provide 'pkg-basic)

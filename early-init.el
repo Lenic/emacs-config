@@ -1,3 +1,5 @@
+;; -*- lexical-binding: t -*-
+
 ;; 优化 Emacs 的启动速度
 (setq gc-cons-threshold most-positive-fixnum)
 (setq gc-cons-percentage 0.6)

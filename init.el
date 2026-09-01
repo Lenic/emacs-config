@@ -1,3 +1,5 @@
+;; -*- lexical-binding: t -*-
+
 ;; 优化启动时的垃圾回收阈值以加速启动
 (defvar my/normal-gc-cons-threshold (* 16 1024 1024)
   "Normal garbage collection threshold after startup.")

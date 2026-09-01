@@ -1,3 +1,5 @@
+;; -*- lexical-binding: t -*-
+
 ;; 设置保存后自动格式化代码
 (use-package prettier-js
   :commands prettier-js-mode

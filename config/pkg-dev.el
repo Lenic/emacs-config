@@ -16,8 +16,8 @@
         (typescript-mode . tsx-ts-mode)
         (typescript-ts-mode . tsx-ts-mode)
         (json-mode . json-ts-mode)
-        (css-mode . css-ts-mode)
-        (less-css-mode . css-ts-mode)
+        (css-mode . less-css-mode)
+        (css-ts-mode . less-css-mode)
         (python-mode . python-ts-mode)))
 
 ;; 项目列表选择工具

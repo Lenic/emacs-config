@@ -1,3 +1,5 @@
+;; -*- lexical-binding: t -*-
+
 (use-package dired
   :commands dired
   :ensure nil

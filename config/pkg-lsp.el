@@ -1,3 +1,5 @@
+;; -*- lexical-binding: t -*-
+
 ;; Corfu 配置
 (use-package corfu
   :defer 3  ; 延迟加载
