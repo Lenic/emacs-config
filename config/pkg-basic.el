@@ -113,6 +113,7 @@
           beacon-mode
           eldoc-mode
           prettier-js-mode
+          my/lsp-workspaces-mode
           ))
 
 (provide 'pkg-basic)

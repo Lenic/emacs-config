@@ -139,6 +139,22 @@ HANDLER 是接收 command 对象（含 \"command\"/\"arguments\"）的处理函�
   (defun my/lsp-mode-setup-completion ()
     (setf (alist-get 'styles (alist-get 'lsp-capf completion-category-defaults))
           '(orderless)))
+  ;; 把 lsp-mode 的 lighter 拆成两段：“LSP” 常显，
+  ;; [server:pid] 工作区列表挂到别名变量上，交给 mode-line 折叠（点 “…” 可展开）
+  (defvaralias 'my/lsp-workspaces-mode 'lsp-mode
+    "`lsp-mode' 的别名，仅用于在 mode-line 中单独渲染 LSP 工作区列表。")
+  (put 'my/lsp-workspaces-mode :minor-mode-function 'lsp-mode)
+  (add-minor-mode 'lsp-mode
+                  '(" LSP" (lsp--buffer-workspaces
+                            ""
+                            (:propertize "[Disconnected]" face warning))))
+  (add-minor-mode 'my/lsp-workspaces-mode
+                  '("" (lsp--buffer-workspaces
+                        (:eval (concat "[" (mapconcat #'lsp--workspace-print
+                                                      lsp--buffer-workspaces "][")
+                                       "]"))
+                        ""))
+                  nil 'lsp-mode)
   :hook ((lsp-mode . eldoc-mode)
          (lsp-completion-mode . my/lsp-mode-setup-completion)))
 
