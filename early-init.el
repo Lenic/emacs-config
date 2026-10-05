@@ -1,12 +1,36 @@
 ;; -*- lexical-binding: t -*-
 
-;; 优化 Emacs 的启动速度
+;; macOS 从 15 直接跳到 26，旧版 libgccjit 仍按 "Darwin 主版本 - 9" 推算部署目标，
+;; 会给 driver 传入非法的 -mmacosx-version-min=18.0，导致 native-comp 全线报
+;; "error invoking gcc driver"。显式指定部署目标绕开。必须放在最前面，早于任何
+;; 可能触发 JIT 编译的代码。
+(when (eq system-type 'darwin)
+  (setenv "MACOSX_DEPLOYMENT_TARGET" "26.0"))
+
+;; 优化 Emacs 的启动速度：启动期间不做 GC，启动结束后恢复正常阈值。
+;; 注意：GC 阈值只在这里设置这一份。init.el 里不要再挂第二个
+;; after-init-hook，否则两者会互相覆盖，最终生效值取决于挂载顺序。
+(defvar my/normal-gc-cons-threshold (* 32 1024 1024)
+  "Normal garbage collection threshold after startup.")
+
 (setq gc-cons-threshold most-positive-fixnum)
 (setq gc-cons-percentage 0.6)
-(add-hook 'after-init-hook #'(lambda () (setq gc-cons-threshold (* 32 1024 1024)))) ; 32 MB
+
+(defun my/restore-gc-threshold ()
+  "Restore garbage collection threshold and percentage after startup."
+  (setq gc-cons-threshold my/normal-gc-cons-threshold
+        gc-cons-percentage 0.1))
+
+(add-hook 'after-init-hook #'my/restore-gc-threshold)
 
 ;; 允许 JIT 编译，降低编译优先级避免启动时 CPU 飙升
 (setq native-comp-jit-compilation t)
+
+;; 异步原生编译从干净环境启动，看不到已加载的软依赖（如 neotree 对 all-the-icons、
+;; projectile 的可选集成），会刷出一堆 "function is not known to be defined" 警告。
+;; 编译结果本身是对的，所以只记录到 *Warnings*，不弹窗抢走布局。
+;; 想重新看到弹窗改回 t，想彻底静音设为 nil。
+(setq native-comp-async-report-warnings-errors 'silent)
 
 ;; 设置 LSP_MODE 使用 plist 进行反序列化
 (setenv "LSP_USE_PLISTS" "true")

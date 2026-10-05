@@ -59,7 +59,7 @@ KEY 是不带冒号的字符串（比如 \"command\"），自动兼容 hash-tabl
 COMMAND 是要拦截的命令名字符串（对应 code action 里 command.command 字段）。
 HANDLER 是接收 command 对象（含 \"command\"/\"arguments\"）的处理函数。"
   (with-eval-after-load 'lsp-mode
-    (if-let ((client (gethash server-id lsp-clients)))
+    (if-let* ((client (gethash server-id lsp-clients)))
         (puthash command handler (lsp--client-action-handlers client))
       (lsp-warn "未找到 server-id 为 %s 的 lsp client，注册失败" server-id))))
 
@@ -125,7 +125,7 @@ HANDLER 是接收 command 对象（含 \"command\"/\"arguments\"）的处理函�
                (not (functionp 'json-rpc-connection))  ;; native json-rpc
                (executable-find "emacs-lsp-booster"))
           (progn
-            (when-let ((command-from-exec-path (executable-find (car orig-result))))  ;; resolve command from exec-path (in case not found in $PATH)
+            (when-let* ((command-from-exec-path (executable-find (car orig-result))))  ;; resolve command from exec-path (in case not found in $PATH)
               (setcar orig-result command-from-exec-path))
             (message "Using emacs-lsp-booster for %s!" orig-result)
             (cons "emacs-lsp-booster" orig-result))

@@ -1,23 +1,10 @@
 ;; -*- lexical-binding: t -*-
 
-;; 优化启动时的垃圾回收阈值以加速启动
-(defvar my/normal-gc-cons-threshold (* 16 1024 1024)
-  "Normal garbage collection threshold after startup.")
-
-(setq gc-cons-threshold most-positive-fixnum)
-
-(defun my/restore-gc-threshold ()
-  "Restore garbage collection threshold after startup."
-  (setq gc-cons-threshold my/normal-gc-cons-threshold))
-
-(add-hook 'after-init-hook #'my/restore-gc-threshold)
-
 (setq package-archives
       '(("gnu"   . "https://elpa.gnu.org/packages/")
         ("melpa" . "https://melpa.org/packages/")
         ("melpa-stable" . "https://stable.melpa.org/packages/")))
 (package-initialize)
-
 
 ;; 设置可以读取的最大容量为 3MB
 (setq read-process-output-max (* 3 1024 1024))
@@ -25,8 +12,9 @@
 ;; 缓解在快速移动时大量代码的语法高亮
 (setq redisplay-skip-fontification-on-input t)
 
-;; 显示垃圾回收信息，这个可以作为调试用
-(setq garbage-collection-messages t)
+;; 显示垃圾回收信息：只在排查 GC 卡顿时临时打开，
+;; 常开会不停刷 echo area，把真正的提示冲掉
+(setq garbage-collection-messages nil)
 ;; warn when opening files bigger than 100MB
 (setq large-file-warning-threshold 100000000)
 
@@ -38,8 +26,9 @@
 (setq use-package-always-ensure t
       use-package-minimum-reported-time 0.1) ; 超过 0.1 秒才报告加载时间
 
-;; 禁用 cl 库警告
-(setq byte-compile-warnings '(cl-functions))
+;; 禁用 cl 库的过时函数警告，其余编译警告保持开启。
+;; 注意不能写成 '(cl-functions)——那是「只保留」这一类警告、关掉其它全部
+(setq byte-compile-warnings '(not cl-functions))
 
 ;; 查看已安装的包数量
 ;; (length package-alist)
@@ -83,8 +72,9 @@
          git-timemachine gptel htmlize llm lsp-pyright lsp-tailwindcss
          lsp-ui magit multiple-cursors neotree orderless org-bullets
          origami prettier-js projectile pyim-basedict python-black rg
-         separedit spacemacs-theme symbol-overlay treesit-auto
-         undo-tree web-mode xclip yafolding yaml-mode yasnippet))
+         separedit spacemacs-theme string-inflection symbol-overlay
+         treesit-auto undo-tree web-mode xclip yafolding yaml-mode
+         yasnippet))
  '(pyim-dicts '((:name "mine" :file "~/.emacs.d/pyim/mine.pyim"))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.

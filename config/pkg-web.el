@@ -55,18 +55,21 @@
   (setq-local tab-width 2)
   ;; 打开自动完成模式
   (yas-minor-mode 1)
-  ;; 开启自动 ESLint 修复
-  (eslintd-fix-on-save-mode)
+  ;; 开启自动 ESLint 修复：
+  ;; 1. 必须显式传 1，不带参数是「切换」而非「开启」；
+  ;; 2. 只对 JS/TS/Vue 生效——本函数同时服务于 json/css/mhtml，
+  ;;    对这些文件跑 eslint --fix 没有意义（json-ts-mode 派生自 prog-mode，不会命中）
+  (when (derived-mode-p 'js-ts-mode 'tsx-ts-mode 'web-mode)
+    (eslintd-fix-on-save-mode 1))
   ;; 设置关闭自动换行
-  (setq truncate-lines t)
-  ;; 开启显示行号
+  (setq-local truncate-lines t)
+  ;; 开启显示行号（左侧对齐由 early-init.el 的
+  ;; `display-line-numbers-width-start' 全局设定，此处无需重复）
   (display-line-numbers-mode +1)
-  ;; 启动行号左侧对齐，并且不随着宽度变化而变化
-  (setq display-line-numbers-width-start t)
   ;; 启动代码折叠功能
   (yafolding-mode 1)
   ;; 设置列参考线：120
-  (setq display-fill-column-indicator-column 120)
+  (setq-local display-fill-column-indicator-column 120)
   (display-fill-column-indicator-mode t))
 
 ;; 设置 CSS 及其它 CSS 预处理语言
@@ -77,7 +80,7 @@
             ;; 开启 LSP 模式自动完成
             (lsp-deferred)
             ;; 设置自动缩进的宽度
-            (setq css-indent-offset 2)))
+            (setq-local css-indent-offset 2)))
 
 ;; 设置 Less 文件的样式校验
 (add-hook 'lsp-managed-mode-hook
@@ -220,8 +223,8 @@
 ;; TypeScript 和 TypeScript React 插件配置
 (add-to-list 'auto-mode-alist '("\\.\\(ts\\|tsx\\)\\'" . tsx-ts-mode))
 (add-hook 'tsx-ts-mode-hook 'my/web-js-setup)
-;; JSON 插件配置
-(add-hook 'json-ts-mode-hook 'my/web-dev-attached)
+;; JSON 的 hook 已在上面的 `use-package json-ts-mode' 中挂载，
+;; 此处不要重复 add-hook（lambda 与函数符号不会互相去重，会执行两次）
 
 ;; (add-to-list 'tree-sitter-major-mode-language-alist '(web-mode . vue))
 

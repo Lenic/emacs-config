@@ -38,8 +38,9 @@
   (setq kill-ring nil)
   (setq kill-ring-yank-pointer nil))
 
-;; 设置 Emacs 的缺省工作路径
-(setq default-directory "~/")
+;; 设置 Emacs 的缺省工作路径：default-directory 是永久 buffer-local 变量，
+;; 用 setq 只会改到「加载本文件时恰好是当前 buffer」的那一个 buffer
+(setq-default default-directory "~/")
 
 ;; 设置平滑滚动
 (setq scroll-step            1

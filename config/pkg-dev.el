@@ -64,7 +64,9 @@
   :bind ("C-x m" . magit-status)
   :config
   (setq magit-diff-refine-hunk (quote all))
-  :hook ((magit-post-commit-hook) . 'git-gutter:update-all-windows))
+  ;; use-package 的 :hook 会自动补 `-hook' 后缀，这里写 magit-post-commit 即可；
+  ;; 写成 magit-post-commit-hook 会挂到并不存在的 magit-post-commit-hook-hook 上
+  :hook (magit-post-commit . git-gutter:update-all-windows))
 
 ;; 指定符号高亮
 (use-package symbol-overlay
@@ -105,7 +107,7 @@
              (node-end (treesit-node-end node)))
         ;; Node fits the region exactly. Try its parent node instead.
         (when (and (= (region-beginning) node-start) (= (region-end) node-end))
-          (when-let ((node (treesit-node-parent node)))
+          (when-let* ((node (treesit-node-parent node)))
             (setq node-start (treesit-node-start node)
                   node-end (treesit-node-end node))))
         (set-mark node-end)
@@ -127,6 +129,17 @@
 (defun +dap-debug-a (&rest _)
   (dap-hydra))
 (advice-add #'dap-debug :after #'+dap-debug-a)
+
+;; 变量命名转换
+(use-package string-inflection
+  :commands
+  (string-inflection-kebab-case
+   string-inflection-lower-camelcase
+   string-inflection-camelcase
+   string-inflection-underscore
+   string-inflection-upcase
+   string-inflection-capital-underscore
+   string-inflection-all-cycle))
 
 ;; 加载 Web 开发配置
 (require 'pkg-web)

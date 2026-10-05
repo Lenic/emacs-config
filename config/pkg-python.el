@@ -36,8 +36,6 @@
     (display-line-numbers-mode +1)
     ;; 开启文件左侧 Git 变更状态标识
     (git-gutter-mode 1)
-    ;; 启动行号左侧对齐，并且不随着宽度变化而变化
-    (setq display-line-numbers-width-start t)
     ;; 启动代码折叠功能
     (yafolding-mode 1)
     ;; 设置列参考线：120

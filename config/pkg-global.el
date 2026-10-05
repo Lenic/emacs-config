@@ -110,16 +110,25 @@
   (avy-styles-alist '((avy-isearch . pre))))
 
 ;; 显示行尾空白字符
+(defun my/cleanup-whitespace-on-save ()
+  "保存前清理当前 buffer 的 Tab 与行尾空白。"
+  (untabify (point-min) (point-max))
+  (whitespace-cleanup))
+
+(defun my/enable-whitespace-cleanup ()
+  "开启 `whitespace-mode'，并把保存时的空白清理「局部」挂到当前 buffer。
+必须局部挂载：之前挂的是全局 `before-save-hook'，会把 Makefile、Go、
+TSV 等 Tab 有语义的文件也一并 untabify 掉。"
+  (whitespace-mode 1)
+  (add-hook 'before-save-hook #'my/cleanup-whitespace-on-save nil t))
+
 (use-package whitespace
   :defer 10
   :ensure nil
   :config
   (setq whitespace-style '(face trailing)
         whitespace-global-modes '(not markdown-mode))
-  :hook (((web-mode tsx-ts-mode emacs-lisp-mode) . whitespace-mode)
-         (before-save . (lambda () (progn
-                                     (untabify (point-min) (point-max))
-                                     (whitespace-cleanup))))))
+  :hook ((web-mode tsx-ts-mode emacs-lisp-mode) . my/enable-whitespace-cleanup))
 
 ;; 处理特别长的行，避免带来一些性能问题
 (use-package so-long
@@ -162,6 +171,7 @@
 
 ;; 拷贝当前 Buffer 到剪切板
 (defun copy-buffer-path ()
+  "把当前文件相对于 Git 仓库根目录的路径拷贝到剪贴板。"
   (interactive)
   (if (equal buffer-file-name nil)
       (message "没有文件名")
@@ -170,7 +180,9 @@
                             (substring buffer-file-name
                                        (length (expand-file-name root)))
                           buffer-file-name)))
-      (kill-new (message target-path)))))
+      (kill-new target-path)
+      ;; 必须走 %s：路径里出现 % 时，直接把它当格式串会报 format 错误
+      (message "%s" target-path))))
 (global-set-key (kbd "C-c C-p") 'copy-buffer-path)
 
 (provide 'pkg-global)
