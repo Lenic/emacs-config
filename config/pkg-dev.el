@@ -138,7 +138,6 @@
    string-inflection-camelcase
    string-inflection-underscore
    string-inflection-upcase
-   string-inflection-capital-underscore
    string-inflection-all-cycle))
 
 ;; 加载 Web 开发配置
