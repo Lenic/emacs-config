@@ -13,7 +13,7 @@
                 dockerfile-mode emmet-mode exec-path-from-shell
                 expand-region flycheck git-gutter git-timemachine htmlize
                 lsp-mode lsp-tailwindcss lsp-ui magit markdown-mode
-                multiple-cursors neotree orderless org-bullets prettier-js
+                multiple-cursors neotree orderless prettier-js
                 projectile pyim pyim-basedict reformatter rg separedit
                 spacemacs-theme string-inflection symbol-overlay
                 treesit-auto undo-tree web-mode wgrep xclip yafolding

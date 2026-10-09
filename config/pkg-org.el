@@ -30,7 +30,4 @@
         '(("m" "个人生活" entry (file+headline "~/task/me.inbox.org" "Tasks") "* TODO %?\n%U\n%a")))
   :hook (org-mode . my/org-mode-setup))
 
-(use-package org-bullets
-  :hook (org-mode . org-bullets-mode))
-
 (provide 'pkg-org)
