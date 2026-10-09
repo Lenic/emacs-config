@@ -16,13 +16,12 @@
         (typescript-mode . tsx-ts-mode)
         (typescript-ts-mode . tsx-ts-mode)
         (json-mode . json-ts-mode)
-        (css-mode . less-css-mode)
-        (css-ts-mode . less-css-mode)
         (python-mode . python-ts-mode)))
 
 ;; 项目列表选择工具
 (use-package projectile
   :commands (projectile-switch-project projectile-discover-projects-in-search-path)
+  :bind ("C-c o" . projectile-switch-project)
   :config
   (projectile-mode +1)
   (setq projectile-project-search-path '("~/workspace/")
@@ -37,18 +36,13 @@
                                     :run "npm run serve"
                                     :test-suffix ".spec"))
 
-;; 在 swiper 中仍然可以输入中文，只不过换成了 M-i 这个快捷键
-(with-eval-after-load 'ivy
-  (define-key ivy-minibuffer-map (kbd "M-i") 'pyim-convert-string-at-point))
-
 ;; 设置打开 NeoTree 树形列表展示
 (use-package neotree
-  :commands (projectile-switch-project neotree-dir)
+  :commands neotree-dir
   :config
   (setq neo-theme 'ascii           ; NeoTree 图标的样式
         neo-window-width 35
-        neo-window-fixed-size nil) ; 设置 NeoTree 窗口的宽度可以使用鼠标调整
-  :bind ("C-c o" . projectile-switch-project))
+        neo-window-fixed-size nil)) ; 设置 NeoTree 窗口的宽度可以使用鼠标调整
 
 ;; 在文件左侧显示 Git 状态
 (use-package git-gutter
@@ -60,7 +54,6 @@
 
 ;; 设置 Git 管理快捷键
 (use-package magit
-  :commands magit-status
   :bind ("C-x m" . magit-status)
   :config
   (setq magit-diff-refine-hunk (quote all))
@@ -84,7 +77,7 @@
 (use-package yasnippet
   :commands yas-minor-mode
   :config
-  (setq yas-snippet-dirs '("~/.emacs.d/snippets"))
+  (setq yas-snippet-dirs (list (expand-file-name "snippets" user-emacs-directory)))
   (yas-reload-all))
 
 ;; 注释编辑工具
@@ -119,16 +112,19 @@
   :commands (dap-debug dap-breakpoint-toggle)
   :config
   (dap-auto-configure-mode -1)
+  ;; 调试暂停时 dap-ui-many-windows-mode 弹出哪些窗口：只显示局部变量和断点。
+  ;; 这个变量名带 auto-configure，但 dap-ui-many-windows-mode 也读取它，
+  ;; 关闭 dap-auto-configure-mode 后仍然生效
   (setq dap-auto-configure-features '(locals breakpoints controls))
   (dap-mode 1)
   (dap-ui-mode 1)
   (dap-ui-many-windows-mode 1)
-  (require 'dap-hydra))
-
-;;;###autoload
-(defun +dap-debug-a (&rest _)
-  (dap-hydra))
-(advice-add #'dap-debug :after #'+dap-debug-a)
+  (require 'dap-hydra)
+  ;; 启动调试后自动弹出 dap-hydra 操作面板
+  (defun my/dap-show-hydra (&rest _)
+    "在 `dap-debug' 之后显示 `dap-hydra'。"
+    (dap-hydra))
+  (advice-add #'dap-debug :after #'my/dap-show-hydra))
 
 ;; 变量命名转换
 (use-package string-inflection
@@ -143,48 +139,30 @@
 ;; 加载 Web 开发配置
 (require 'pkg-web)
 
-;; 加载 Python 开发配置
-;; (require 'pkg-python)
-
-;; 加载 Java 开发配置
-;; (require 'pkg-java)
-
 ;; ediff 结束后恢复到原来的布局
 (use-package ediff
   :commands ediff
   :ensure nil
-  :hook (ediff-quit . winner-undo)
   :config
+  ;; 必须挂在 ediff-after-quit-hook-internal 上：ediff-quit-hook 里的
+  ;; ediff-cleanup-mess 会在之后继续清理窗口，提前恢复的布局会被打乱
+  (add-hook 'ediff-after-quit-hook-internal #'winner-undo)
   ;; ediff 文件比对设置
-  (defmacro csetq (variable value)
-    `(funcall (or (get ',variable 'custom-set)
-                  'set-default)
-              ',variable ,value))
-  (csetq ediff-window-setup-function 'ediff-setup-windows-plain)
-  (csetq ediff-split-window-function 'split-window-horizontally))
+  (setopt ediff-window-setup-function 'ediff-setup-windows-plain
+          ediff-split-window-function 'split-window-horizontally))
 
 ;; Elisp 模式的必要设置
-(add-hook 'emacs-lisp-mode-hook (lambda ()
-                                  ;; 加载 Company 显示自动完成列表
-                                  ;; (company-mode 1)
-                                  ;; 在文件左侧显示 Git 状态
-                                  (git-gutter-mode 1)
-                                  ;; 设置关闭自动换行
-                                  (setq truncate-lines t)
-                                  ;; 显示行号
-                                  (display-line-numbers-mode 1)
-                                  ;; 启动代码折叠功能
-                                  (yafolding-mode 1)
-                                  ;; 为 company 的自动完成列表添加 Elisp 自身的配置
-                                  ;; (add-to-list  (make-local-variable 'company-backends) '(company-elisp))
-                                  ))
-
-(use-package csharp-mode
-  :ensure nil
-  :commands csharp-mode
-  :config
-  (use-package dap-unity
-    :ensure nil))
+(defun my/elisp-mode-setup ()
+  "Elisp 模式的 buffer 局部设置。"
+  ;; 在文件左侧显示 Git 状态
+  (git-gutter-mode 1)
+  ;; 设置关闭自动换行
+  (setq truncate-lines t)
+  ;; 显示行号
+  (display-line-numbers-mode 1)
+  ;; 启动代码折叠功能
+  (yafolding-mode 1))
+(add-hook 'emacs-lisp-mode-hook #'my/elisp-mode-setup)
 
 ;; 加载 lsp 配置
 (require 'pkg-lsp)

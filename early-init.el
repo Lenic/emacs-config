@@ -23,7 +23,7 @@
 
 (add-hook 'after-init-hook #'my/restore-gc-threshold)
 
-;; 允许 JIT 编译，降低编译优先级避免启动时 CPU 飙升
+;; 允许 JIT 编译
 (setq native-comp-jit-compilation t)
 
 ;; 异步原生编译从干净环境启动，看不到已加载的软依赖（如 neotree 对 all-the-icons、
@@ -40,8 +40,21 @@
 (defvar cabins--os-win (memq system-type '(ms-dos windows-nt cygwin)))
 (defvar cabins--os-mac (eq system-type 'darwin))
 
-;; 隐藏菜单栏
-(menu-bar-mode 0)
+;; 设置 frame 的缺省值：在 early-init 里设置，第一个 frame 创建时就直接带上，
+;; 避免先用默认字体和尺寸创建、再重设字体并调整大小造成的闪烁和开销。
+;; 菜单栏、工具栏、滚动条同样用 frame 参数关闭，并同步把对应 mode 变量置为 nil，
+;; 保证 M-x menu-bar-mode 等命令的开关状态与实际一致。
+(setq default-frame-alist '((menu-bar-lines . 0)              ;; 不显示菜单栏
+                            (tool-bar-lines . 0)              ;; 不显示工具栏
+                            (vertical-scroll-bars . nil)      ;; 不显示滚动条
+                            (font . "Sarasa Term SC Nerd 14") ;; 设置字体
+                            (width . 140)                     ;; 设置窗口宽度
+                            (height . 30)                     ;; 设置窗口高度
+                            (left . 0)                        ;; 设置窗口左边沿在屏幕上的坐标
+                            (top . 0)))                       ;; 设置窗口上边沿在屏幕上的坐标
+(setq menu-bar-mode nil
+      tool-bar-mode nil
+      scroll-bar-mode nil)
 
 ;; 开启 TCP 连接到 Server
 (setq server-use-tcp t)
@@ -49,14 +62,8 @@
 ;; 直接打开软链接地址的文件，而不是打开原始文件的地址
 (setq vc-follow-symlinks nil)
 
-;; 设置自动加载已修改文件
-(global-auto-revert-mode t)
-
 ;; 设置弹窗窗口出现纵向分隔的极限值：这个值能在 Mac 正常分辨率下仍然以上下的方式分隔弹出窗口
 (setq split-width-threshold 1800)
-
-;; 高亮当前行
-(global-hl-line-mode t)
 
 ;; 编码设置
 (prefer-coding-system 'utf-8)
@@ -75,15 +82,12 @@
 (setq-default indent-tabs-mode nil)
 (setq-default tab-width 4)
 
-;; 设置自动备份
-(setq auto-save-default t)
-
 ;; 设置 yes 和 no 的输入使用简写
 (defalias 'yes-or-no-p 'y-or-n-p)
 
 ;; 备份设置
 (setq backup-by-copying t ; 自动备份
-      backup-directory-alist '(("." . "~/.em_backup")) ; 自动备份在目录"~/.em_backup"下
+      backup-directory-alist `(("." . ,(expand-file-name "var/backup/" user-emacs-directory))) ; 自动备份在配置目录的 var/backup 下
       delete-old-versions t ; 自动删除旧的备份文件
       kept-new-versions 3 ; 保留最近的3个备份文件
       kept-old-versions 1 ; 保留最早的1个备份文件
@@ -95,25 +99,11 @@
 ;; 设置行号根据右侧对齐
 (setq display-line-numbers-width-start t)
 
-;; 隐藏工具栏
-(when (fboundp 'tool-bar-mode)
-  (tool-bar-mode -1))
-
 ;; Newline at end of file
 (setq require-final-newline t)
 
 ;;关闭启动画面
 (setq inhibit-startup-message t)
-
-;; 隐藏滚动条
-(when (fboundp 'scroll-bar-mode)
-  (scroll-bar-mode -1))
-
-;; 设置选中时编辑直接删除选中值
-(delete-selection-mode t)
-
-;; 高亮匹配括号
-(show-paren-mode t)
 
 ;; 设置光标样式
 (setq-default cursor-type 'box)

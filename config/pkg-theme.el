@@ -1,8 +1,5 @@
 ;; -*- lexical-binding: t -*-
 
-(defvar my/spaceline-loaded nil
-  "Indicator whether spaceline has been loaded.")
-
 ;;;; 主题按系统时间自动切换
 ;;
 ;; 白天用浅色主题，夜间用暗黑主题，GUI 与终端行为一致。
@@ -31,9 +28,6 @@
 
 (defvar my/theme-timer nil
   "指向下一次主题切换的一次性定时器。")
-
-(defvar my/theme-fullscreen-done nil
-  "首个图形 frame 是否已经执行过全屏。")
 
 (defun my/theme-daytime-p (&optional time)
   "判断 TIME（缺省为当前时间）是否落在白天时间段内。"
@@ -118,7 +112,6 @@ FORCE 非 nil 时无条件重新加载。真正发生切换时返回新主题，
   (my/theme-apply)
   (my/theme-schedule))
 
-;;;###autoload
 (defun my/theme-refresh ()
   "立即按系统时间校正主题，并重新登记下一次切换。"
   (interactive)
@@ -134,31 +127,9 @@ FORCE 非 nil 时无条件重新加载。真正发生切换时返回新主题，
     (my/theme-schedule)))
 
 (defun my/theme-handle-new-frame (frame)
-  "新建 FRAME 时校正主题；首个图形 frame 顺带全屏。"
+  "新建 FRAME 时校正主题。"
   (my/theme-apply)
-  (my/theme-sync-frame frame)
-  (when (and (not my/theme-fullscreen-done)
-             (display-graphic-p frame))
-    (setq my/theme-fullscreen-done t)
-    (run-at-time 1 nil #'toggle-frame-fullscreen frame)))
-
-;; 设置光标颜色：同步兼容 PYIM 的光标颜色设置
-(defun my/pyim-indicator-with-cursor-color (input-method chinese-input-p)
-  "Set cursor color according to current input method and theme."
-  (if (not (equal input-method "pyim"))
-      ;; pyim 关闭时的颜色
-      (if my/is-day-theme
-          (set-cursor-color "#100a14")
-        (set-cursor-color "#e3dedd"))
-    (if chinese-input-p
-        ;; pyim 输入中文时的颜色
-        (if my/is-day-theme
-            (set-cursor-color "purple")
-          (set-cursor-color "#ff72ff"))
-      ;; pyim 输入英文时的颜色
-      (if my/is-day-theme
-          (set-cursor-color "#100a14")
-        (set-cursor-color "#e3dedd")))))
+  (my/theme-sync-frame frame))
 
 (use-package spacemacs-theme
   :defer t
@@ -167,48 +138,8 @@ FORCE 非 nil 时无条件重新加载。真正发生切换时返回新主题，
   (add-function :after after-focus-change-function #'my/theme--on-focus-change)
   ;; daemon 模式下没有 frame，等第一个 frame 建立时再加载主题
   (unless (daemonp)
-    (my/theme-apply t)
-    (when (display-graphic-p)
-      (setq my/theme-fullscreen-done t)
-      (run-at-time 1 nil #'toggle-frame-fullscreen)))
+    (my/theme-apply t))
   ;; 定时器与 frame 无关，进程活着就一直挂着，一天只醒两次
   (my/theme-schedule))
-
-;; 输入法设置
-(use-package pyim
-  :commands pyim-convert-string-at-point
-  :config
-  ;; 激活 basedict 拼音词库
-  (use-package pyim-basedict
-    :config (pyim-basedict-enable))
-  ;; 设置使用拼音输入法
-  (setq default-input-method "pyim")
-  (custom-set-variables
-   '(pyim-dicts '((:name "mine" :file "~/.emacs.d/pyim/mine.pyim"))))
-  ;; 我使用全拼
-  (setq pyim-default-scheme 'microsoft-shuangpin)
-  ;; 设置不使用模糊拼音
-  (setq pyim-pinyin-fuzzy-alist '())
-  ;; 设置光标颜色
-  (setq pyim-indicator-list (list #'my/pyim-indicator-with-cursor-color #'pyim-indicator-with-modeline))
-  ;; 设置 pyim 探针设置
-  (setq-default pyim-english-input-switch-functions
-                '(pyim-probe-dynamic-english
-                  pyim-probe-program-mode
-                  pyim-probe-org-structure-template))
-  (setq-default pyim-punctuation-half-width-functions
-                '(pyim-probe-punctuation-line-beginning
-                  pyim-probe-punctuation-after-punctuation))
-  ;; 选词框显示5个候选词
-  (setq pyim-page-length 5)
-  ;; 百度输入法的云输入配置
-  (setq pyim-cloudim 'baidu)
-  ;; 设置选词框的绘制方式
-  ;; (setq pyim-page-tooltip 'popup)
-  (setq pyim-page-tooltip nil)
-  ;; 指示弹窗只显示一行
-  (setq pyim-page-style 'one-line)
-  :bind
-  ("M-j" . pyim-convert-string-at-point))
 
 (provide 'pkg-theme)

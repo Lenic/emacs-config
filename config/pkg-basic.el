@@ -1,38 +1,26 @@
 ;; -*- lexical-binding: t -*-
 
-;; 设置 frame 的缺省值
-(setq default-frame-alist '((tool-bar-lines . 0) ;; 不显示工具栏
-                            (font . "Sarasa Term SC Nerd 14") ;; 设置字体
-                            (width . 140) ;; 设置窗口宽度
-                            (height . 30) ;; 设置窗口高度
-                            (left . 0) ;; 设置窗口左边沿在屏幕上的坐标
-                            (top . 0))) ;; 设置窗口上边沿在屏幕上的坐标
-
 (defun my/activate-new-frame (new-frame)
   "Activate the newly created frame NEW-FRAME."
   (select-frame new-frame))
 (add-hook 'after-make-frame-functions #'my/activate-new-frame)
 
-;;;###autoload
 (defun my/maximal-font ()
   "Switch the default font to a larger size (16pt)."
   (interactive)
   (set-face-attribute 'default nil :font "Sarasa Term SC Nerd 16" ))
 
-;;;###autoload
 (defun my/normal-font ()
   "Switch the default font to the normal size (14pt)."
   (interactive)
   (set-face-attribute 'default nil :font "Sarasa Term SC Nerd 14" ))
 
-;;;###autoload
 (defun my/minimal-font ()
   "Switch the default font to a smaller size (12pt)."
   (interactive)
   (set-face-attribute 'default nil :font "Sarasa Term SC Nerd 12" ))
 
-;;;###autoload
-(defun clear-kill-ring ()
+(defun my/clear-kill-ring ()
   "Clear the kill ring (copy-paste stack)."
   (interactive)
   (setq kill-ring nil)
@@ -55,21 +43,15 @@
 (global-set-key (kbd "M-p") 'scroll-down-line)
 
 ;; 滚动半屏设置
-(defun window-half-height ()
-  (max 1 (/ (- (1- (window-height (selected-window))) 4) 2)))
-(defun scroll-up-half ()
-  (interactive)
-  (scroll-up (window-half-height)))
-(defun scroll-down-half ()
-  (interactive)
-  (scroll-down (window-half-height)))
-(global-set-key (kbd "M-N") 'scroll-up-half)
-(global-set-key (kbd "M-P") 'scroll-down-half)
+(defun my/scroll-half-page (direction)
+  "按半屏高度滚动当前窗口。DIRECTION 为 1 时向下翻，为 -1 时向上翻。"
+  (scroll-up (* direction (max 1 (/ (- (window-height) 5) 2)))))
+(global-set-key (kbd "M-N") (lambda () (interactive) (my/scroll-half-page 1)))
+(global-set-key (kbd "M-P") (lambda () (interactive) (my/scroll-half-page -1)))
 
 ;; 设置系统内置的 isearch 在删除待搜索字符时不变动光标位置
 (use-package isearch
   :ensure nil
-  :defer 10
   :bind (:map isearch-mode-map
               ;; consistent with ivy-occur
               ("C-c C-o"                   . isearch-occur)
@@ -91,10 +73,6 @@
 ;;   :init
 ;;   (keycast-mode-line-mode t))
 
-;; 子弹窗需要依赖的包
-(use-package posframe
-  :defer 5)
-
 ;; Settings for exec-path-from-shell
 ;; fix the PATH environment variable issue
 (use-package exec-path-from-shell
@@ -114,7 +92,27 @@
           beacon-mode
           eldoc-mode
           prettier-js-mode
+          eslintd-fix-on-save-mode
           my/lsp-workspaces-mode
           ))
+
+;; 首个图形 frame 启动后全屏。用 set-frame-parameter 直接设为全屏，
+;; 而不是 toggle-frame-fullscreen：toggle 是「切换」，frame 已经是全屏时
+;; （比如 macOS 恢复了上次的窗口状态）反而会退出全屏
+(defvar my/fullscreen-done nil
+  "首个图形 frame 是否已经执行过全屏。")
+
+(defun my/fullscreen-first-graphic-frame (&optional frame)
+  "FRAME（缺省为当前 frame）是首个图形 frame 时，延迟 1 秒将其全屏。"
+  (let ((frame (or frame (selected-frame))))
+    (when (and (not my/fullscreen-done)
+               (display-graphic-p frame))
+      (setq my/fullscreen-done t)
+      (run-at-time 1 nil #'set-frame-parameter frame 'fullscreen 'fullboth))))
+
+(add-hook 'after-make-frame-functions #'my/fullscreen-first-graphic-frame)
+;; 非 daemon 启动时，第一个 frame 在加载配置之前就已经创建好，不会触发上面的 hook
+(unless (daemonp)
+  (my/fullscreen-first-graphic-frame))
 
 (provide 'pkg-basic)

@@ -2,7 +2,6 @@
 
 ;; 窗口快捷跳转操作
 (use-package ace-window
-  :commands ace-window
   :config
   (setq aw-keys '(?a ?s ?d ?f ?g ?h ?j ?k ?l))
   :bind
@@ -14,17 +13,13 @@
   :config
   (xclip-mode))
 
-;; GCMH - the Garbage Collector Magic Hack
-;; (use-package gcmh
-;;   :config
-;;   (gcmh-mode))
-
 ;; 自定义一个找项目根目录的函数
 (defun my/counsel-fzf-project-root ()
-  "优先寻找 package.json，找不到则寻找 .git，作为 counsel-fzf 的搜索根目录。"
+  "优先寻找 package.json，找不到则使用 project.el 识别的项目根目录，作为 counsel-fzf 的搜索根目录。"
   (interactive)
-  (let* ((root (or (locate-dominating-file default-directory "package.json")
-                   (locate-dominating-file default-directory ".git")
+  (let* ((project (project-current))
+         (root (or (locate-dominating-file default-directory "package.json")
+                   (and project (project-root project))
                    default-directory))) ; 如果都找不到，则使用当前目录
     (counsel-fzf nil root)))
 
@@ -38,12 +33,9 @@
   ;; (push "--follow" (cdr (nthcdr 0 counsel-rg-base-command)))
   (setq counsel-rg-base-command
         '("rg" "--max-columns" "500" "--with-filename" "--no-heading" "--line-number" "--color" "never" "--follow" "%s"))
-  ;; (setq ivy-re-builders-alist
-  ;;       '((counsel-rg . identity)
-  ;;         (t . ivy--regex-plus)))
+  :custom
   ;; 设置输入两个字符后就开始执行匹配
-  (custom-set-variables
-   '(ivy-more-chars-alist '((counsel-grep . 2) (t . 2))))
+  (ivy-more-chars-alist '((counsel-grep . 2) (t . 2)))
   :bind
   ;; swiper 配置
   ("C-s" . swiper-isearch)
@@ -80,21 +72,20 @@
   :commands (mc/mark-next-like-this mc/mark-all-like-this)
   :defer 10)
 
-;; 自动撤销树
+;; 自动撤销树：启动 3 秒后再加载
 (use-package undo-tree
   :defer 3
-  :diminish undo-tree-mode
-  :init
-  (make-directory "~/undo-tree" t) ; 确保目录存在
-  (global-undo-tree-mode)
   :custom
   (undo-tree-visualizer-diff t)
-  (undo-tree-history-directory-alist '(("." . "~/undo-tree")))
-  (undo-tree-visualizer-timestamps t))
+  (undo-tree-history-directory-alist
+   `(("." . ,(expand-file-name "var/undo-tree/" user-emacs-directory))))
+  (undo-tree-visualizer-timestamps t)
+  :config
+  (make-directory (expand-file-name "var/undo-tree/" user-emacs-directory) t) ; 确保目录存在
+  (global-undo-tree-mode))
 
 ;; Jump to arbitrary positions
 (use-package avy
-  :commands (avy-goto-line avy-goto-char-timer)
   ;; integrate with isearch and others
   :bind (("C-c l" . avy-goto-line)
          ("C-c j" . avy-goto-char-timer))
@@ -109,25 +100,48 @@
   ;; overlay is used during isearch, `pre' style makes avy keys evident.
   (avy-styles-alist '((avy-isearch . pre))))
 
-;; 显示行尾空白字符
-(defun my/cleanup-whitespace-on-save ()
-  "保存前清理当前 buffer 的 Tab 与行尾空白。"
-  (untabify (point-min) (point-max))
-  (whitespace-cleanup))
+;;;; 保存前格式化
+;;
+;; 所有格式化都由同一个 buffer 局部的 `before-save-hook' 函数统一执行，
+;; 一次保存完成全部格式化，执行顺序固定由 `my/save-formatters' 决定。
+;; 每个格式化是否执行，看当前 buffer 里对应的开关变量是否开启：
+;; ESLint、Prettier 的开关就是它们的 minor mode，可以用 M-x 随时手动切换。
 
+(defvar my/save-formatters
+  '((my/whitespace-cleanup-on-save . whitespace-cleanup)
+    (eslintd-fix-on-save-mode      . eslintd-fix-buffer)
+    (prettier-js-mode              . prettier-js-prettify))
+  "保存前格式化列表，每一项是 (开关变量 . 格式化函数)。
+按列表顺序执行：先清理行尾空白，再 ESLint 修复，最后 Prettier 排版。")
+
+(defvar-local my/whitespace-cleanup-on-save nil
+  "非 nil 时，保存前清理当前 buffer 的行尾空白。")
+
+(defun my/run-save-formatters ()
+  "按 `my/save-formatters' 的顺序，执行当前 buffer 中已开启的格式化。
+单个格式化失败只提示，不中断后续格式化，也不阻止保存。"
+  (pcase-dolist (`(,switch . ,formatter) my/save-formatters)
+    (when (and (boundp switch) (symbol-value switch))
+      (condition-case err
+          (funcall formatter)
+        (error (message "%s 执行失败：%s" formatter (error-message-string err)))))))
+
+(defun my/enable-save-formatters ()
+  "在当前 buffer 挂上统一的保存前格式化。
+只挂到当前 buffer：Makefile、Go 等其它文件不受影响。"
+  (add-hook 'before-save-hook #'my/run-save-formatters nil t))
+
+;; 显示行尾空白字符，并在保存前清理
 (defun my/enable-whitespace-cleanup ()
-  "开启 `whitespace-mode'，并把保存时的空白清理「局部」挂到当前 buffer。
-必须局部挂载：之前挂的是全局 `before-save-hook'，会把 Makefile、Go、
-TSV 等 Tab 有语义的文件也一并 untabify 掉。"
+  "开启 `whitespace-mode'，并在保存前清理行尾空白。"
   (whitespace-mode 1)
-  (add-hook 'before-save-hook #'my/cleanup-whitespace-on-save nil t))
+  (setq my/whitespace-cleanup-on-save t)
+  (my/enable-save-formatters))
 
 (use-package whitespace
-  :defer 10
   :ensure nil
   :config
-  (setq whitespace-style '(face trailing)
-        whitespace-global-modes '(not markdown-mode))
+  (setq whitespace-style '(face trailing))
   :hook ((web-mode tsx-ts-mode emacs-lisp-mode) . my/enable-whitespace-cleanup))
 
 ;; 处理特别长的行，避免带来一些性能问题
@@ -138,22 +152,19 @@ TSV 等 Tab 有语义的文件也一并 untabify 掉。"
 
 ;; 可以正常处理驼峰单词了：使用 M-f/b 时在每个驼峰单词之间停顿
 (use-package subword
-  :defer 10
   :ensure nil
   :hook (after-init . global-subword-mode))
 
-;; 光标定位高亮
+;; 光标定位高亮：启动 10 秒后再加载
 (use-package beacon
   :defer 10
-  :init
+  :config
   (beacon-mode t))
 
 ;; 开启全局窗口变动记录
 (use-package winner
-  :defer 1
   :ensure nil
-  :hook (after-init . winner-mode)
-  :config (setq winner-dont-bind-my-keys nil))
+  :hook (after-init . winner-mode))
 
 ;; ERC 配置
 (use-package erc
@@ -170,19 +181,19 @@ TSV 等 Tab 有语义的文件也一并 untabify 掉。"
   (setq erc-kill-server-buffer-on-quit t))
 
 ;; 拷贝当前 Buffer 到剪切板
-(defun copy-buffer-path ()
-  "把当前文件相对于 Git 仓库根目录的路径拷贝到剪贴板。"
+(defun my/copy-buffer-path ()
+  "把当前文件相对于项目根目录的路径拷贝到剪贴板，不在项目中时拷贝绝对路径。"
   (interactive)
-  (if (equal buffer-file-name nil)
+  (if (not buffer-file-name)
       (message "没有文件名")
-    (let* ((root (vc-find-root buffer-file-name ".git"))
-           (target-path (if root
-                            (substring buffer-file-name
-                                       (length (expand-file-name root)))
+    (let* ((project (project-current))
+           (target-path (if project
+                            (file-relative-name buffer-file-name
+                                                (project-root project))
                           buffer-file-name)))
       (kill-new target-path)
       ;; 必须走 %s：路径里出现 % 时，直接把它当格式串会报 format 错误
       (message "%s" target-path))))
-(global-set-key (kbd "C-c C-p") 'copy-buffer-path)
+(global-set-key (kbd "C-c C-p") #'my/copy-buffer-path)
 
 (provide 'pkg-global)

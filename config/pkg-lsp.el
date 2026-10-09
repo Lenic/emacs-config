@@ -2,14 +2,14 @@
 
 ;; Corfu 配置
 (use-package corfu
-  :defer 3  ; 延迟加载
+  :defer 3  ; 启动 3 秒后再加载
   :bind
   (:map corfu-map
         ("SPC" . corfu-insert-separator))   ; 空格键插入分隔符
   :custom
-  (corfu-preselect-first t)                 ; 预选第一个候选项
+  (corfu-preselect 'first)                  ; 预选第一个候选项
   (corfu-scroll-margin 5)                   ; 使用滚动边距
-  :init
+  :config
   (global-corfu-mode))                      ; 全局启用 Corfu 模式
 
 ;; Emacs 内置补全相关设置
@@ -74,33 +74,35 @@ HANDLER 是接收 command 对象（含 \"command\"/\"arguments\"）的处理函�
   :custom
   (lsp-completion-provider :none) ;; 我们使用 Corfu 进行补全
   :config
-  (setq lsp-enable-snippet nil                          ; 禁用代码片段
-        lsp-enable-folding nil                          ; 禁用基于 LSP 的代码折叠功能
-        lsp-semantic-tokens-enable nil                  ; 禁用语义令牌功能
-        lsp-typescript-format-enable nil                ; 禁用 TypeScript 代码格式化功能
-        lsp-lens-enable nil                             ; 禁用代码镜头功能
-        lsp-enable-on-type-formatting nil               ; 关闭类型格式化
-        lsp-eldoc-render-all t                          ; 显示所有 eldoc 信息
-        lsp-restart 'ignore                             ; 忽略 LSP 服务器重启提示
-        ;; lsp-clients-typescript-max-ts-server-memory 8192; 设置 TypeScript 可用的最大内存为 8G
-        lsp-eldoc-enable-hover t                        ; 启用鼠标悬停文档
-        lsp-disabled-clients '(eslint)                  ; 禁用 eslint 客户端
-        lsp-signature-auto-activate t                   ; 自动显示函数签名
-        lsp-headerline-breadcrumb-icons-enable nil      ; 禁用面包屑导航图标
-        lsp-signature-render-documentation t            ; 渲染函数签名文档
-        lsp-completion-show-detail t                    ; 显示补全的详细信息
-        lsp-completion-show-kind t                      ; 显示补全项的类型
-        lsp-diagnostics-provider :flycheck              ; 使用 flycheck 进行诊断
-        lsp-enable-file-watchers t                      ; 启用文件监视
-        lsp-enable-symbol-highlighting nil              ; 禁用符号高亮
-        lsp-enable-dap-auto-configure nil               ; 禁用 DAP 自动配置
-        lsp-flycheck-live-reporting nil                 ; 禁用 flycheck 实时报告
-        lsp-headerline-breadcrumb-enable nil            ; 禁用面包屑导航
-        lsp-completion-enable-additional-text-edit t    ; 启用额外的文本编辑
-        lsp-idle-delay 0.500                            ; 增加空闲延迟，减少 CPU 使用
-        lsp-log-io nil                                  ; 禁用日志记录，提高性能
-        lsp-auto-guess-root nil                         ; 自动猜测项目根目录
-        lsp-file-watch-threshold 2000)                  ; 限制监视的文件数量
+  ;; 必须用 setq-default：lsp-mode 常常是在某个文件 buffer 里第一次被加载的，
+  ;; 如果那个 buffer 已经有局部值（比如 CSS/JSON 局部开启的 lsp-enable-snippet），
+  ;; setq 只会改掉那个局部值，全局值反而没被设置
+  (setq-default lsp-enable-snippet nil                        ; 禁用代码片段
+                lsp-enable-folding nil                        ; 禁用基于 LSP 的代码折叠功能
+                lsp-semantic-tokens-enable nil                ; 禁用语义令牌功能
+                lsp-typescript-format-enable nil              ; 禁用 TypeScript 代码格式化功能
+                lsp-lens-enable nil                           ; 禁用代码镜头功能
+                lsp-enable-on-type-formatting nil             ; 关闭类型格式化
+                lsp-eldoc-render-all t                        ; 显示所有 eldoc 信息
+                lsp-restart 'ignore                           ; 忽略 LSP 服务器重启提示
+                ;; lsp-clients-typescript-max-ts-server-memory 8192; 设置 TypeScript 可用的最大内存为 8G
+                lsp-eldoc-enable-hover t                      ; 启用鼠标悬停文档
+                lsp-disabled-clients '(eslint)                ; 禁用 eslint 客户端
+                lsp-signature-auto-activate t                 ; 自动显示函数签名
+                lsp-headerline-breadcrumb-icons-enable nil    ; 禁用面包屑导航图标
+                lsp-signature-render-documentation t          ; 渲染函数签名文档
+                lsp-completion-show-detail t                  ; 显示补全的详细信息
+                lsp-completion-show-kind t                    ; 显示补全项的类型
+                lsp-diagnostics-provider :flycheck            ; 使用 flycheck 进行诊断
+                lsp-enable-file-watchers t                    ; 启用文件监视
+                lsp-enable-symbol-highlighting nil            ; 禁用符号高亮
+                lsp-enable-dap-auto-configure nil             ; 禁用 DAP 自动配置
+                lsp-headerline-breadcrumb-enable nil          ; 禁用面包屑导航
+                lsp-completion-enable-additional-text-edit t  ; 启用额外的文本编辑
+                lsp-idle-delay 0.500                          ; 增加空闲延迟，减少 CPU 使用
+                lsp-log-io nil                                ; 禁用日志记录，提高性能
+                lsp-auto-guess-root nil                       ; 不自动猜测项目根目录，首次打开时询问
+                lsp-file-watch-threshold 2000)                ; 限制监视的文件数量
   ;; 设置 lsp-mode-booster 加速
   (defun lsp-booster--advice-json-parse (old-fn &rest args)
     "Try to parse bytecode instead of json."
