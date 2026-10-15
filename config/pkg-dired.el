@@ -25,8 +25,6 @@
   (dirvish-side-display-alist '((side . right) (slot . 0)))
   ;; 侧边栏宽度
   (dirvish-side-width 35)
-  ;; 不自动展开当前文件的父目录
-  (dirvish-side-auto-expand nil)
   ;; 显示目录的展开状态（+/-），使用 subtree-state 时 dirvish 会自动加载 dirvish-subtree
   (dirvish-side-attributes '(subtree-state))
   ;; 用 +/- 表示目录的折叠/展开状态
@@ -150,27 +148,15 @@
             (dirvish--find-entry 'find-alternate-file dir)))
       (dirvish-side dir))))
 
-;; 类似 neotree-find：在侧边栏中定位当前 buffer 的文件。文件在侧边栏的目录树中时
-;; 逐级展开到该文件；不在时（或侧边栏没打开时）把侧边栏切换到文件所在的目录
+;; 类似 neotree-find：在侧边栏中定位当前 buffer 的文件并选中侧边栏。
+;; 复用 follow 模式的定位逻辑，但只在调用时执行一次
 (defun my/find-in-dirvish-side ()
   "在 dirvish 侧边栏中定位当前 buffer 的文件，并选中侧边栏窗口。"
   (interactive)
   (require 'dirvish-side)
-  (require 'dirvish-subtree)
-  (let* ((file (and buffer-file-name (expand-file-name buffer-file-name)))
-         (dir (expand-file-name (if file (file-name-directory file) default-directory)))
-         (target (directory-file-name (or file dir)))
-         (win (dirvish-side--session-visible-p))
-         (root (and win (expand-file-name
-                         (buffer-local-value 'default-directory (window-buffer win))))))
-    (unless (and root (string-prefix-p root (file-name-as-directory target)))
-      (my/dirvish-side-switch-dir dir)
-      (setq win (dirvish-side--session-visible-p)
-            root dir))
-    (select-window win)
-    ;; 从顶部开始展开，避免光标停在其他子目录里时找不到目标
-    (goto-char (point-min))
-    (unless (equal (file-name-as-directory target) root)
-      (dirvish-subtree-expand-to target))))
+  (if (dirvish-side--session-visible-p)
+      (dirvish-side--auto-jump)
+    (dirvish-side))                     ; 打开时会自动展开到当前文件
+  (select-window (dirvish-side--session-visible-p)))
 
 (provide 'pkg-dired)
