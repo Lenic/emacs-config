@@ -22,9 +22,13 @@
 (defvar my/day-end-hour 18
   "白天时间段结束的整点，不包含该点。")
 
-;; 指示当前主题的类别：t 表示日间主题，nil 表示夜间主题
+;; 指示当前主题的明暗：t 表示浅色主题，nil 表示暗色主题
 (defvar my/is-day-theme nil
-  "Non-nil if currently using the day theme.")
+  "Non-nil if currently using a light theme.")
+
+(defvar my/theme-manual nil
+  "Non-nil 表示主题由 `my/theme-select' 手动指定，暂停自动切换。
+只存在于内存中，重启 Emacs 或执行 `my/theme-refresh' 后恢复自动切换。")
 
 (defvar my/theme-timer nil
   "指向下一次主题切换的一次性定时器。")
@@ -87,17 +91,34 @@ frame 一出生就是正确的外观。"
   ;; 新建的 frame 会在创建时自己读取上面的变量，这里只需要修正已存在的
   (mapc #'frame-set-background-mode (frame-list)))
 
+(defun my/theme--light-p (theme)
+  "判断已加载的 THEME 是否为浅色主题。
+优先按 default 面孔的背景色亮度判断；终端里背景色可能取不到，
+此时退回按主题名猜测。"
+  (let ((rgb (color-name-to-rgb (face-background 'default nil t))))
+    (if rgb
+        (not (color-dark-p rgb))
+      (not (string-match-p "dark\\|night\\|black" (symbol-name theme))))))
+
+(defun my/theme--load (theme)
+  "禁用所有已启用的主题后加载 THEME，并同步明暗相关的设置。"
+  ;; disable-theme 会修改 custom-enabled-themes，所以遍历副本
+  (mapc #'disable-theme (copy-sequence custom-enabled-themes))
+  (load-theme theme t)
+  (setq my/is-day-theme (cond ((eq theme my/day-theme) t)
+                              ((eq theme my/dark-theme) nil)
+                              (t (my/theme--light-p theme))))
+  (my/theme-sync-background-mode)
+  (my/theme-sync-frame))
+
 (defun my/theme-apply (&optional force)
   "把主题切换到当前时刻应有的那一个。
-FORCE 非 nil 时无条件重新加载。真正发生切换时返回新主题，否则返回 nil。"
+FORCE 非 nil 时无条件重新加载。手动模式下不做任何事。
+真正发生切换时返回新主题，否则返回 nil。"
   (let ((expected (my/theme-expected)))
-    (when (or force (not (eq (car custom-enabled-themes) expected)))
-      ;; disable-theme 会修改 custom-enabled-themes，所以遍历副本
-      (mapc #'disable-theme (copy-sequence custom-enabled-themes))
-      (load-theme expected t)
-      (setq my/is-day-theme (eq expected my/day-theme))
-      (my/theme-sync-background-mode)
-      (my/theme-sync-frame)
+    (when (and (not my/theme-manual)
+               (or force (not (eq (car custom-enabled-themes) expected))))
+      (my/theme--load expected)
       expected)))
 
 (defun my/theme-schedule ()
@@ -112,9 +133,28 @@ FORCE 非 nil 时无条件重新加载。真正发生切换时返回新主题，
   (my/theme-apply)
   (my/theme-schedule))
 
+(defun my/theme-select (theme)
+  "手动切换到 THEME，并暂停自动切换直到重启 Emacs 或执行 `my/theme-refresh'。"
+  (interactive
+   (list (intern (completing-read
+                  "Select Theme: "
+                  (mapcar #'symbol-name (custom-available-themes))
+                  nil t nil nil
+                  (and (car custom-enabled-themes)
+                       (symbol-name (car custom-enabled-themes)))))))
+  (when (timerp my/theme-timer)
+    (cancel-timer my/theme-timer)
+    (setq my/theme-timer nil))
+  (setq my/theme-manual t)
+  (my/theme--load theme)
+  (message "已切换到 %s，自动切换已暂停（%s 可恢复）"
+           theme (substitute-command-keys "\\[my/theme-refresh]")))
+
 (defun my/theme-refresh ()
-  "立即按系统时间校正主题，并重新登记下一次切换。"
+  "退出手动模式，清除所有主题后按系统时间重新加载，并重新登记下一次切换。
+效果等同于重启 Emacs 后的主题状态。"
   (interactive)
+  (setq my/theme-manual nil)
   (my/theme-apply t)
   (my/theme-schedule)
   (message "主题已校正为 %s，下一次切换 %s"
