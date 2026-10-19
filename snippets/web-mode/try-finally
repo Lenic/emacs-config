@@ -1,0 +1,10 @@
+# -*- mode: snippet -*-
+# name: try-finally
+# key: tryf
+# --
+
+try {
+  $1
+} finally {
+  $0
+}
