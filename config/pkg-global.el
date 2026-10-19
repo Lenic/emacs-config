@@ -14,14 +14,18 @@
   (xclip-mode))
 
 ;; 自定义一个找项目根目录的函数
-(defun my/counsel-fzf-project-root ()
-  "优先寻找 package.json，找不到则使用 project.el 识别的项目根目录，作为 counsel-fzf 的搜索根目录。"
-  (interactive)
+(defun my/counsel-fzf-project-root (&optional arg)
+  "优先寻找 package.json，找不到则使用 project.el 识别的项目根目录，作为 counsel-fzf 的搜索根目录。
+使用 C-u 前缀时，手动选择搜索根目录。"
+  (interactive "P")
   (let* ((project (project-current))
          (root (or (locate-dominating-file default-directory "package.json")
                    (and project (project-root project))
-                   default-directory))) ; 如果都找不到，则使用当前目录
-    (counsel-fzf nil root)))
+                   default-directory)) ; 如果都找不到，则使用当前目录
+         (dir (if arg
+                  (read-directory-name "fzf in directory: " root nil t)
+                root)))
+    (counsel-fzf nil dir)))
 
 ;; 全局基础配置
 (use-package counsel
