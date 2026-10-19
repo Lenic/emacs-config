@@ -184,6 +184,52 @@
   ;; Kill buffers for server messages after quitting the server
   (setq erc-kill-server-buffer-on-quit t))
 
+;; RSS 订阅
+(use-package elfeed
+  :ensure t
+  :commands (elfeed)
+  :custom
+  ;; 默认只显示最近 7 天的未读文章
+  (elfeed-search-filter "@7-days-ago +unread")
+
+  ;; 示例订阅源：后续可以替换成自己的
+  (elfeed-feeds
+   '(("https://sspai.com/feed"
+      :fetch-link t
+      :readable t
+      news)
+     ("https://www.ifanr.com/feed"
+      :fetch-link t
+      :readable t
+      news tech)
+     ("http://feeds.feedburner.com/ruanyifeng"
+      :fetch-link t
+      :readable t
+      blog tech china)
+     ("https://emacs-china.org/latest.rss"
+      :fetch-link t
+      :readable t
+      emacs china)))
+  :config
+  ;; 部分站点的图片 CDN 有防盗链：不带 Referer 的请求直接返回 403。
+  ;; 而 shr 在 elfeed-show 中加载图片时没有 `url-current-lastloc'，不会发送 Referer。
+  (defvar my/url-referer-alist
+    '(("\\(?:^\\|\\.\\)sspai\\.com\\'" . "https://sspai.com/"))
+    "图片主机名正则到所需 Referer 的映射。")
+
+  (defun my/url-http-referer-fallback (referer url)
+    "当 URL 本身没有 Referer 时，按 `my/url-referer-alist' 补一个。"
+    (or referer
+        (let ((host (url-host url)))
+          (and host
+               (cdr (seq-find (lambda (pair) (string-match-p (car pair) host))
+                              my/url-referer-alist))))))
+
+  (advice-add 'url-http--get-referer :around
+              (lambda (orig url)
+                (my/url-http-referer-fallback (funcall orig url) url))
+              '((name . my/url-http-referer-fallback))))
+
 ;; 拷贝当前 Buffer 到剪切板
 (defun my/copy-buffer-path ()
   "把当前文件相对于项目根目录的路径拷贝到剪贴板，不在项目中时拷贝绝对路径。"
