@@ -235,6 +235,23 @@ JS/TS/Vue 项目装了 eslint 时先跑 javascript-eslint，再接着跑 lsp。"
         web-mode-enable-current-column-highlight nil)
   :hook (web-mode . my/web-js-setup))
 
+;; lsp-volar 转发 tsserver/request 时调用 (lsp-find-workspace 'ts-ls nil)，
+;; 不带文件名会在整个 session 里取第一个 ts-ls，同时打开多个 Vue 项目时，
+;; 先启动项目的请求会被发给后启动项目的 ts-ls，于是报 “No Project”。
+;; 这里改成按 vue-semantic-server 自己的根目录查找同项目的 ts-ls
+(defun my/lsp-volar-tsserver-request-same-root (old-fn volar-workspace params)
+  "让 OLD-FN 只把 VOLAR-WORKSPACE 的 PARAMS 转发给同一项目根目录下的 ts-ls。"
+  (let ((root (lsp--workspace-root volar-workspace))
+        (find-workspace (symbol-function 'lsp-find-workspace)))
+    (cl-letf (((symbol-function 'lsp-find-workspace)
+               (lambda (server-id &optional file-name)
+                 (funcall find-workspace server-id (or file-name root)))))
+      (funcall old-fn volar-workspace params))))
+
+(with-eval-after-load 'lsp-volar
+  (advice-add 'lsp-volar--tsserver-request-handler :around
+              #'my/lsp-volar-tsserver-request-same-root))
+
 ;; TailwindCSS 插件配置
 (use-package lsp-tailwindcss
   :after lsp-mode
