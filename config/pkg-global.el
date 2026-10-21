@@ -76,17 +76,31 @@
   :commands (mc/mark-next-like-this mc/mark-all-like-this)
   :defer 10)
 
-;; 自动撤销树：启动 3 秒后再加载
-(use-package undo-tree
+;; 撤销：使用 Emacs 原生 undo / undo-redo，vundo 提供树状可视化
+(use-package vundo
+  :bind ("C-x u" . vundo)
+  :custom
+  (vundo-glyph-alist vundo-unicode-symbols)
+  (vundo-diff-quit 'kill)               ; 退出 vundo 时一并关闭 diff 窗口
+  :config
+  ;; 和 undo-tree-visualizer-diff 一样：打开撤销树、每次移动节点后自动显示 diff
+  (defun my/vundo-auto-diff (&rest _)
+    (when (derived-mode-p 'vundo-mode)
+      (vundo-diff)))
+  (dolist (cmd '(vundo vundo-forward vundo-next vundo-stem-root vundo-stem-end
+                 vundo-next-root vundo-goto-last-saved vundo-goto-next-saved))
+    (advice-add cmd :after #'my/vundo-auto-diff)))
+
+;; 持久化撤销历史：只保存原生 undo-list，体积受 `undo-limit' 约束，保存很快
+(use-package undo-fu-session
   :defer 3
   :custom
-  (undo-tree-visualizer-diff t)
-  (undo-tree-history-directory-alist
-   `(("." . ,(expand-file-name "var/undo-tree/" user-emacs-directory))))
-  (undo-tree-visualizer-timestamps t)
+  (undo-fu-session-directory
+   (expand-file-name "var/undo-fu-session/" user-emacs-directory))
+  (undo-fu-session-file-limit 200)      ; 最多保留 200 个文件的历史，超出自动清理最旧的
+  (undo-fu-session-incompatible-files '("/COMMIT_EDITMSG\\'" "/git-rebase-todo\\'"))
   :config
-  (make-directory (expand-file-name "var/undo-tree/" user-emacs-directory) t) ; 确保目录存在
-  (global-undo-tree-mode))
+  (undo-fu-session-global-mode))
 
 ;; Jump to arbitrary positions
 (use-package avy

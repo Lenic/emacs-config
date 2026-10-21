@@ -87,7 +87,6 @@
           whitespace-mode
           yas-minor-mode
           emmet-mode
-          undo-tree-mode
           git-gutter-mode
           beacon-mode
           eldoc-mode
