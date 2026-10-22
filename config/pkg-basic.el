@@ -49,6 +49,17 @@
 (global-set-key (kbd "M-N") (lambda () (interactive) (my/scroll-half-page 1)))
 (global-set-key (kbd "M-P") (lambda () (interactive) (my/scroll-half-page -1)))
 
+;; 水平滚动只作用于光标所在行：适合只有一行超长的文件（如压缩过的 HTML）。
+;; 重绘时按窗口所显示 buffer 的局部值读取 `auto-hscroll-mode'，所以只影响当前 buffer
+(define-minor-mode my/hscroll-current-line-mode
+  "开启时只水平滚动光标所在行，关闭后恢复整个窗口一起滚动。"
+  :lighter " HScroll"
+  (if my/hscroll-current-line-mode
+      (setq-local auto-hscroll-mode 'current-line)
+    (kill-local-variable 'auto-hscroll-mode)))
+;; 与 C-x x t（`toggle-truncate-lines'）放在一起，h 即 hscroll
+(define-key ctl-x-x-map (kbd "h") #'my/hscroll-current-line-mode)
+
 ;; 设置系统内置的 isearch 在删除待搜索字符时不变动光标位置
 (use-package isearch
   :ensure nil
