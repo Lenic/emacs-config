@@ -124,9 +124,39 @@
       t))
   (add-hook 'dirvish-find-entry-hook #'my/dirvish-side-open-dir-in-main-window)
 
-  ;; avy-goto-line 判断一行是否可见时，看的是上一行行尾的换行符有没有隐藏。dirvish
-  ;; 用一个 invisible overlay 隐藏 dired 表头，这个 overlay 连表头的换行符一起盖住了，
-  ;; 导致第一个文件那一行被当成隐藏行跳过。这里把第一个文件行补回候选列表
+  ;; dirvish 会把 dired 的表头行（"  /path/to/dir:" 以及 total 行）隐藏掉。这里改成
+  ;; 不隐藏，而是用 overlay 显示成一行缩写后的路径，正好出现在 Project 下面。
+  ;; 路径太长时只保留末尾部分，前面用 … 代替
+  (defun my/dirvish-show-dir-header (&rest _)
+    (dolist (ov (overlays-in (point-min) (1+ (point-min))))
+      (when (and (overlay-get ov 'dired-header)
+                 (eq (overlay-get ov 'invisible) t))
+        (let* ((path (abbreviate-file-name default-directory))
+               (max (- (or (bound-and-true-p dirvish-side-width) 35) 2)))
+          (when (> (string-width path) max)
+            (setq path (concat "…" (truncate-string-to-width
+                                    path (string-width path)
+                                    (- (string-width path) (1- max))))))
+          (overlay-put ov 'invisible nil)
+          (overlay-put ov 'display
+                       (concat " " (propertize path 'face 'dired-directory) "\n"))))))
+  (advice-add 'dirvish--hide-dired-header :after #'my/dirvish-show-dir-header)
+
+  ;; ace-window 在窗口左上角放标记时会 move-to-window-line 0 再 recenter 0。point
+  ;; 不能停在上面那行路径的 display 文本里，会落到第一个文件行，recenter 后侧边栏
+  ;; 就往下滚了一行，路径被滚出窗口。这里放完标记后恢复 dirvish 窗口原来的起始位置
+  (defun my/aw-keep-dirvish-window-start (orig path leaf)
+    (let* ((win (cdr leaf))
+           (ws (and (buffer-local-value 'dirvish--props (window-buffer win))
+                    (window-start win))))
+      (prog1 (funcall orig path leaf)
+        (when ws (set-window-start win ws t)))))
+  (with-eval-after-load 'ace-window
+    (advice-add 'aw--lead-overlay :around #'my/aw-keep-dirvish-window-start))
+
+  ;; avy-goto-line 收集候选行时，dired 表头行（现在显示为路径）会被当成一行候选，
+  ;; 这里去掉它；同时如果表头被隐藏（上一行换行符 invisible 导致第一个文件行被跳过），
+  ;; 把第一个文件行补回候选列表
   (defun my/avy-dirvish-add-first-line (orig &optional arg beg end bottom-up)
     ;; 先统一成从上到下的顺序，最后再按 bottom-up 反转
     (let* ((cands (funcall orig arg beg end nil))
@@ -135,10 +165,12 @@
         (with-current-buffer (window-buffer win)
           (when-let* ((pos (alist-get :content-begin
                                       (bound-and-true-p dirvish--props))))
-            (when (and (> pos (point-min))
-                       (<= (or beg (window-start win)) pos)
+            (unless (cdr dired-subdir-alist) ; 插入了子目录时表头本来就显示
+              (setq cands (seq-remove (lambda (c)
+                                        (and (eq (cdr c) win) (< (car c) pos)))
+                                      cands)))
+            (when (and (<= (or beg (window-start win)) pos)
                        (< pos (or end (window-end win t)))
-                       (get-char-property (1- pos) 'invisible)
                        (not (invisible-p pos))
                        (not (member (cons pos win) cands)))
               (push (cons pos win) cands)))))
