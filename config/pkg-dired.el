@@ -122,7 +122,35 @@
                (my/dirvish-side-select-main-window))
       (dired entry)
       t))
-  (add-hook 'dirvish-find-entry-hook #'my/dirvish-side-open-dir-in-main-window))
+  (add-hook 'dirvish-find-entry-hook #'my/dirvish-side-open-dir-in-main-window)
+
+  ;; avy-goto-line 判断一行是否可见时，看的是上一行行尾的换行符有没有隐藏。dirvish
+  ;; 用一个 invisible overlay 隐藏 dired 表头，这个 overlay 连表头的换行符一起盖住了，
+  ;; 导致第一个文件那一行被当成隐藏行跳过。这里把第一个文件行补回候选列表
+  (defun my/avy-dirvish-add-first-line (orig &optional arg beg end bottom-up)
+    ;; 先统一成从上到下的顺序，最后再按 bottom-up 反转
+    (let* ((cands (funcall orig arg beg end nil))
+           (wins (delete-dups (mapcar #'cdr cands))))
+      (dolist (win wins)
+        (with-current-buffer (window-buffer win)
+          (when-let* ((pos (alist-get :content-begin
+                                      (bound-and-true-p dirvish--props))))
+            (when (and (> pos (point-min))
+                       (<= (or beg (window-start win)) pos)
+                       (< pos (or end (window-end win t)))
+                       (get-char-property (1- pos) 'invisible)
+                       (not (invisible-p pos))
+                       (not (member (cons pos win) cands)))
+              (push (cons pos win) cands)))))
+      ;; 按窗口顺序、位置重新排序，bottom-up 时整体反转，和 avy 原本的顺序一致
+      (setq cands (sort cands
+                        (lambda (a b)
+                          (let ((ia (seq-position wins (cdr a)))
+                                (ib (seq-position wins (cdr b))))
+                            (if (= ia ib) (< (car a) (car b)) (< ia ib))))))
+      (if bottom-up (nreverse cands) cands)))
+  (with-eval-after-load 'avy
+    (advice-add 'avy--line-cands :around #'my/avy-dirvish-add-first-line)))
 
 ;; 把侧边栏切换到指定目录：侧边栏已打开时直接切换（dirvish-side 加 C-u 只在侧边栏
 ;; 没显示时才会提示目录），没打开时用该目录打开。写在 use-package 外面，
