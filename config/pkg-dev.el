@@ -92,19 +92,34 @@
   :bind ("C-o" . er/expand-region)
   :config
   (when (treesit-available-p)
+    ;; 思路来自 https://emacs-china.org/t/treesit-expand-region-el/23406
+    ;; vue-ts-mode 里 `:style="..."'、`{{ ... }}' 是独立的 local typescript parser，
+    ;; 只用主 parser 的根节点会把整个属性值当成一个节点，一次跳过表达式内部的所有层级，
+    ;; 所以这里从最内层的嵌入 parser 开始找，找不到更大的节点再交给外层 parser
     (defun my/treesit-mark-bigger-node ()
-      "https://emacs-china.org/t/treesit-expand-region-el/23406"
-      (let* ((root (treesit-buffer-root-node))
-             (node (treesit-node-descendant-for-range root (region-beginning) (region-end)))
-             (node-start (treesit-node-start node))
-             (node-end (treesit-node-end node)))
-        ;; Node fits the region exactly. Try its parent node instead.
-        (when (and (= (region-beginning) node-start) (= (region-end) node-end))
-          (when-let* ((node (treesit-node-parent node)))
-            (setq node-start (treesit-node-start node)
-                  node-end (treesit-node-end node))))
-        (set-mark node-end)
-        (goto-char node-start)))
+      "选中比当前选区大的最小 tree-sitter 节点，优先使用最内层的嵌入语法。"
+      (let ((beg (region-beginning))
+            (end (region-end)))
+        (cl-loop
+         for parser in (treesit-parsers-at beg)
+         for node = (treesit-node-descendant-for-range
+                     (treesit-parser-root-node parser) beg end)
+         ;; 节点和选区一样大（或没包住选区）时继续往上找父节点
+         do (while (and node
+                        (or (> (treesit-node-start node) beg)
+                            (< (treesit-node-end node) end)
+                            (and (= (treesit-node-start node) beg)
+                                 (= (treesit-node-end node) end))))
+              (setq node (treesit-node-parent node)))
+         ;; 嵌入 parser 的节点不能超出它自己的解析范围，否则交给外层 parser
+         if (and node
+                 (cl-some (lambda (range)
+                            (and (<= (car range) (treesit-node-start node))
+                                 (>= (cdr range) (treesit-node-end node))))
+                          (or (treesit-parser-included-ranges parser)
+                              (list (cons (point-min) (point-max))))))
+         return (progn (set-mark (treesit-node-end node))
+                       (goto-char (treesit-node-start node))))))
     (add-to-list 'er/try-expand-list 'my/treesit-mark-bigger-node)))
 
 ;; DAP
