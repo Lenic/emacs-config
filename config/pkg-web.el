@@ -242,7 +242,13 @@ JS/TS/Vue 项目装了 eslint 时先跑 javascript-eslint，再接着跑 lsp。"
   ;; 仓库没打过版本，不加 :rev :newest 会装到最早的 Initial Commit，在 Emacs 31 上无法使用
   :vc (:url "https://github.com/8uff3r/vue-ts-mode" :rev :newest)
   :mode "\\.vue\\'"
-  :hook (vue-ts-mode . my/web-js-setup))
+  :hook (vue-ts-mode . my/web-js-setup)
+  :config
+  ;; 包里给 `treesit--merge-ranges' 加的 advice 在新范围为空时直接返回 nil，
+  ;; 结果只要编辑 <template>，<script>/<style> 的 parser 范围就被清成 (1 . 1)，
+  ;; 直到再编辑 <script> 才恢复，期间要反复整段重新解析。Emacs 31 不需要它
+  (advice-remove 'treesit--merge-ranges
+                 #'vue-ts-mode--advice-for-treesit--merge-ranges))
 
 ;; lsp-volar 转发 tsserver/request 时调用 (lsp-find-workspace 'ts-ls nil)，
 ;; 不带文件名会在整个 session 里取第一个 ts-ls，同时打开多个 Vue 项目时，

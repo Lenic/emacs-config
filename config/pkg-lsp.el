@@ -137,6 +137,32 @@ HANDLER 是接收 command 对象（含 \"command\"/\"arguments\"）的处理函�
             (cons "emacs-lsp-booster" orig-result))
         orig-result)))
   (advice-add 'lsp-resolve-final-command :around #'lsp-booster--advice-final-command)
+  ;; tailwindcss 只支持全量同步，lsp-mode 会把它的 didChange 攒 1 秒再发，
+  ;; 但默认给任何 server 发任何消息前都要先把所有 server 攒着的发出去。每次按键 lsp-mode
+  ;; 都会给 volar 发 didChange 和拉取诊断的请求，于是整个文件也跟着发给 tailwindcss，
+  ;; 大文件每次按键要卡几十毫秒。这里改成只在给某个 server 发请求（带 :id）前，
+  ;; 补发这个 server 自己攒着的：补全、悬停拿到的仍是最新内容，其它 server 继续防抖
+  (defun my/lsp-flush-delayed-changes-for-proc (old-fn message proc)
+    "让 OLD-FN 发送 MESSAGE 前，只补发 PROC 对应 server 攒着的全量同步。"
+    (when (and lsp-flush-delayed-changes-before-next-message
+               lsp--not-flushing-delayed-changes
+               (plist-member message :id))
+      (when-let* ((pending (seq-filter (lambda (request)
+                                         (eq (lsp--workspace-proc (car request)) proc))
+                                       lsp--delayed-requests)))
+        (setq lsp--delayed-requests (seq-difference lsp--delayed-requests pending #'eq))
+        ;; 和 `lsp--flush-delayed-changes' 一样发送，但不取消其它 server 的防抖定时器
+        (let ((lsp--not-flushing-delayed-changes nil))
+          (pcase-dolist (`(,workspace ,buffer ,document ,change) (reverse pending))
+            (with-current-buffer buffer
+              (with-lsp-workspace workspace
+                (lsp-notify "textDocument/didChange"
+                            (list :textDocument document
+                                  :contentChanges (vector change)))
+                (lsp-diagnostics--request-pull-diagnostics workspace)))))))
+    (let ((lsp-flush-delayed-changes-before-next-message nil))
+      (funcall old-fn message proc)))
+  (advice-add 'lsp--send-no-wait :around #'my/lsp-flush-delayed-changes-for-proc)
   ;; 设置 LSP 补全使用 orderless
   (defun my/lsp-mode-setup-completion ()
     (setf (alist-get 'styles (alist-get 'lsp-capf completion-category-defaults))
