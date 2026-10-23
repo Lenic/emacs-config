@@ -102,7 +102,11 @@ HANDLER 是接收 command 对象（含 \"command\"/\"arguments\"）的处理函�
                 lsp-idle-delay 0.500                          ; 增加空闲延迟，减少 CPU 使用
                 lsp-log-io nil                                ; 禁用日志记录，提高性能
                 lsp-auto-guess-root nil                       ; 不自动猜测项目根目录，首次打开时询问
-                lsp-file-watch-threshold 2000)                ; 限制监视的文件数量
+                lsp-file-watch-threshold 2000                 ; 限制监视的文件数量
+                ;; typescript-language-server 默认让 tsserver 生成 snippet 补全项（比如 JSX 里的
+                ;; onClick 会变成 `onClick={$1}'），而客户端没开 snippet 时服务器会把这些项整个丢掉，
+                ;; 结果 onClick、className 等属性都补全不出来。这里让 tsserver 直接返回普通文本
+                lsp-clients-typescript-preferences '(:includeCompletionsWithSnippetText :json-false))
   ;; 设置 lsp-mode-booster 加速
   (defun lsp-booster--advice-json-parse (old-fn &rest args)
     "Try to parse bytecode instead of json."
