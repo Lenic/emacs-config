@@ -36,10 +36,10 @@
   (setq pyim-pinyin-fuzzy-alist '())
   ;; 设置光标颜色
   (setq pyim-indicator-list (list #'my/pyim-indicator-with-cursor-color #'pyim-indicator-with-modeline))
-  ;; 设置 pyim 探针设置
+  ;; 设置 pyim 探针：只按光标前一个字符决定中英文，前面是中文就继续输入中文。
+  ;; 不加 pyim-probe-program-mode：它会在代码区域强制英文，即使前面是中文
   (setq-default pyim-english-input-switch-functions
                 '(pyim-probe-dynamic-english
-                  pyim-probe-program-mode
                   pyim-probe-org-structure-template))
   (setq-default pyim-punctuation-half-width-functions
                 '(pyim-probe-punctuation-line-beginning
