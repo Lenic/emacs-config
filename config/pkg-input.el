@@ -18,6 +18,14 @@
           (set-cursor-color "#100a14")
         (set-cursor-color "#e3dedd")))))
 
+;; 同 `pyim-probe-dynamic-english'，但在行首（缩进之前）不再向上一行查找字符，
+;; 即换行后不继承上一行末尾的中英文状态，强制使用英文
+(defun my/pyim-probe-dynamic-english ()
+  "Like `pyim-probe-dynamic-english', but force English at line beginning."
+  (if (<= (point) (save-excursion (back-to-indentation) (point)))
+      (not (> (length (pyim-process-get-entered 'point-before)) 0))
+    (pyim-probe-dynamic-english)))
+
 ;; 输入法设置
 (use-package pyim
   :commands pyim-convert-string-at-point
@@ -39,7 +47,7 @@
   ;; 设置 pyim 探针：只按光标前一个字符决定中英文，前面是中文就继续输入中文。
   ;; 不加 pyim-probe-program-mode：它会在代码区域强制英文，即使前面是中文
   (setq-default pyim-english-input-switch-functions
-                '(pyim-probe-dynamic-english
+                '(my/pyim-probe-dynamic-english
                   pyim-probe-org-structure-template))
   (setq-default pyim-punctuation-half-width-functions
                 '(pyim-probe-punctuation-line-beginning
