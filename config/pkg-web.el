@@ -100,7 +100,7 @@ PACKAGE-JSON-KEY 字段。"
   ;; 保存前格式化：项目里有配置时自动开启，执行顺序由 `my/save-formatters' 决定
   ;; 1. ESLint 修复只对 JS/TS/Vue 自动开启——本函数同时服务于 json/css/mhtml，
   ;;    对这些文件跑 eslint --fix 没有意义
-  (when (and (derived-mode-p 'js-ts-mode 'tsx-ts-mode 'web-mode)
+  (when (and (derived-mode-p 'js-ts-mode 'tsx-ts-mode 'web-mode 'vue-ts-mode)
              (my/project-config-p my/eslint-config-files 'eslintConfig))
     (eslintd-fix-on-save-mode 1))
   ;; 2. Prettier 排版
@@ -162,7 +162,7 @@ JS/TS/Vue 项目装了 eslint 时先跑 javascript-eslint，再接着跑 lsp。"
      ((derived-mode-p 'css-ts-mode)
       (when (my/node-bin "stylelint")
         (flycheck-select-checker 'less-stylelint)))
-     ((derived-mode-p 'js-ts-mode 'tsx-ts-mode 'web-mode)
+     ((derived-mode-p 'js-ts-mode 'tsx-ts-mode 'web-mode 'vue-ts-mode)
       (when (and (my/node-bin "eslint")
                  (flycheck-valid-checker-p 'lsp)
                  (flycheck-valid-checker-p 'javascript-eslint))
@@ -206,13 +206,14 @@ JS/TS/Vue 项目装了 eslint 时先跑 javascript-eslint，再接着跑 lsp。"
   (setq flycheck-checker-error-threshold 10000)
   ;; Vue 文件同样使用 ESLint 检查
   (flycheck-add-mode 'javascript-eslint 'web-mode)
+  (flycheck-add-mode 'javascript-eslint 'vue-ts-mode)
   ;; css-ts-mode 改用 less-stylelint 检查：css-stylelint 会把文件名（--stdin-filename）
   ;; 传给 stylelint，项目配置里按文件名匹配的 overrides 会生效，有的项目把 *.css
   ;; 交给 postcss-html 解析，结果纯 CSS 一条都检查不到；less-stylelint 不传文件名，
   ;; 按普通 CSS 解析，和 less-css-mode 的检查效果一致
   (flycheck-add-mode 'less-stylelint 'css-ts-mode)
   (add-hook 'flycheck-mode-hook 'my/use-stylelint-from-node-modules)
-  :hook ((css-mode web-mode js-ts-mode tsx-ts-mode) . flycheck-mode))
+  :hook ((css-mode web-mode vue-ts-mode js-ts-mode tsx-ts-mode) . flycheck-mode))
 
 (defun my/web-js-setup ()
   "JS/TS/Vue/HTML 的 buffer 局部设置。"
@@ -224,7 +225,7 @@ JS/TS/Vue 项目装了 eslint 时先跑 javascript-eslint，再接着跑 lsp。"
   (lsp-deferred))
 
 (use-package web-mode
-  :mode ("\\.vue\\'" "\\.html\\'")
+  :mode "\\.html\\'"
   :config
   (setq web-mode-content-types-alist '(("vue" . "\\.vue\\'"))
         web-mode-css-indent-offset 2                  ;; CSS 默认缩进 2 空格：包含 HTML 的 CSS 部分以及纯 CSS/LESS/SASS 文件等
@@ -234,6 +235,14 @@ JS/TS/Vue 项目装了 eslint 时先跑 javascript-eslint，再接着跑 lsp。"
         web-mode-enable-auto-indentation nil          ;; 禁止粘贴时格式化代码
         web-mode-enable-current-column-highlight nil)
   :hook (web-mode . my/web-js-setup))
+
+;; Vue 文件使用 tree-sitter：模板用 vue 语法，<script>/<style> 分别嵌入 typescript/css 语法，
+;; 三个语法都要已经安装。想换回 web-mode，注释掉这段并在上面的 :mode 里加回 .vue 即可
+(use-package vue-ts-mode
+  ;; 仓库没打过版本，不加 :rev :newest 会装到最早的 Initial Commit，在 Emacs 31 上无法使用
+  :vc (:url "https://github.com/8uff3r/vue-ts-mode" :rev :newest)
+  :mode "\\.vue\\'"
+  :hook (vue-ts-mode . my/web-js-setup))
 
 ;; lsp-volar 转发 tsserver/request 时调用 (lsp-find-workspace 'ts-ls nil)，
 ;; 不带文件名会在整个 session 里取第一个 ts-ls，同时打开多个 Vue 项目时，
@@ -259,6 +268,8 @@ JS/TS/Vue 项目装了 eslint 时先跑 javascript-eslint，再接着跑 lsp。"
   (setq lsp-tailwindcss-add-on-mode t
         lsp-tailwindcss-server-version "0.14.24")
   :config
+  ;; 插件按 major mode 判断是否挂载，默认列表只有 web-mode，没有 vue-ts-mode
+  (add-to-list 'lsp-tailwindcss-major-modes 'vue-ts-mode)
   ;; 是否启用由插件自己判断：有 tailwind.config.*，或依赖里的 tailwindcss 是 v4 及以上。
   ;; v3 monorepo 的配置文件埋得较深时，可设置 `lsp-tailwindcss-experimental-config-file'
   ;; 第一次加载完成后尝试拉起 TailwindCSS 服务

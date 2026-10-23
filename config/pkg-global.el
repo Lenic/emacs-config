@@ -160,7 +160,7 @@
   :ensure nil
   :config
   (setq whitespace-style '(face trailing))
-  :hook ((web-mode tsx-ts-mode emacs-lisp-mode) . my/enable-whitespace-cleanup))
+  :hook ((web-mode vue-ts-mode tsx-ts-mode emacs-lisp-mode) . my/enable-whitespace-cleanup))
 
 ;; 处理特别长的行，避免带来一些性能问题
 (use-package so-long
