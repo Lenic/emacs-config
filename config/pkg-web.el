@@ -248,7 +248,16 @@ JS/TS/Vue 项目装了 eslint 时先跑 javascript-eslint，再接着跑 lsp。"
   ;; 结果只要编辑 <template>，<script>/<style> 的 parser 范围就被清成 (1 . 1)，
   ;; 直到再编辑 <script> 才恢复，期间要反复整段重新解析。Emacs 31 不需要它
   (advice-remove 'treesit--merge-ranges
-                 #'vue-ts-mode--advice-for-treesit--merge-ranges))
+                 #'vue-ts-mode--advice-for-treesit--merge-ranges)
+  ;; 包里没有定义 syntax table，用的是标准表，`=<>' 等运算符都是符号字符，
+  ;; 结果 expand-region 会把 `class=' 、`a+b' 当成一个 symbol，这里改成标点
+  (defvar my/vue-ts-mode-syntax-table
+    (let ((table (make-syntax-table)))
+      (dolist (c '(?= ?< ?> ?& ?| ?+ ?* ?%))
+        (modify-syntax-entry c "." table))
+      table))
+  (add-hook 'vue-ts-mode-hook
+            (lambda () (set-syntax-table my/vue-ts-mode-syntax-table))))
 
 ;; lsp-volar 转发 tsserver/request 时调用 (lsp-find-workspace 'ts-ls nil)，
 ;; 不带文件名会在整个 session 里取第一个 ts-ls，同时打开多个 Vue 项目时，

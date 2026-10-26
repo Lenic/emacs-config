@@ -120,7 +120,34 @@
                               (list (cons (point-min) (point-max))))))
          return (progn (set-mark (treesit-node-end node))
                        (goto-char (treesit-node-start node))))))
-    (add-to-list 'er/try-expand-list 'my/treesit-mark-bigger-node)))
+    (add-to-list 'er/try-expand-list 'my/treesit-mark-bigger-node)
+
+    ;; `hover:bg-gray-100'、`w-[200px]' 里的 `:'、`[' 不是符号字符，mark-symbol 选不全，
+    ;; 下一步就直接跳到整个属性值，这里补上「以空白为界的整个 class 名」这一步
+    (defun my/treesit-mark-class-token ()
+      "在属性值或字符串里选中当前选区所在、以空白为界的整段文本。"
+      (let* ((beg (region-beginning))
+             (end (region-end))
+             (parser (car (treesit-parsers-at beg)))
+             (node (and parser
+                        (treesit-node-descendant-for-range
+                         (treesit-parser-root-node parser) beg end))))
+        (when (and node
+                   (member (treesit-node-type node) '("attribute_value" "string_fragment"))
+                   (<= (treesit-node-start node) beg)
+                   (>= (treesit-node-end node) end))
+          (let ((token-beg (save-excursion
+                             (goto-char beg)
+                             (skip-chars-backward "^ \t\n" (treesit-node-start node))
+                             (point)))
+                (token-end (save-excursion
+                             (goto-char end)
+                             (skip-chars-forward "^ \t\n" (treesit-node-end node))
+                             (point))))
+            (when (or (< token-beg beg) (> token-end end))
+              (set-mark token-end)
+              (goto-char token-beg))))))
+    (add-to-list 'er/try-expand-list 'my/treesit-mark-class-token)))
 
 ;; DAP
 (use-package dap-mode
