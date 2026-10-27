@@ -91,6 +91,19 @@
   :commands (er/expand-region er/mark-word)
   :bind ("C-o" . er/expand-region)
   :config
+  ;; 开着 `global-subword-mode' 时，expand-region 一加载就给每个 buffer 拷一份局部的
+  ;; `er/try-expand-list'，之后新开的 buffer 也在 subword-mode-hook 里从全局值拷一份。
+  ;; 直接 `add-to-list' 只会改到第一次按 C-o 的那个 buffer 的局部值，其它 Vue 文件
+  ;; 都缺下面的扩展函数，所以要同时改全局值和所有已有的局部值
+  (defun my/er-add-expansion (fn)
+    "把 FN 加到 `er/try-expand-list' 的全局值和所有 buffer 的局部值的最前面。"
+    (unless (memq fn (default-value 'er/try-expand-list))
+      (set-default 'er/try-expand-list (cons fn (default-value 'er/try-expand-list))))
+    (dolist (buffer (buffer-list))
+      (with-current-buffer buffer
+        (when (local-variable-p 'er/try-expand-list)
+          (add-to-list 'er/try-expand-list fn)))))
+
   (when (treesit-available-p)
     ;; 思路来自 https://emacs-china.org/t/treesit-expand-region-el/23406
     ;; vue-ts-mode 里 `:style="..."'、`{{ ... }}' 是独立的 local typescript parser，
@@ -120,7 +133,7 @@
                               (list (cons (point-min) (point-max))))))
          return (progn (set-mark (treesit-node-end node))
                        (goto-char (treesit-node-start node))))))
-    (add-to-list 'er/try-expand-list 'my/treesit-mark-bigger-node)
+    (my/er-add-expansion 'my/treesit-mark-bigger-node)
 
     ;; `hover:bg-gray-100'、`w-[200px]' 里的 `:'、`[' 不是符号字符，mark-symbol 选不全，
     ;; 下一步就直接跳到整个属性值，这里补上「以空白为界的整个 class 名」这一步
@@ -147,7 +160,7 @@
             (when (or (< token-beg beg) (> token-end end))
               (set-mark token-end)
               (goto-char token-beg))))))
-    (add-to-list 'er/try-expand-list 'my/treesit-mark-class-token)))
+    (my/er-add-expansion 'my/treesit-mark-class-token)))
 
 ;; DAP
 (use-package dap-mode
