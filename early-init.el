@@ -56,6 +56,17 @@
       tool-bar-mode nil
       scroll-bar-mode nil)
 
+;; macOS 上初始 frame 总是建在主显示器上，一显示出来，系统就会把主显示器
+;; 从全屏应用切回桌面 Space，之后再挪走也晚了。所以先隐藏创建，等
+;; pkg-basic 把它挪到鼠标所在显示器后再显示（见 my/move-frame-to-mouse-monitor）。
+;; 兜底：配置中途出错没走到显示那一步时，启动收尾时也保证 frame 可见
+(when (eq initial-window-system 'ns)
+  (push '(visibility . nil) initial-frame-alist)
+  (add-hook 'window-setup-hook
+            (lambda ()
+              (unless (frame-visible-p (selected-frame))
+                (make-frame-visible (selected-frame))))))
+
 ;; 开启 TCP 连接到 Server
 (setq server-use-tcp t)
 
