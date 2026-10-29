@@ -126,20 +126,24 @@
 
   ;; dirvish 会把 dired 的表头行（"  /path/to/dir:" 以及 total 行）隐藏掉。这里改成
   ;; 不隐藏，而是用 overlay 显示成一行缩写后的路径，正好出现在 Project 下面。
-  ;; 路径太长时只保留末尾部分，前面用 … 代替
+  ;; 路径太长时只保留末尾部分，前面用 … 代替。
+  ;; 目录在 C-u my/dirvish-side-switch-dir 打开的 worktree 里时，
+  ;; 路径前面加上 worktree 当前的分支名或 commit 短 hash，和项目本身的目录区分开
   (defun my/dirvish-show-dir-header (&rest _)
     (dolist (ov (overlays-in (point-min) (1+ (point-min))))
       (when (and (overlay-get ov 'dired-header)
                  (eq (overlay-get ov 'invisible) t))
         (let* ((path (abbreviate-file-name default-directory))
-               (max (- (or (bound-and-true-p dirvish-side-width) 35) 2)))
+               (commit (my/dirvish-side--worktree-commit default-directory))
+               (tag (if commit (propertize (format "[%s] " commit) 'face 'warning) ""))
+               (max (- (or (bound-and-true-p dirvish-side-width) 35) 2 (string-width tag))))
           (when (> (string-width path) max)
             (setq path (concat "…" (truncate-string-to-width
                                     path (string-width path)
                                     (- (string-width path) (1- max))))))
           (overlay-put ov 'invisible nil)
           (overlay-put ov 'display
-                       (concat " " (propertize path 'face 'dired-directory) "\n"))))))
+                       (concat " " tag (propertize path 'face 'dired-directory) "\n"))))))
   (advice-add 'dirvish--hide-dired-header :after #'my/dirvish-show-dir-header)
 
   ;; ace-window 在窗口左上角放标记时会 move-to-window-line 0 再 recenter 0。point
@@ -184,22 +188,214 @@
   (with-eval-after-load 'avy
     (advice-add 'avy--line-cands :around #'my/avy-dirvish-add-first-line)))
 
+;; 在 DIR 下执行 git，返回 (退出码 . 输出)，输出里包含 stderr，失败时可以直接当错误信息显示
+(defun my/dirvish-side--git (dir &rest args)
+  (with-temp-buffer
+    (let* ((default-directory dir)
+           (code (apply #'process-file "git" nil t nil args)))
+      (cons code (string-trim (buffer-string))))))
+
+;; 返回 DIR 所在仓库的 git 目录。FLAG 为 "--git-common-dir" 时是公共目录（主工作区的 .git），
+;; 同一项目的所有 worktree 都相同；为 "--git-dir" 时是 DIR 所在工作区自己的 git 目录
+(defun my/dirvish-side--git-path (dir flag)
+  (pcase-let ((`(,code . ,out) (my/dirvish-side--git dir "rev-parse" "--path-format=absolute" flag)))
+    (and (zerop code) (file-truename (file-name-as-directory out)))))
+
+;; worktree 在项目目录里面且没有被忽略时，把它加到 .git/info/exclude 里：只对本地生效，
+;; 不用改项目的 .gitignore。否则 worktree 会出现在项目的未跟踪文件里。
+;; 在 .config 下面时忽略整个 .config，其他位置只忽略 worktree 目录本身
+(defun my/dirvish-side--ignore-worktree (main worktree)
+  (let ((rel (file-relative-name (file-truename worktree) (file-truename main))))
+    (unless (or (string-prefix-p "../" rel)
+                (file-name-absolute-p rel)
+                (zerop (car (my/dirvish-side--git main "check-ignore" "-q" rel))))
+      (let ((exclude (expand-file-name
+                      (cdr (my/dirvish-side--git main "rev-parse" "--git-path" "info/exclude"))
+                      main)))
+        (make-directory (file-name-directory exclude) t)
+        (with-temp-buffer
+          (when (file-exists-p exclude) (insert-file-contents exclude))
+          (goto-char (point-max))
+          (unless (bolp) (insert "\n"))
+          (insert (if (string-prefix-p ".config/" rel) "/.config/" (concat "/" rel)) "\n")
+          (write-region nil nil exclude nil 'silent))))))
+
+;; 在 WORKTREE 创建项目的 worktree，代码停在项目当前的 commit 上。先 prune 一次，
+;; 手动删过 worktree 目录时 git 里还留着登记信息，不清掉会创建失败
+(defun my/dirvish-side--create-worktree (main worktree)
+  (my/dirvish-side--git main "worktree" "prune")
+  (pcase-let ((`(,code . ,out) (my/dirvish-side--git
+                                main "worktree" "add" "--detach"
+                                (directory-file-name (expand-file-name worktree)) "HEAD")))
+    (unless (zerop code)
+      (user-error "创建 worktree 失败：%s" out))))
+
+;; 已有的 WORKTREE 必须是当前项目的 worktree。只是普通目录时 git 会向上找到项目本身，
+;; checkout 就切换到项目目录上去了；是别的仓库时切换的也不是这个项目的代码；
+;; 是项目主目录时会把正在开发的代码切换掉
+(defun my/dirvish-side--check-worktree (main worktree)
+  (pcase-let ((`(,code . ,wtop) (my/dirvish-side--git worktree "rev-parse" "--show-toplevel")))
+    (unless (and (zerop code)
+                 (equal (file-truename (file-name-as-directory wtop))
+                        (file-truename worktree)))
+      (user-error "%s 不受 git 管理" (abbreviate-file-name worktree))))
+  (let ((common (my/dirvish-side--git-path worktree "--git-common-dir")))
+    (unless (equal common (my/dirvish-side--git-path main "--git-common-dir"))
+      (user-error "%s 不是当前项目的 worktree" (abbreviate-file-name worktree)))
+    (when (equal common (my/dirvish-side--git-path worktree "--git-dir"))
+      (user-error "%s 是项目的主目录，不能作为目标目录" (abbreviate-file-name worktree)))))
+
+;; 项目有 node_modules 时，在 worktree 里建一个软链接指向它，worktree 里也能正常解析依赖
+(defun my/dirvish-side--link-node-modules (main worktree)
+  (let ((src (expand-file-name "node_modules" main))
+        (dst (expand-file-name "node_modules" worktree)))
+    (when (and (file-directory-p src)
+               (not (file-exists-p dst))
+               (not (file-symlink-p dst)))
+      (make-symbolic-link src dst))))
+
+;; 在 worktree 的 git 目录（主工作区的 .git/worktrees/<名字>/）里放一个标记文件，记录这是
+;; C-u my/dirvish-side-switch-dir 使用的 worktree，重启 Emacs 后也能识别。删除 worktree 时
+;; git 会连同这个目录一起删掉
+(defconst my/dirvish-side--marker "dirvish-side")
+
+(defun my/dirvish-side--mark-worktree (worktree)
+  (when-let* ((gitdir (my/dirvish-side--git-path worktree "--git-dir")))
+    (write-region "" nil (expand-file-name my/dirvish-side--marker gitdir) nil 'silent)))
+
+;; DIR 在打过标记的 worktree 里时返回 worktree 根目录。worktree 根目录下的 .git 是一个文件，
+;; 内容是 "gitdir: <git 目录>"，这里直接读文件，不调用 git，projectile 每次判断时开销很小
+(defun my/dirvish-side--marked-worktree (dir)
+  (when-let* ((root (locate-dominating-file dir ".git"))
+              (dotgit (expand-file-name ".git" root))
+              ((file-regular-p dotgit))
+              (gitdir (with-temp-buffer
+                        (insert-file-contents dotgit)
+                        (and (re-search-forward "^gitdir: \\(.+\\)$" nil t) (match-string 1))))
+              ((file-exists-p (expand-file-name my/dirvish-side--marker
+                                                (expand-file-name gitdir root)))))
+    (file-name-as-directory (expand-file-name root))))
+
+;; projectile 不把这些 worktree 记到历史项目列表里
+(with-eval-after-load 'projectile
+  (setq projectile-ignored-project-function #'my/dirvish-side--marked-worktree))
+
+;; 返回已经在 WORKTREE 以外的工作区检出本地分支 BRANCH 的那个工作区目录，没有时返回 nil
+(defun my/dirvish-side--branch-worktree (worktree branch)
+  (let ((self (file-truename worktree))
+        (ref (concat "branch refs/heads/" branch))
+        path found)
+    (dolist (line (split-string (cdr (my/dirvish-side--git worktree "worktree" "list" "--porcelain"))
+                                "\n"))
+      (cond ((string-prefix-p "worktree " line)
+             (setq path (file-name-as-directory (substring line (length "worktree ")))))
+            ((and (equal line ref) (not found)
+                  (not (equal (file-truename path) self)))
+             (setq found path))))
+    found))
+
+;; DIR 在用 C-u 切换过的 worktree 里时，返回该 worktree 当前的分支名，
+;; 不在分支上（detached）时返回 commit 的短 hash
+(defun my/dirvish-side--worktree-commit (dir)
+  (when-let* ((root (my/dirvish-side--marked-worktree dir)))
+    (pcase-let ((`(,code . ,out) (my/dirvish-side--git root "symbolic-ref" "--short" "-q" "HEAD")))
+      (if (zerop code)
+          out
+        (pcase-let ((`(,code . ,out) (my/dirvish-side--git root "rev-parse" "--short" "HEAD")))
+          (and (zerop code) out))))))
+
+;; 把 DIR 所在项目的 worktree 切换到 COMMIT，返回 worktree 里和 DIR 对应的目录（该 commit
+;; 里没有这个目录时返回 worktree 根目录）。worktree 的位置是 PATH，默认 .config/worktree：
+;; 相对路径（包括 ../）从项目根目录展开，也可以用 ~/ 或绝对路径。项目根目录取主工作区，
+;; 这样 DIR 本身就在 worktree 里时也能再次切换
+(defun my/dirvish-side--checkout-worktree (dir commit &optional path)
+  (pcase-let ((`(,code . ,top) (my/dirvish-side--git dir "rev-parse" "--show-toplevel")))
+    (unless (zerop code)
+      (user-error "目录不受 git 管理：%s" (abbreviate-file-name dir)))
+    (let* ((main (with-temp-buffer
+                   (insert (cdr (my/dirvish-side--git dir "worktree" "list" "--porcelain")))
+                   (goto-char (point-min))
+                   (if (re-search-forward "^worktree \\(.+\\)$" nil t) (match-string 1) top)))
+           (worktree (file-name-as-directory
+                      (expand-file-name (or path ".config/worktree") main))))
+      (when (file-exists-p worktree)
+        (my/dirvish-side--check-worktree main worktree))
+      (my/dirvish-side--ignore-worktree main worktree)
+      (unless (file-exists-p worktree)
+        (my/dirvish-side--create-worktree main worktree))
+      (my/dirvish-side--link-node-modules main worktree)
+      ;; 先解析成完整的 hash，找不到时给出明确的提示（直接 checkout 时 git 会把它当成路径报错）。
+      ;; 输入的是本地分支时切换到分支本身；该分支已经在别的工作区检出时 git 不允许
+      ;; 再检出一次，这时和输入 commit id 一样，用 --detach 停在分支最新的 commit 上
+      (pcase-let* ((`(,code . ,hash) (my/dirvish-side--git
+                                      worktree "rev-parse" "--verify" "--quiet"
+                                      (concat commit "^{commit}")))
+                   (branch-p (and (zerop code)
+                                  (zerop (car (my/dirvish-side--git
+                                               worktree "show-ref" "--verify" "--quiet"
+                                               (concat "refs/heads/" commit))))))
+                   (used-by (and branch-p (my/dirvish-side--branch-worktree worktree commit)))
+                   (`(,code . ,out)
+                    (cond ((not (zerop code)) (cons code (format "找不到 commit 或分支 %s" commit)))
+                          ((and branch-p (not used-by))
+                           (my/dirvish-side--git worktree "checkout" commit "--"))
+                          (t (my/dirvish-side--git worktree "checkout" "--detach" hash)))))
+        (unless (zerop code)
+          (user-error "切换到 %s 失败：%s" commit out))
+        (when used-by
+          (message "分支 %s 已在 %s 检出，worktree 停在它最新的 commit 上"
+                   commit (abbreviate-file-name used-by))))
+      ;; 打上标记；之前已经被 projectile 记到历史列表里的，顺便删掉
+      (my/dirvish-side--mark-worktree worktree)
+      (when (bound-and-true-p projectile-known-projects)
+        (let ((root (abbreviate-file-name worktree))
+              (inhibit-message t))
+          (when (member root projectile-known-projects)
+            (projectile-remove-known-project root))))
+      (let ((target (expand-file-name
+                     (file-relative-name (file-truename dir)
+                                         (file-truename (file-name-as-directory top)))
+                     worktree)))
+        (file-name-as-directory (if (file-directory-p target) target worktree))))))
+
 ;; 把侧边栏切换到指定目录：侧边栏已打开时直接切换（dirvish-side 加 C-u 只在侧边栏
 ;; 没显示时才会提示目录），没打开时用该目录打开。写在 use-package 外面，
-;; 这样 dirvish 还没加载时也能用 M-x 调用
-(defun my/dirvish-side-switch-dir (dir)
-  "在 dirvish 侧边栏中打开目录 DIR，侧边栏没打开时先打开它。"
+;; 这样 dirvish 还没加载时也能用 M-x 调用。
+;; 加 C-u 时先输入 commit id 和 worktree 的位置，把项目的 worktree（不存在时自动创建）
+;; 切换到该 commit 后，在侧边栏里打开 worktree 中对应的目录
+(defun my/dirvish-side-switch-dir (dir &optional commit worktree)
+  "在 dirvish 侧边栏中打开目录 DIR，侧边栏没打开时先打开它。
+COMMIT 非空（交互时加 C-u）时，把 DIR 所在项目的 worktree 切换到 COMMIT
+（worktree 不存在时先创建），并打开 worktree 中和 DIR 对应的目录。
+WORKTREE 是 worktree 的位置，默认 .config/worktree：相对路径（包括 ../）
+从项目根目录展开，也可以用 ~/ 或绝对路径。"
   (interactive
-   ;; 没有全局开启 ivy-mode，这里临时用 ivy 补全目录，和 counsel-find-file 的体验一致
-   (let ((completing-read-function #'ivy-completing-read))
+   ;; 输入时允许嵌套 minibuffer：没有紧跟在 C-y 后面的 M-y 会再打开一个 minibuffer
+   ;; 选择 kill-ring 里的内容，默认不允许嵌套，会报错
+   (let* ((enable-recursive-minibuffers t)
+          (commit (when current-prefix-arg
+                    (let ((c (string-trim (read-string "Commit/Branch: "))))
+                      (when (string-empty-p c) (user-error "没有输入 commit id 或分支名"))
+                      c)))
+          ;; 预先填好默认位置，直接回车确认；清空后回车也用默认位置
+          (worktree (when commit
+                      (let ((w (string-trim (read-string "Worktree: " ".config/worktree"))))
+                        (unless (string-empty-p w) w))))
+          ;; 没有全局开启 ivy-mode，这里临时用 ivy 补全目录，和 counsel-find-file 的体验一致
+          (completing-read-function #'ivy-completing-read))
      (require 'ivy)
-     (list (read-directory-name "Directory: "))))
+     (list (read-directory-name "Directory: ") commit worktree)))
   (require 'dirvish-side)
   (let ((dir (file-name-as-directory (expand-file-name dir))))
+    (when commit
+      (setq dir (my/dirvish-side--checkout-worktree dir commit worktree)))
     (if-let* ((win (dirvish-side--session-visible-p)))
-        ;; 已经是这个目录时不再打开：对同一目录 find-alternate-file 会把侧边栏 buffer 关掉
-        (unless (equal dir (expand-file-name
-                            (buffer-local-value 'default-directory (window-buffer win))))
+        ;; 已经是这个目录时不再打开：对同一目录 find-alternate-file 会把侧边栏 buffer 关掉。
+        ;; 切换了 commit 时文件可能变了，刷新一下
+        (if (equal dir (expand-file-name
+                        (buffer-local-value 'default-directory (window-buffer win))))
+            (when commit
+              (with-selected-window win (revert-buffer)))
           (with-selected-window win
             (dirvish--find-entry 'find-alternate-file dir)))
       (dirvish-side dir))))
