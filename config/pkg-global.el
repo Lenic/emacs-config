@@ -37,6 +37,14 @@
   ;; (push "--follow" (cdr (nthcdr 0 counsel-rg-base-command)))
   (setq counsel-rg-base-command
         '("rg" "--max-columns" "500" "--with-filename" "--no-heading" "--line-number" "--color" "never" "--follow" "%s"))
+  ;; 设置 swiper 默认按字面字符串搜索，搜索时可用 M-r 切换回正则
+  ;; 注：M-r 交换 `ivy--regex-function' 与 `ivy--regexp-quote'，所以不能直接把 re-builder 设为 regexp-quote
+  (defun my/swiper-isearch-literal-by-default (state)
+    "让 `swiper-isearch' 默认按字面搜索，STATE 为当前的 ivy 状态。"
+    (when (eq (ivy-state-caller state) 'swiper-isearch)
+      (setq ivy--regexp-quote ivy--regex-function)
+      (setq ivy--regex-function #'regexp-quote)))
+  (advice-add 'ivy--reset-state :after #'my/swiper-isearch-literal-by-default)
   :custom
   ;; 设置输入两个字符后就开始执行匹配
   (ivy-more-chars-alist '((counsel-grep . 2) (t . 2)))
