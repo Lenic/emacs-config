@@ -8,10 +8,17 @@
   ("C-x i" . ace-window))
 
 ;; 和系统剪切板相关设置
+;; 通过 SSH 登录时（如连接到容器），使用 OSC 52 把复制内容回传给本地终端；
+;; 本地直接运行时仍使用 xclip（macOS 下走 pbcopy）。
 (use-package xclip
+  :unless (getenv "SSH_TTY")
   :defer 5
   :config
   (xclip-mode))
+
+(use-package clipetty
+  :if (getenv "SSH_TTY")
+  :hook (after-init . global-clipetty-mode))
 
 ;; 自定义一个找项目根目录的函数
 (defun my/counsel-fzf-project-root (&optional arg)
