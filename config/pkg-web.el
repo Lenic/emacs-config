@@ -278,6 +278,7 @@ JS/TS/Vue 项目装了 eslint 时先跑 javascript-eslint，再接着跑 lsp。"
 
 ;; TailwindCSS 插件配置
 (use-package lsp-tailwindcss
+  :ensure nil  ; 已并入 lsp-mode，独立包已废弃
   :after lsp-mode
   :init
   (setq lsp-tailwindcss-add-on-mode t

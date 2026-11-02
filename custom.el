@@ -12,7 +12,7 @@
    '(ace-window amx avy beacon corfu counsel csv-mode dap-mode dirvish
                 dockerfile-mode emmet-mode exec-path-from-shell
                 expand-region flycheck git-gutter git-timemachine
-                htmlize lsp-mode lsp-tailwindcss lsp-ui magit
+                htmlize lsp-mode lsp-ui magit
                 markdown-mode multiple-cursors neotree orderless
                 prettier-js projectile pyim pyim-basedict reformatter
                 rg separedit spacemacs-theme string-inflection
