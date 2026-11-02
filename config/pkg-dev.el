@@ -5,6 +5,9 @@
   :demand t
   :config
   (setq treesit-auto-install 'prompt)
+  ;; 添加 Vue 文件的 treesit 映射
+  (setq treesit-language-source-alist
+      '((vue "https://github.com/ikatyang/tree-sitter-vue")))
   (global-treesit-auto-mode)
   :init
   ;; 设置代码高亮力度和现代编辑器相同，比如 VSCode
