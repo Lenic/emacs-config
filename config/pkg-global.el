@@ -20,6 +20,17 @@
   :if (getenv "SSH_TTY")
   :hook (after-init . global-clipetty-mode))
 
+;; 终端下启用 Kitty Keyboard Protocol（Ghostty / iTerm2 均支持）：
+;; Emacs 进入终端时开启、退出时恢复，所以只影响 Emacs，不影响 shell。
+;; 修饰键映射与 GUI 下（early-init.el 中的 mac-*-modifier）保持一致：
+;;   Command(super) → Meta，Option(alt) → Super
+(use-package kkp
+  :defer 3
+  :hook (after-init . global-kkp-mode)
+  :custom
+  (kkp-super-modifier 'meta)
+  (kkp-alt-modifier 'super))
+
 ;; 自定义一个找项目根目录的函数
 (defun my/counsel-fzf-project-root (&optional arg)
   "优先寻找 package.json，找不到则使用 project.el 识别的项目根目录，作为 counsel-fzf 的搜索根目录。
