@@ -52,13 +52,15 @@ PACKAGE-JSON-KEY 字段。"
 
 ;;;; Prettier / ESLint 保存前格式化的开关
 ;;
-;; `prettier-js-mode' 和 `eslintd-fix-on-save-mode' 只作为开关使用：
-;; 两个 mode 开启时会各自往 `before-save-hook' 挂自己的格式化函数，这里把它去掉，
-;; 改为挂 `my/run-save-formatters'，由它按固定顺序统一执行。
+;; `prettier-js-mode' 和 `eslintd-fix-on-save-mode' 只作为开关使用，
+;; 格式化统一由 `my/run-save-formatters' 按固定顺序执行。
 ;; 项目里有配置时自动开启，也可以随时 M-x 手动开启或关闭。
+;; ESLint 的开关定义在本文件后面的「ESLint 自动修复」一节。
 
 (defun my/prettier-js-mode-setup ()
-  "让 `prettier-js-mode' 只作为开关，格式化交给 `my/run-save-formatters'。"
+  "让 `prettier-js-mode' 只作为开关，格式化交给 `my/run-save-formatters'。
+`prettier-js-mode' 开启时会自己往 `before-save-hook' 挂 `prettier-js-prettify'，
+这里把它去掉，否则每次保存会多跑一遍、而且顺序不受控制。"
   (remove-hook 'before-save-hook #'prettier-js-prettify t)
   (when prettier-js-mode
     ;; 优先使用项目自己安装的 prettier，找不到时使用全局的
@@ -67,15 +69,33 @@ PACKAGE-JSON-KEY 字段。"
     (my/enable-save-formatters)))
 (add-hook 'prettier-js-mode-hook #'my/prettier-js-mode-setup)
 
-(defun my/eslintd-fix-on-save-mode-setup ()
-  "让 `eslintd-fix-on-save-mode' 只作为开关，格式化交给 `my/run-save-formatters'。"
-  (remove-hook 'before-save-hook #'eslintd-fix-buffer t)
-  (when eslintd-fix-on-save-mode
-    (my/enable-save-formatters)))
-(add-hook 'eslintd-fix-on-save-mode-hook #'my/eslintd-fix-on-save-mode-setup)
-
 (use-package prettier-js
   :commands (prettier-js-mode prettier-js-prettify))
+
+(defvar my/prettier-js--failed nil
+  "最近一次 prettier 执行是否失败，由 `my/prettier-js--mark-failed' 设置。")
+
+(defun my/prettier-js--mark-failed (&rest _)
+  "prettier 的每种失败最终都会走到 `prettier-js--process-errors'，在这里做标记。"
+  (setq my/prettier-js--failed t))
+(advice-add 'prettier-js--process-errors :before #'my/prettier-js--mark-failed)
+
+(defun my/prettier-js-prettify ()
+  "执行 `prettier-js-prettify'，失败时抛出错误。
+prettier-js 遇到语法错误这类普通失败时不抛错，只弹出 *prettier errors*，
+这里把它转成错误，`my/run-save-formatters' 才能把它算进「失败的步骤」。
+其它失败（找不到 prettier、diff 出错等）prettier-js 自己会抛 `user-error'。
+prettier-js 每次都会打印「Applied prettier ...」或「Could not apply prettier」，
+和 `my/run-save-formatters' 的汇报重复，这里一并屏蔽，也不记进 *Messages*。
+成功时 prettier-js 会用 `quit-window' 关掉上次的 *prettier errors*，这可能切换
+当前 buffer，导致随后保存的是别的 buffer，所以要包在 `save-current-buffer' 里。"
+  (setq my/prettier-js--failed nil)
+  (save-current-buffer
+    (let ((inhibit-message t)
+          (message-log-max nil))
+      (prettier-js-prettify)))
+  (when my/prettier-js--failed
+    (error "格式化失败，详情见 *prettier errors*")))
 
 ;; 快速编写 HTML 代码
 (use-package emmet-mode
@@ -312,8 +332,11 @@ JS/TS/Vue 项目装了 eslint 时先跑 javascript-eslint，再接着跑 lsp。"
   "显示 ESLint 修复失败原因的 buffer。")
 
 (define-minor-mode eslintd-fix-on-save-mode
-  "保存前用 eslint_d 自动修复当前 buffer。实际执行见 `my/run-save-formatters'。"
-  :lighter " ESLint")
+  "保存前用 eslint_d 自动修复当前 buffer。实际执行见 `my/run-save-formatters'。
+关闭时不用摘钩子：`my/run-save-formatters' 会检查这个开关。"
+  :lighter " ESLint"
+  (when eslintd-fix-on-save-mode
+    (my/enable-save-formatters)))
 
 (defun my/eslintd--report (file text)
   "把 FILE 的 ESLint 失败信息 TEXT 写进错误 buffer 并显示出来，然后抛出错误。
