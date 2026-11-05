@@ -298,17 +298,105 @@ JS/TS/Vue 项目装了 eslint 时先跑 javascript-eslint，再接着跑 lsp。"
 (add-to-list 'auto-mode-alist '("\\.\\(ts\\|tsx\\)\\'" . tsx-ts-mode))
 (add-hook 'tsx-ts-mode-hook 'my/web-js-setup)
 
-;; ESLint 自动修复：需要预先在全局安装 eslint_d 包。
+;;;; ESLint 自动修复（需要预先在全局安装 eslint_d 包）
+;;
 ;; 定义出 `eslintd-fix-on-save-mode' 开关（mode-line 显示 ESLint）和
-;; `eslintd-fix-buffer'，后者由 `my/run-save-formatters' 在保存前调用
+;; `eslintd-fix-buffer'，后者由 `my/run-save-formatters' 在保存前调用。
+;;
+;; 不用 reformatter + `--fix-to-stdout'：那种方式下，解析错误、配置错误时
+;; eslint_d 照样返回 0、stderr 为空、原样吐回源码，失败完全无法察觉。
+;; 这里改用 `--fix-dry-run --format json'，一次调用同时拿到修复结果
+;; （`output' 字段）和致命错误（`fatal' 消息），出错时弹出错误 buffer。
+
+(defconst my/eslintd-error-buffer "*eslintd-fix errors*"
+  "显示 ESLint 修复失败原因的 buffer。")
+
+(define-minor-mode eslintd-fix-on-save-mode
+  "保存前用 eslint_d 自动修复当前 buffer。实际执行见 `my/run-save-formatters'。"
+  :lighter " ESLint")
+
+(defun my/eslintd--report (file text)
+  "把 FILE 的 ESLint 失败信息 TEXT 写进错误 buffer 并显示出来，然后抛出错误。
+只抛错不弹窗的话，提示会被随后的「Wrote ...」覆盖，所以必须弹出 buffer。"
+  (with-current-buffer (get-buffer-create my/eslintd-error-buffer)
+    (let ((inhibit-read-only t))
+      (erase-buffer)
+      (insert (format "eslint_d 修复失败：%s\n\n%s\n" file (string-trim text))))
+    (special-mode))
+  (display-buffer my/eslintd-error-buffer)
+  (error "ESLint 修复失败，详情见 %s" my/eslintd-error-buffer))
+
+(defun my/eslintd--clear-error ()
+  "修复成功后，关掉之前弹出的错误 buffer。
+`quit-window' 和 `kill-buffer' 都可能切换当前 buffer，所以要包在
+`save-current-buffer' 里，否则调用方后续的编辑会落到别的 buffer 上。"
+  (when-let* ((buf (get-buffer my/eslintd-error-buffer)))
+    (save-current-buffer
+      (dolist (win (get-buffer-window-list buf nil t))
+        (quit-window nil win))
+      (kill-buffer buf))))
+
+(defun eslintd-fix-buffer ()
+  "用 eslint_d 修复当前 buffer。
+出现致命错误（解析错误、配置错误、eslint_d 本身异常）时不改动 buffer，
+弹出 `my/eslintd-error-buffer' 并抛出错误；普通的 lint 错误不算失败。"
+  (interactive)
+  (let* ((program (or (executable-find "eslint_d")
+                      (user-error "找不到 eslint_d，请先全局安装：npm i -g eslint_d")))
+         (file (or (buffer-file-name) (user-error "当前 buffer 没有关联文件")))
+         (source (current-buffer))
+         (stderr-file (make-temp-file "eslintd-stderr"))
+         (coding-system-for-read 'utf-8)
+         (coding-system-for-write 'utf-8))
+    (unwind-protect
+        (with-temp-buffer
+          (let* ((stdout (current-buffer))
+                 (code (with-current-buffer source
+                         (save-restriction
+                           (widen)
+                           (call-process-region
+                            (point-min) (point-max) program nil
+                            (list stdout stderr-file) nil
+                            "--fix-dry-run" "--format" "json"
+                            "--stdin" "--stdin-filename" file))))
+                 (stderr (with-temp-buffer
+                           (insert-file-contents stderr-file)
+                           (buffer-string)))
+                 (result (and (memql code '(0 1))
+                              (ignore-errors
+                                (goto-char (point-min))
+                                (car (json-parse-buffer :object-type 'alist
+                                                        :array-type 'list
+                                                        :null-object nil))))))
+            (unless result
+              ;; 退出码异常或输出不是 JSON：eslint_d 自己出错，比如找不到插件
+              (my/eslintd--report
+               file (format "退出码：%s\n\n%s\n%s" code stderr (buffer-string))))
+            (let-alist result
+              (when (and .fatalErrorCount (> .fatalErrorCount 0))
+                (my/eslintd--report
+                 file
+                 (mapconcat (lambda (msg)
+                              (let-alist msg
+                                (format "%s:%s:%s  %s"
+                                        (file-name-nondirectory file)
+                                        (or .line 0) (or .column 0) .message)))
+                            (seq-filter (lambda (msg) (alist-get 'fatal msg))
+                                        .messages)
+                            "\n")))
+              (my/eslintd--clear-error)
+              ;; 有可修复的内容时才有 output 字段；用 replace-region-contents
+              ;; 只替换差异部分，光标、标记和 undo 都能保持（需要 Emacs 31）
+              (when .output
+                (with-current-buffer source
+                  (save-restriction
+                    (widen)
+                    (unless (string= .output (buffer-string))
+                      (replace-region-contents (point-min) (point-max) .output))))))))
+      (delete-file stderr-file))))
+
 (use-package reformatter
   :config
-  (reformatter-define eslintd-fix
-    :lighter " ESLint"
-    :program (executable-find "eslint_d")
-    :args (list "--fix-to-stdout" "--stdin" "--stdin-filename" (buffer-file-name))
-    :input-file (reformatter-temp-file-in-current-directory "js")
-    :exit-code-success-p (lambda (code) (or (eq code 1) (eq code 0))))
   ;; stylelint 自动修复：定义出 `stylelint-fix-buffer' 和 `stylelint-fix-region'。
   ;; 和 flycheck 检查时一样不传文件名（原因见 flycheck 的 :config），优先用项目本地的 stylelint。
   ;; 还有无法自动修复的问题时退出码是 2，但标准输出里仍然是修复后的代码，所以也算成功
