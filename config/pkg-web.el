@@ -277,7 +277,31 @@ JS/TS/Vue 项目装了 eslint 时先跑 javascript-eslint，再接着跑 lsp。"
         (modify-syntax-entry c "." table))
       table))
   (add-hook 'vue-ts-mode-hook
-            (lambda () (set-syntax-table my/vue-ts-mode-syntax-table))))
+            (lambda () (set-syntax-table my/vue-ts-mode-syntax-table)))
+  ;; 包里没有设置 `treesit-thing-settings'，`forward-sexp' 只能靠上面的语法表，
+  ;; 而语法表里既没有注释也没有单引号字符串，注释里的 `)'、字符串里的 `}'
+  ;; 都会被当成真正的括号。这里给三种语言都定义 list，改用 tree-sitter 匹配括号
+  (defun my/vue-ts-mode-setup-sexp ()
+    (require 'typescript-ts-mode)
+    (require 'css-mode)
+    (setq-local treesit-thing-settings
+                `((typescript
+                   (list ,(js--regexp-opt-symbol typescript-ts-mode--list-nodes))
+                   (sentence ,(js--regexp-opt-symbol typescript-ts-mode--sentence-nodes))
+                   (text ,(js--regexp-opt-symbol '("comment" "template_string"))))
+                  ,@css--treesit-thing-settings
+                  (vue
+                   (list ,(rx bos (or "element" "template_element" "script_element"
+                                      "style_element" "start_tag" "end_tag"
+                                      "self_closing_tag" "interpolation"
+                                      "quoted_attribute_value")
+                              eos))
+                   (text ,(rx bos (or "comment" "text") eos)))))
+    (setq-local forward-sexp-function #'treesit-forward-sexp-list
+                forward-list-function #'treesit-forward-list
+                down-list-function #'treesit-down-list
+                up-list-function #'treesit-up-list))
+  (add-hook 'vue-ts-mode-hook #'my/vue-ts-mode-setup-sexp))
 
 ;; lsp-volar 转发 tsserver/request 时调用 (lsp-find-workspace 'ts-ls nil)，
 ;; 不带文件名会在整个 session 里取第一个 ts-ls，同时打开多个 Vue 项目时，
@@ -317,6 +341,11 @@ JS/TS/Vue 项目装了 eslint 时先跑 javascript-eslint，再接着跑 lsp。"
 ;; TypeScript 和 TypeScript React 插件配置
 (add-to-list 'auto-mode-alist '("\\.\\(ts\\|tsx\\)\\'" . tsx-ts-mode))
 (add-hook 'tsx-ts-mode-hook 'my/web-js-setup)
+;; Emacs 31 的 `typescript-ts-mode--list-nodes' 漏了 interface_body，
+;; 导致在 interface 的 `{' 上执行 `forward-sexp' 会跳到内部第一个 list 节点
+;; （如方法签名的参数括号）末尾，而不是匹配的 `}'
+(with-eval-after-load 'typescript-ts-mode
+  (add-to-list 'typescript-ts-mode--list-nodes "interface_body"))
 
 ;;;; ESLint 自动修复（需要预先在全局安装 eslint_d 包）
 ;;
