@@ -30,6 +30,14 @@
 ;; 用 setq 只会改到「加载本文件时恰好是当前 buffer」的那一个 buffer
 (setq-default default-directory "~/")
 
+;; M-w 复制后，如果 Emacs 认为选区没有高亮（`region-indistinguishable-p'），
+;; 会把光标移到 mark 处闪一下，并 `sit-for' 整整 1 秒（`copy-region-blink-delay'）。
+;; 终端里这个判断会误报：两种颜色的色差低于 C 源码里写死的阈值
+;; （xfaces.c 的 TTY_SAME_COLOR_THRESHOLD = 10000）就被当成一样。
+;; spacemacs-dark 的选区 #444155 和背景 #292b2e 色差只有 7848，选区明明看得见，
+;; 却每次复制都卡 1 秒、选区 1 秒后才消失。这里改成只在选区没有激活时才闪
+(setq copy-region-blink-predicate (lambda () (not (region-active-p))))
+
 ;; 设置平滑滚动
 (setq scroll-step            1
       scroll-conservatively  10000)
