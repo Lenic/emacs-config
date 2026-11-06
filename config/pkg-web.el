@@ -52,13 +52,15 @@ PACKAGE-JSON-KEY 字段。"
 
 ;;;; Prettier / ESLint 保存前格式化的开关
 ;;
-;; `prettier-js-mode' 和 `eslintd-fix-on-save-mode' 只作为开关使用：
-;; 两个 mode 开启时会各自往 `before-save-hook' 挂自己的格式化函数，这里把它去掉，
-;; 改为挂 `my/run-save-formatters'，由它按固定顺序统一执行。
+;; `prettier-js-mode' 和 `eslintd-fix-on-save-mode' 只作为开关使用，
+;; 格式化统一由 `my/run-save-formatters' 按固定顺序执行。
 ;; 项目里有配置时自动开启，也可以随时 M-x 手动开启或关闭。
+;; ESLint 的开关定义在本文件后面的「ESLint 自动修复」一节。
 
 (defun my/prettier-js-mode-setup ()
-  "让 `prettier-js-mode' 只作为开关，格式化交给 `my/run-save-formatters'。"
+  "让 `prettier-js-mode' 只作为开关，格式化交给 `my/run-save-formatters'。
+`prettier-js-mode' 开启时会自己往 `before-save-hook' 挂 `prettier-js-prettify'，
+这里把它去掉，否则每次保存会多跑一遍、而且顺序不受控制。"
   (remove-hook 'before-save-hook #'prettier-js-prettify t)
   (when prettier-js-mode
     ;; 优先使用项目自己安装的 prettier，找不到时使用全局的
@@ -67,15 +69,33 @@ PACKAGE-JSON-KEY 字段。"
     (my/enable-save-formatters)))
 (add-hook 'prettier-js-mode-hook #'my/prettier-js-mode-setup)
 
-(defun my/eslintd-fix-on-save-mode-setup ()
-  "让 `eslintd-fix-on-save-mode' 只作为开关，格式化交给 `my/run-save-formatters'。"
-  (remove-hook 'before-save-hook #'eslintd-fix-buffer t)
-  (when eslintd-fix-on-save-mode
-    (my/enable-save-formatters)))
-(add-hook 'eslintd-fix-on-save-mode-hook #'my/eslintd-fix-on-save-mode-setup)
-
 (use-package prettier-js
   :commands (prettier-js-mode prettier-js-prettify))
+
+(defvar my/prettier-js--failed nil
+  "最近一次 prettier 执行是否失败，由 `my/prettier-js--mark-failed' 设置。")
+
+(defun my/prettier-js--mark-failed (&rest _)
+  "prettier 的每种失败最终都会走到 `prettier-js--process-errors'，在这里做标记。"
+  (setq my/prettier-js--failed t))
+(advice-add 'prettier-js--process-errors :before #'my/prettier-js--mark-failed)
+
+(defun my/prettier-js-prettify ()
+  "执行 `prettier-js-prettify'，失败时抛出错误。
+prettier-js 遇到语法错误这类普通失败时不抛错，只弹出 *prettier errors*，
+这里把它转成错误，`my/run-save-formatters' 才能把它算进「失败的步骤」。
+其它失败（找不到 prettier、diff 出错等）prettier-js 自己会抛 `user-error'。
+prettier-js 每次都会打印「Applied prettier ...」或「Could not apply prettier」，
+和 `my/run-save-formatters' 的汇报重复，这里一并屏蔽，也不记进 *Messages*。
+成功时 prettier-js 会用 `quit-window' 关掉上次的 *prettier errors*，这可能切换
+当前 buffer，导致随后保存的是别的 buffer，所以要包在 `save-current-buffer' 里。"
+  (setq my/prettier-js--failed nil)
+  (save-current-buffer
+    (let ((inhibit-message t)
+          (message-log-max nil))
+      (prettier-js-prettify)))
+  (when my/prettier-js--failed
+    (error "格式化失败，详情见 *prettier errors*")))
 
 ;; 快速编写 HTML 代码
 (use-package emmet-mode
@@ -100,7 +120,7 @@ PACKAGE-JSON-KEY 字段。"
   ;; 保存前格式化：项目里有配置时自动开启，执行顺序由 `my/save-formatters' 决定
   ;; 1. ESLint 修复只对 JS/TS/Vue 自动开启——本函数同时服务于 json/css/mhtml，
   ;;    对这些文件跑 eslint --fix 没有意义
-  (when (and (derived-mode-p 'js-ts-mode 'tsx-ts-mode 'web-mode)
+  (when (and (derived-mode-p 'js-ts-mode 'tsx-ts-mode 'web-mode 'vue-ts-mode)
              (my/project-config-p my/eslint-config-files 'eslintConfig))
     (eslintd-fix-on-save-mode 1))
   ;; 2. Prettier 排版
@@ -162,7 +182,7 @@ JS/TS/Vue 项目装了 eslint 时先跑 javascript-eslint，再接着跑 lsp。"
      ((derived-mode-p 'css-ts-mode)
       (when (my/node-bin "stylelint")
         (flycheck-select-checker 'less-stylelint)))
-     ((derived-mode-p 'js-ts-mode 'tsx-ts-mode 'web-mode)
+     ((derived-mode-p 'js-ts-mode 'tsx-ts-mode 'web-mode 'vue-ts-mode)
       (when (and (my/node-bin "eslint")
                  (flycheck-valid-checker-p 'lsp)
                  (flycheck-valid-checker-p 'javascript-eslint))
@@ -206,13 +226,14 @@ JS/TS/Vue 项目装了 eslint 时先跑 javascript-eslint，再接着跑 lsp。"
   (setq flycheck-checker-error-threshold 10000)
   ;; Vue 文件同样使用 ESLint 检查
   (flycheck-add-mode 'javascript-eslint 'web-mode)
+  (flycheck-add-mode 'javascript-eslint 'vue-ts-mode)
   ;; css-ts-mode 改用 less-stylelint 检查：css-stylelint 会把文件名（--stdin-filename）
   ;; 传给 stylelint，项目配置里按文件名匹配的 overrides 会生效，有的项目把 *.css
   ;; 交给 postcss-html 解析，结果纯 CSS 一条都检查不到；less-stylelint 不传文件名，
   ;; 按普通 CSS 解析，和 less-css-mode 的检查效果一致
   (flycheck-add-mode 'less-stylelint 'css-ts-mode)
   (add-hook 'flycheck-mode-hook 'my/use-stylelint-from-node-modules)
-  :hook ((css-mode web-mode js-ts-mode tsx-ts-mode) . flycheck-mode))
+  :hook ((css-mode web-mode vue-ts-mode js-ts-mode tsx-ts-mode) . flycheck-mode))
 
 (defun my/web-js-setup ()
   "JS/TS/Vue/HTML 的 buffer 局部设置。"
@@ -224,7 +245,7 @@ JS/TS/Vue 项目装了 eslint 时先跑 javascript-eslint，再接着跑 lsp。"
   (lsp-deferred))
 
 (use-package web-mode
-  :mode ("\\.vue\\'" "\\.html\\'")
+  :mode "\\.html\\'"
   :config
   (setq web-mode-content-types-alist '(("vue" . "\\.vue\\'"))
         web-mode-css-indent-offset 2                  ;; CSS 默认缩进 2 空格：包含 HTML 的 CSS 部分以及纯 CSS/LESS/SASS 文件等
@@ -234,6 +255,53 @@ JS/TS/Vue 项目装了 eslint 时先跑 javascript-eslint，再接着跑 lsp。"
         web-mode-enable-auto-indentation nil          ;; 禁止粘贴时格式化代码
         web-mode-enable-current-column-highlight nil)
   :hook (web-mode . my/web-js-setup))
+
+;; Vue 文件使用 tree-sitter：模板用 vue 语法，<script>/<style> 分别嵌入 typescript/css 语法，
+;; 三个语法都要已经安装。想换回 web-mode，注释掉这段并在上面的 :mode 里加回 .vue 即可
+(use-package vue-ts-mode
+  ;; 仓库没打过版本，不加 :rev :newest 会装到最早的 Initial Commit，在 Emacs 31 上无法使用
+  :vc (:url "https://github.com/8uff3r/vue-ts-mode" :rev :newest)
+  :mode "\\.vue\\'"
+  :hook (vue-ts-mode . my/web-js-setup)
+  :config
+  ;; 包里给 `treesit--merge-ranges' 加的 advice 在新范围为空时直接返回 nil，
+  ;; 结果只要编辑 <template>，<script>/<style> 的 parser 范围就被清成 (1 . 1)，
+  ;; 直到再编辑 <script> 才恢复，期间要反复整段重新解析。Emacs 31 不需要它
+  (advice-remove 'treesit--merge-ranges
+                 #'vue-ts-mode--advice-for-treesit--merge-ranges)
+  ;; 包里没有定义 syntax table，用的是标准表，`=<>' 等运算符都是符号字符，
+  ;; 结果 expand-region 会把 `class=' 、`a+b' 当成一个 symbol，这里改成标点
+  (defvar my/vue-ts-mode-syntax-table
+    (let ((table (make-syntax-table)))
+      (dolist (c '(?= ?< ?> ?& ?| ?+ ?* ?%))
+        (modify-syntax-entry c "." table))
+      table))
+  (add-hook 'vue-ts-mode-hook
+            (lambda () (set-syntax-table my/vue-ts-mode-syntax-table)))
+  ;; 包里没有设置 `treesit-thing-settings'，`forward-sexp' 只能靠上面的语法表，
+  ;; 而语法表里既没有注释也没有单引号字符串，注释里的 `)'、字符串里的 `}'
+  ;; 都会被当成真正的括号。这里给三种语言都定义 list，改用 tree-sitter 匹配括号
+  (defun my/vue-ts-mode-setup-sexp ()
+    (require 'typescript-ts-mode)
+    (require 'css-mode)
+    (setq-local treesit-thing-settings
+                `((typescript
+                   (list ,(js--regexp-opt-symbol typescript-ts-mode--list-nodes))
+                   (sentence ,(js--regexp-opt-symbol typescript-ts-mode--sentence-nodes))
+                   (text ,(js--regexp-opt-symbol '("comment" "template_string"))))
+                  ,@css--treesit-thing-settings
+                  (vue
+                   (list ,(rx bos (or "element" "template_element" "script_element"
+                                      "style_element" "start_tag" "end_tag"
+                                      "self_closing_tag" "interpolation"
+                                      "quoted_attribute_value")
+                              eos))
+                   (text ,(rx bos (or "comment" "text") eos)))))
+    (setq-local forward-sexp-function #'treesit-forward-sexp-list
+                forward-list-function #'treesit-forward-list
+                down-list-function #'treesit-down-list
+                up-list-function #'treesit-up-list))
+  (add-hook 'vue-ts-mode-hook #'my/vue-ts-mode-setup-sexp))
 
 ;; lsp-volar 转发 tsserver/request 时调用 (lsp-find-workspace 'ts-ls nil)，
 ;; 不带文件名会在整个 session 里取第一个 ts-ls，同时打开多个 Vue 项目时，
@@ -254,11 +322,14 @@ JS/TS/Vue 项目装了 eslint 时先跑 javascript-eslint，再接着跑 lsp。"
 
 ;; TailwindCSS 插件配置
 (use-package lsp-tailwindcss
+  :ensure nil  ; 已并入 lsp-mode，独立包已废弃
   :after lsp-mode
   :init
   (setq lsp-tailwindcss-add-on-mode t
         lsp-tailwindcss-server-version "0.14.24")
   :config
+  ;; 插件按 major mode 判断是否挂载，默认列表只有 web-mode，没有 vue-ts-mode
+  (add-to-list 'lsp-tailwindcss-major-modes 'vue-ts-mode)
   ;; 是否启用由插件自己判断：有 tailwind.config.*，或依赖里的 tailwindcss 是 v4 及以上。
   ;; v3 monorepo 的配置文件埋得较深时，可设置 `lsp-tailwindcss-experimental-config-file'
   ;; 第一次加载完成后尝试拉起 TailwindCSS 服务
@@ -270,18 +341,114 @@ JS/TS/Vue 项目装了 eslint 时先跑 javascript-eslint，再接着跑 lsp。"
 ;; TypeScript 和 TypeScript React 插件配置
 (add-to-list 'auto-mode-alist '("\\.\\(ts\\|tsx\\)\\'" . tsx-ts-mode))
 (add-hook 'tsx-ts-mode-hook 'my/web-js-setup)
+;; Emacs 31 的 `typescript-ts-mode--list-nodes' 漏了 interface_body，
+;; 导致在 interface 的 `{' 上执行 `forward-sexp' 会跳到内部第一个 list 节点
+;; （如方法签名的参数括号）末尾，而不是匹配的 `}'
+(with-eval-after-load 'typescript-ts-mode
+  (add-to-list 'typescript-ts-mode--list-nodes "interface_body"))
 
-;; ESLint 自动修复：需要预先在全局安装 eslint_d 包。
+;;;; ESLint 自动修复（需要预先在全局安装 eslint_d 包）
+;;
 ;; 定义出 `eslintd-fix-on-save-mode' 开关（mode-line 显示 ESLint）和
-;; `eslintd-fix-buffer'，后者由 `my/run-save-formatters' 在保存前调用
+;; `eslintd-fix-buffer'，后者由 `my/run-save-formatters' 在保存前调用。
+;;
+;; 不用 reformatter + `--fix-to-stdout'：那种方式下，解析错误、配置错误时
+;; eslint_d 照样返回 0、stderr 为空、原样吐回源码，失败完全无法察觉。
+;; 这里改用 `--fix-dry-run --format json'，一次调用同时拿到修复结果
+;; （`output' 字段）和致命错误（`fatal' 消息），出错时弹出错误 buffer。
+
+(defconst my/eslintd-error-buffer "*eslintd-fix errors*"
+  "显示 ESLint 修复失败原因的 buffer。")
+
+(define-minor-mode eslintd-fix-on-save-mode
+  "保存前用 eslint_d 自动修复当前 buffer。实际执行见 `my/run-save-formatters'。
+关闭时不用摘钩子：`my/run-save-formatters' 会检查这个开关。"
+  :lighter " ESLint"
+  (when eslintd-fix-on-save-mode
+    (my/enable-save-formatters)))
+
+(defun my/eslintd--report (file text)
+  "把 FILE 的 ESLint 失败信息 TEXT 写进错误 buffer 并显示出来，然后抛出错误。
+只抛错不弹窗的话，提示会被随后的「Wrote ...」覆盖，所以必须弹出 buffer。"
+  (with-current-buffer (get-buffer-create my/eslintd-error-buffer)
+    (let ((inhibit-read-only t))
+      (erase-buffer)
+      (insert (format "eslint_d 修复失败：%s\n\n%s\n" file (string-trim text))))
+    (special-mode))
+  (display-buffer my/eslintd-error-buffer)
+  (error "ESLint 修复失败，详情见 %s" my/eslintd-error-buffer))
+
+(defun my/eslintd--clear-error ()
+  "修复成功后，关掉之前弹出的错误 buffer。
+`quit-window' 和 `kill-buffer' 都可能切换当前 buffer，所以要包在
+`save-current-buffer' 里，否则调用方后续的编辑会落到别的 buffer 上。"
+  (when-let* ((buf (get-buffer my/eslintd-error-buffer)))
+    (save-current-buffer
+      (dolist (win (get-buffer-window-list buf nil t))
+        (quit-window nil win))
+      (kill-buffer buf))))
+
+(defun eslintd-fix-buffer ()
+  "用 eslint_d 修复当前 buffer。
+出现致命错误（解析错误、配置错误、eslint_d 本身异常）时不改动 buffer，
+弹出 `my/eslintd-error-buffer' 并抛出错误；普通的 lint 错误不算失败。"
+  (interactive)
+  (let* ((program (or (executable-find "eslint_d")
+                      (user-error "找不到 eslint_d，请先全局安装：npm i -g eslint_d")))
+         (file (or (buffer-file-name) (user-error "当前 buffer 没有关联文件")))
+         (source (current-buffer))
+         (stderr-file (make-temp-file "eslintd-stderr"))
+         (coding-system-for-read 'utf-8)
+         (coding-system-for-write 'utf-8))
+    (unwind-protect
+        (with-temp-buffer
+          (let* ((stdout (current-buffer))
+                 (code (with-current-buffer source
+                         (save-restriction
+                           (widen)
+                           (call-process-region
+                            (point-min) (point-max) program nil
+                            (list stdout stderr-file) nil
+                            "--fix-dry-run" "--format" "json"
+                            "--stdin" "--stdin-filename" file))))
+                 (stderr (with-temp-buffer
+                           (insert-file-contents stderr-file)
+                           (buffer-string)))
+                 (result (and (memql code '(0 1))
+                              (ignore-errors
+                                (goto-char (point-min))
+                                (car (json-parse-buffer :object-type 'alist
+                                                        :array-type 'list
+                                                        :null-object nil))))))
+            (unless result
+              ;; 退出码异常或输出不是 JSON：eslint_d 自己出错，比如找不到插件
+              (my/eslintd--report
+               file (format "退出码：%s\n\n%s\n%s" code stderr (buffer-string))))
+            (let-alist result
+              (when (and .fatalErrorCount (> .fatalErrorCount 0))
+                (my/eslintd--report
+                 file
+                 (mapconcat (lambda (msg)
+                              (let-alist msg
+                                (format "%s:%s:%s  %s"
+                                        (file-name-nondirectory file)
+                                        (or .line 0) (or .column 0) .message)))
+                            (seq-filter (lambda (msg) (alist-get 'fatal msg))
+                                        .messages)
+                            "\n")))
+              (my/eslintd--clear-error)
+              ;; 有可修复的内容时才有 output 字段；用 replace-region-contents
+              ;; 只替换差异部分，光标、标记和 undo 都能保持（需要 Emacs 31）
+              (when .output
+                (with-current-buffer source
+                  (save-restriction
+                    (widen)
+                    (unless (string= .output (buffer-string))
+                      (replace-region-contents (point-min) (point-max) .output))))))))
+      (delete-file stderr-file))))
+
 (use-package reformatter
   :config
-  (reformatter-define eslintd-fix
-    :lighter " ESLint"
-    :program (executable-find "eslint_d")
-    :args (list "--fix-to-stdout" "--stdin" "--stdin-filename" (buffer-file-name))
-    :input-file (reformatter-temp-file-in-current-directory "js")
-    :exit-code-success-p (lambda (code) (or (eq code 1) (eq code 0))))
   ;; stylelint 自动修复：定义出 `stylelint-fix-buffer' 和 `stylelint-fix-region'。
   ;; 和 flycheck 检查时一样不传文件名（原因见 flycheck 的 :config），优先用项目本地的 stylelint。
   ;; 还有无法自动修复的问题时退出码是 2，但标准输出里仍然是修复后的代码，所以也算成功

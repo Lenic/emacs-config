@@ -19,6 +19,7 @@ eclipse.jdt.ls/
 meghanada/
 workspace/
 projects
+projects.eld
 .log/
 .DS_Store
 tree-sitter/

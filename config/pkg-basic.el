@@ -106,6 +106,39 @@
           my/lsp-workspaces-mode
           ))
 
+;; macOS 上 Emacs 自己计算初始 frame 的位置，总是落在主显示器上，
+;; 不管从 Spotlight 启动时鼠标在哪块屏幕。这里把 frame 挪到鼠标所在显示器
+;; 的工作区并居中；后面的全屏会在 frame 当前所在的显示器上进行，所以要先挪再全屏。
+;; 终端（TUI）frame 不满足 display-graphic-p，直接跳过
+(defun my/move-frame-to-mouse-monitor (&optional frame)
+  "把 FRAME（缺省为当前 frame）移动到鼠标所在显示器并居中。"
+  (let ((frame (or frame (selected-frame))))
+    (when (display-graphic-p frame)
+      (let* ((mouse (mouse-absolute-pixel-position))
+             (monitor
+              (seq-find
+               (lambda (m)
+                 (let ((g (alist-get 'geometry m)))
+                   (and (<= (nth 0 g) (car mouse) (+ (nth 0 g) (nth 2 g) -1))
+                        (<= (nth 1 g) (cdr mouse) (+ (nth 1 g) (nth 3 g) -1)))))
+               (display-monitor-attributes-list frame)))
+             (wa (alist-get 'workarea monitor)))
+        (when wa
+          (set-frame-position
+           frame
+           (+ (nth 0 wa) (max 0 (/ (- (nth 2 wa) (frame-pixel-width frame)) 2)))
+           (+ (nth 1 wa) (max 0 (/ (- (nth 3 wa) (frame-pixel-height frame)) 2)))))))))
+
+(add-hook 'after-make-frame-functions #'my/move-frame-to-mouse-monitor)
+;; 非 daemon 启动时，第一个 frame 在加载配置之前就已经创建好，不会触发上面的 hook。
+;; early-init 里让它隐藏创建，这里挪到位后再显示，避免主显示器被切回桌面
+(unless (daemonp)
+  (let ((frame (selected-frame)))
+    (unwind-protect
+        (my/move-frame-to-mouse-monitor frame)
+      (when (display-graphic-p frame)
+        (make-frame-visible frame)))))
+
 ;; 首个图形 frame 启动后全屏。用 set-frame-parameter 直接设为全屏，
 ;; 而不是 toggle-frame-fullscreen：toggle 是「切换」，frame 已经是全屏时
 ;; （比如 macOS 恢复了上次的窗口状态）反而会退出全屏

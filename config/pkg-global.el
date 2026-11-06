@@ -8,10 +8,28 @@
   ("C-x i" . ace-window))
 
 ;; 和系统剪切板相关设置
+;; 通过 SSH 登录时（如连接到容器），使用 OSC 52 把复制内容回传给本地终端；
+;; 本地直接运行时仍使用 xclip（macOS 下走 pbcopy）。
 (use-package xclip
+  :unless (getenv "SSH_TTY")
   :defer 5
   :config
   (xclip-mode))
+
+(use-package clipetty
+  :if (getenv "SSH_TTY")
+  :hook (after-init . global-clipetty-mode))
+
+;; 终端下启用 Kitty Keyboard Protocol（Ghostty / iTerm2 均支持）：
+;; Emacs 进入终端时开启、退出时恢复，所以只影响 Emacs，不影响 shell。
+;; 修饰键映射与 GUI 下（early-init.el 中的 mac-*-modifier）保持一致：
+;;   Command(super) → Meta，Option(alt) → Super
+(use-package kkp
+  :defer 3
+  :hook (after-init . global-kkp-mode)
+  :custom
+  (kkp-super-modifier 'meta)
+  (kkp-alt-modifier 'super))
 
 ;; 自定义一个找项目根目录的函数
 (defun my/counsel-fzf-project-root (&optional arg)
@@ -37,6 +55,14 @@
   ;; (push "--follow" (cdr (nthcdr 0 counsel-rg-base-command)))
   (setq counsel-rg-base-command
         '("rg" "--max-columns" "500" "--with-filename" "--no-heading" "--line-number" "--color" "never" "--follow" "%s"))
+  ;; 设置 swiper 默认按字面字符串搜索，搜索时可用 M-r 切换回正则
+  ;; 注：M-r 交换 `ivy--regex-function' 与 `ivy--regexp-quote'，所以不能直接把 re-builder 设为 regexp-quote
+  (defun my/swiper-isearch-literal-by-default (state)
+    "让 `swiper-isearch' 默认按字面搜索，STATE 为当前的 ivy 状态。"
+    (when (eq (ivy-state-caller state) 'swiper-isearch)
+      (setq ivy--regexp-quote ivy--regex-function)
+      (setq ivy--regex-function #'regexp-quote)))
+  (advice-add 'ivy--reset-state :after #'my/swiper-isearch-literal-by-default)
   :custom
   ;; 设置输入两个字符后就开始执行匹配
   (ivy-more-chars-alist '((counsel-grep . 2) (t . 2)))
@@ -124,30 +150,73 @@
 ;; 一次保存完成全部格式化，执行顺序固定由 `my/save-formatters' 决定。
 ;; 每个格式化是否执行，看当前 buffer 里对应的开关变量是否开启：
 ;; ESLint、Prettier 的开关就是它们的 minor mode，可以用 M-x 随时手动切换。
+;;
+;; 每次保存都会记录各步耗时，写盘完成后（`after-save-hook'）判断是否汇报：
+;; - 正常且不慢：什么都不输出；
+;; - 超过 `my/save-formatters-slow-threshold' 或有步骤失败：在回显区显示
+;;   （同时留在 *Messages* 里，只在内存中，不写磁盘）。
+;; 某一步失败不会中断后续步骤，也不会阻止保存。错误要等写盘后再提示，
+;; 否则会被写盘时的「Wrote ...」覆盖掉。
 
 (defvar my/save-formatters
-  '((my/whitespace-cleanup-on-save . whitespace-cleanup)
-    (eslintd-fix-on-save-mode      . eslintd-fix-buffer)
-    (prettier-js-mode              . prettier-js-prettify))
-  "保存前格式化列表，每一项是 (开关变量 . 格式化函数)。
+  '((my/whitespace-cleanup-on-save whitespace-cleanup   "空白")
+    (eslintd-fix-on-save-mode      eslintd-fix-buffer   "ESLint")
+    (prettier-js-mode              my/prettier-js-prettify "Prettier"))
+  "保存前格式化列表，每一项是 (开关变量 格式化函数 显示名)。
 按列表顺序执行：先清理行尾空白，再 ESLint 修复，最后 Prettier 排版。")
+
+(defvar my/save-formatters-slow-threshold 0.5
+  "整次保存超过这么多秒时，在回显区显示各步耗时。")
 
 (defvar-local my/whitespace-cleanup-on-save nil
   "非 nil 时，保存前清理当前 buffer 的行尾空白。")
 
+(defvar-local my/save-formatters--report nil
+  "本次保存的记录：(开始时间 各步耗时列表 错误列表)，供 `after-save-hook' 汇报。")
+
 (defun my/run-save-formatters ()
   "按 `my/save-formatters' 的顺序，执行当前 buffer 中已开启的格式化。
-单个格式化失败只提示，不中断后续格式化，也不阻止保存。"
-  (pcase-dolist (`(,switch . ,formatter) my/save-formatters)
-    (when (and (boundp switch) (symbol-value switch))
-      (condition-case err
-          (funcall formatter)
-        (error (message "%s 执行失败：%s" formatter (error-message-string err)))))))
+每一步都单独计时；失败只记录下来，不中断后续格式化，也不阻止保存。"
+  (let ((start (float-time)) timings errors)
+    (pcase-dolist (`(,switch ,formatter ,label) my/save-formatters)
+      (when (and (boundp switch) (symbol-value switch))
+        (let ((t0 (float-time)))
+          (condition-case err
+              (funcall formatter)
+            (error (push (format "%s：%s" label (error-message-string err)) errors)))
+          (push (cons label (- (float-time) t0)) timings))))
+    (setq my/save-formatters--report
+          (list start (nreverse timings) (nreverse errors)))))
+
+(defun my/report-save-formatters ()
+  "写盘完成后，保存太慢或有步骤失败时汇报：各步耗时、写盘及其它钩子的耗时、失败的步骤。
+正常且不慢的保存什么都不输出。"
+  (pcase my/save-formatters--report
+    (`(,start ,timings ,errors)
+     (setq my/save-formatters--report nil)
+     (let ((total (- (float-time) start)))
+       (when (or errors (> total my/save-formatters-slow-threshold))
+         (let* ((rest (- total (apply #'+ (mapcar #'cdr timings))))
+                (summary (format "保存 %s 用时 %.2fs：%s"
+                                 (buffer-name) total
+                                 (mapconcat (lambda (it) (format "%s %.2fs" (car it) (cdr it)))
+                                            (append timings `(("写盘及其它" . ,rest)))
+                                            " · "))))
+           (if errors
+               (message "%s\n%s"
+                        summary
+                        (propertize (format "已保存，但有 %d 步失败：%s"
+                                            (length errors) (string-join errors "；"))
+                                    'face 'error))
+             (message "%s" summary))))))))
 
 (defun my/enable-save-formatters ()
-  "在当前 buffer 挂上统一的保存前格式化。
-只挂到当前 buffer：Makefile、Go 等其它文件不受影响。"
-  (add-hook 'before-save-hook #'my/run-save-formatters nil t))
+  "在当前 buffer 挂上统一的保存前格式化，以及写盘后的汇报。
+只挂到当前 buffer：Makefile、Go 等其它文件不受影响。
+汇报挂在 `after-save-hook' 的最后（深度 100），这样「写盘及其它」
+也包含了其它同步执行的保存后钩子。"
+  (add-hook 'before-save-hook #'my/run-save-formatters nil t)
+  (add-hook 'after-save-hook #'my/report-save-formatters 100 t))
 
 ;; 显示行尾空白字符，并在保存前清理
 (defun my/enable-whitespace-cleanup ()
@@ -160,7 +229,7 @@
   :ensure nil
   :config
   (setq whitespace-style '(face trailing))
-  :hook ((web-mode tsx-ts-mode emacs-lisp-mode) . my/enable-whitespace-cleanup))
+  :hook ((web-mode vue-ts-mode js-ts-mode tsx-ts-mode emacs-lisp-mode) . my/enable-whitespace-cleanup))
 
 ;; 处理特别长的行，避免带来一些性能问题
 (use-package so-long

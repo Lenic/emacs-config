@@ -12,12 +12,12 @@
    '(ace-window amx avy beacon corfu counsel csv-mode dap-mode dirvish
                 dockerfile-mode emmet-mode exec-path-from-shell
                 expand-region flycheck git-gutter git-timemachine
-                htmlize lsp-mode lsp-tailwindcss lsp-ui magit
-                markdown-mode multiple-cursors neotree orderless
-                prettier-js projectile pyim pyim-basedict reformatter
-                rg separedit spacemacs-theme string-inflection
-                symbol-overlay treesit-auto undo-tree web-mode wgrep
-                xclip yafolding yaml-mode yasnippet)))
+                htmlize lsp-mode lsp-ui magit markdown-mode
+                multiple-cursors neotree orderless prettier-js
+                projectile pyim pyim-basedict reformatter rg separedit
+                spacemacs-theme string-inflection symbol-overlay
+                treesit-auto undo-tree web-mode wgrep xclip yafolding
+                yaml-mode yasnippet)))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
