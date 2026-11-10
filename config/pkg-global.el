@@ -47,7 +47,7 @@
 
 ;; 全局基础配置
 (use-package counsel
-  :commands (swiper-isearch counsel-M-x counsel-ibuffer counsel-find-file counsel-rg counsel-fzf counsel-file-jump)
+  :commands (swiper-isearch counsel-M-x counsel-ibuffer counsel-find-file counsel-rg counsel-fzf counsel-file-jump counsel-yank-pop)
   :config
   ;; 设置 counsel-fzf 命令使用 rg 作为核心输出端
   (setq counsel-fzf-cmd "rg -l -L --glob '!.git' --hidden . | fzf -f \"%s\"")
@@ -75,6 +75,8 @@
   ("C-x C-b" . counsel-ibuffer)
   ;; 替换打开文件
   ("C-x C-f" . counsel-find-file)
+  ;; 替换 kill-ring 粘贴选择
+  ("M-y" . counsel-yank-pop)
   ;; 设置 RG 全文搜索
   ("C-c k" . counsel-rg)
   ;; 设置项目下的文件名查找
