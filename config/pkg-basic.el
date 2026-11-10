@@ -44,6 +44,14 @@
 (setq mouse-wheel-scroll-amount '(1 ((shift) . 1) ((control) . nil)))
 (setq mouse-wheel-progressive-speed nil)
 
+;; Emacs 31 起，在 Ghostty 等兼容终端里会自动开启 `xterm-mouse-mode'（见 term/xterm.el 的
+;; `xterm--init'）。daemon 下用 emacsclient -t 打开时，触控板滑动产生的 SGR 鼠标序列
+;; （ESC [ < 35;79;29 M 之类）会被当成普通字符插进 buffer。这里在 daemon 中显式关掉，
+;; 关闭后也会置位 `xterm-mouse-mode-called'，之后新建的终端不会再被自动开启。
+;; 鼠标交给 Ghostty 处理（copy-on-select 等），与 Emacs 30 及以前的行为一致。
+(when (daemonp)
+  (xterm-mouse-mode -1))
+
 ;; 保持鼠标所在行数不变屏幕向下滚动一行
 (global-set-key (kbd "M-n") 'scroll-up-line)
 
