@@ -57,12 +57,39 @@
         '("rg" "--max-columns" "500" "--with-filename" "--no-heading" "--line-number" "--color" "never" "--follow" "%s"))
   ;; 设置 swiper 默认按字面字符串搜索，搜索时可用 M-r 切换回正则
   ;; 注：M-r 交换 `ivy--regex-function' 与 `ivy--regexp-quote'，所以不能直接把 re-builder 设为 regexp-quote
-  (defun my/swiper-isearch-literal-by-default (state)
-    "让 `swiper-isearch' 默认按字面搜索，STATE 为当前的 ivy 状态。"
-    (when (eq (ivy-state-caller state) 'swiper-isearch)
+  (defvar my/ivy-literal-by-default-callers '(swiper-isearch counsel-rg)
+    "默认按字面搜索的 ivy 命令列表，搜索时可用 M-r 切换为正则。")
+  (defun my/ivy-literal-by-default (state)
+    "让 `my/ivy-literal-by-default-callers' 中的命令默认按字面搜索，STATE 为当前的 ivy 状态。"
+    (when (memq (ivy-state-caller state) my/ivy-literal-by-default-callers)
       (setq ivy--regexp-quote ivy--regex-function)
       (setq ivy--regex-function #'regexp-quote)))
-  (advice-add 'ivy--reset-state :after #'my/swiper-isearch-literal-by-default)
+  (advice-add 'ivy--reset-state :after #'my/ivy-literal-by-default)
+
+  ;; counsel-rg 原本固定使用 ivy-state 中的 re-builder，导致 M-r 无效，这里改为跟随 `ivy--regex-function'
+  ;; 字面模式下直接把原始输入交给 rg 并附加 -F，避免 | { } \ 等字符在转换为 PCRE 时被当作正则
+  (defun my/counsel-rg-literal-p ()
+    "当前是否为字面模式的 `counsel-rg'。"
+    (and (eq (ivy-state-caller ivy-last) 'counsel-rg)
+         (eq ivy--regex-function #'regexp-quote)))
+  (defun my/counsel-rg-grep-regex (orig str)
+    "为 `counsel-rg' 生成搜索串，支持 M-r 切换；其他命令沿用 ORIG 处理 STR。"
+    (cond ((not (eq (ivy-state-caller ivy-last) 'counsel-rg))
+           (funcall orig str))
+          ((my/counsel-rg-literal-p)
+           (setq ivy--old-re (regexp-quote str))
+           str)
+          (t
+           (counsel--elisp-to-pcre
+            (setq ivy--old-re (funcall ivy--regex-function str))
+            counsel--regex-look-around))))
+  (advice-add 'counsel--grep-regex :around #'my/counsel-rg-grep-regex)
+  (defun my/counsel-rg-fixed-strings-switch (switches)
+    "字面模式的 `counsel-rg' 在 SWITCHES 中追加 rg 的 -F 参数。"
+    (if (my/counsel-rg-literal-p)
+        (concat switches " -F ")
+      switches))
+  (advice-add 'counsel--ag-extra-switches :filter-return #'my/counsel-rg-fixed-strings-switch)
   :custom
   ;; 设置输入两个字符后就开始执行匹配
   (ivy-more-chars-alist '((counsel-grep . 2) (t . 2)))
