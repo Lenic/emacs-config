@@ -174,6 +174,13 @@ FORCE 非 nil 时无条件重新加载。手动模式下不做任何事。
 (use-package spacemacs-theme
   :defer t
   :init
+  ;; spacemacs-theme 在 load-theme 的那一刻，按「当前选中的 frame」是否为 GUI
+  ;; （或真彩色终端）把 GUI / 终端两套色值之一写死进主题，之后所有 frame 共用。
+  ;; daemon 下主题是在 after-make-frame-functions 里加载的，此时选中的还是
+  ;; daemon 那个不可见的初始终端 frame，于是写死的是终端那套 256 色近似值，
+  ;; GUI frame 颜色就和正常启动明显不同。终端本身是真彩色（COLORTERM=truecolor），
+  ;; 直接固定用 GUI 色值即可；非真彩色终端由 Emacs 自动近似到最接近的颜色。
+  (setq spacemacs-theme-force-gui-colors t)
   (add-hook 'after-make-frame-functions #'my/theme-handle-new-frame)
   (add-function :after after-focus-change-function #'my/theme--on-focus-change)
   ;; daemon 模式下没有 frame，等第一个 frame 建立时再加载主题
