@@ -17,7 +17,7 @@
                 projectile pyim pyim-basedict reformatter rg separedit
                 spacemacs-theme string-inflection symbol-overlay
                 treesit-auto undo-tree web-mode wgrep xclip yafolding
-                yaml-mode yasnippet)))
+                yaml-mode yasnippet zenburn-theme)))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
