@@ -20,8 +20,22 @@
 ;; 启动收尾时再开启的全局 mode：这几个库不是预加载的，
 ;; 挂到 after-init-hook 上，避免在读取配置期间加载
 (add-hook 'after-init-hook #'global-auto-revert-mode) ; 自动加载已修改文件
-(add-hook 'after-init-hook #'global-hl-line-mode)     ; 高亮当前行
 (add-hook 'after-init-hook #'delete-selection-mode)   ; 选中时编辑直接删除选中值
+
+;; 高亮当前行，但有选区时不画：zenburn 等低对比主题里 region 和 hl-line 颜色太接近，
+;; 叠在一起看不出选区。
+;; - `hl-line-range-function' 返回 nil 时，hl-line 不画（每个命令后在 post-command-hook 里调用）
+;; - M-w 这类命令取消选区发生在 post-command-hook 之后，所以取消选区时要再画一次
+(add-hook 'after-init-hook #'global-hl-line-mode)
+(setq hl-line-range-function
+      (lambda ()
+        (unless (region-active-p)
+          (cons (line-beginning-position) (line-beginning-position 2)))))
+(defun my/hl-line-refresh ()
+  "取消选区后立刻重画当前行高亮。"
+  (when (bound-and-true-p global-hl-line-mode)
+    (global-hl-line-highlight)))
+(add-hook 'deactivate-mark-hook #'my/hl-line-refresh)
 
 (require 'use-package)
 (setq use-package-always-ensure t
