@@ -165,6 +165,186 @@
               (goto-char token-beg))))))
     (my/er-add-expansion 'my/treesit-mark-class-token)))
 
+;; C-l：智能居中，连按在下面几步之间循环，画面和前面某一步相同的步骤直接跳过：
+;; 1. 代码块居中：编程模式下从光标所在位置逐层向外找代码块（最大到函数级别），
+;;    选能放进窗口的最大那一层居中；一层都放不下时，把光标放在离窗口顶部 1/4 高度的位置
+;; 2. 光标行居中  3. 光标行到顶部  4. 光标行到底部
+;; 不是编程模式或者不在任何多行代码块里时，没有第 1 步。
+;; 每一步之后闪一下：第 1 步闪整个代码块，其他步骤闪光标行。
+;; 高度按屏幕上实际显示的行数算，折叠后显示几行就算几行
+(defun my/smart-recenter--defun-node-p (node)
+  "NODE 是否是函数级别的 tree-sitter 节点。"
+  (or (ignore-errors (treesit-node-match-p node 'defun t))
+      (let ((type (treesit-node-type node)))
+        (pcase treesit-defun-type-regexp
+          ((and (pred stringp) re) (string-match-p re type))
+          (`(,re . ,pred) (and (string-match-p re type) (funcall pred node)))))))
+
+(defun my/smart-recenter--treesit-ranges ()
+  "从最内层的嵌入语法开始，返回包住光标的 tree-sitter 节点范围，由内到外，到函数级别为止。"
+  (let ((pos (point))
+        ranges done)
+    (cl-loop
+     for parser in (treesit-parsers-at pos)
+     until done
+     do (let ((node (treesit-node-descendant-for-range
+                     (treesit-parser-root-node parser) pos pos))
+              (limits (or (treesit-parser-included-ranges parser)
+                          (list (cons (point-min) (point-max))))))
+          ;; 根节点就是整个文件或整个嵌入区域，不算代码块
+          (while (and node (treesit-node-parent node) (not done))
+            ;; 嵌入 parser 的节点不能超出它自己的解析范围
+            (when (cl-some (lambda (range)
+                             (and (<= (car range) (treesit-node-start node))
+                                  (>= (cdr range) (treesit-node-end node))))
+                           limits)
+              (push (cons (treesit-node-start node) (treesit-node-end node)) ranges)
+              (when (my/smart-recenter--defun-node-p node)
+                (setq done t)))
+            (setq node (treesit-node-parent node)))))
+    (nreverse ranges)))
+
+(defun my/smart-recenter--syntax-ranges ()
+  "没有 tree-sitter 时，用括号层级和 defun 返回包住光标的范围，由内到外。"
+  (let* ((pos (point))
+         (defun-range (ignore-errors
+                        (save-excursion
+                          (end-of-defun)
+                          (let ((end (point)))
+                            (beginning-of-defun)
+                            (when (<= (point) pos end)
+                              (cons (point) end))))))
+         (ranges (delq nil
+                       (mapcar (lambda (open)
+                                 (let ((close (ignore-errors (scan-lists open 1 0))))
+                                   (when (and close
+                                              (or (null defun-range)
+                                                  (>= open (car defun-range))))
+                                     (cons open close))))
+                               ;; 第 9 项是外层在前的左括号位置
+                               (reverse (nth 9 (syntax-ppss pos)))))))
+    (if defun-range
+        (append ranges (list defun-range))
+      ranges)))
+
+(defun my/smart-recenter--ranges ()
+  "返回按整行对齐、由内到外且逐层变大的多行代码块范围。"
+  (let ((raw (if (and (treesit-available-p) (treesit-parser-list))
+                 (my/smart-recenter--treesit-ranges)
+               (my/smart-recenter--syntax-ranges)))
+        result)
+    (save-excursion
+      (dolist (range raw)
+        (let ((beg (progn (goto-char (car range)) (line-beginning-position)))
+              (end (progn (goto-char (cdr range))
+                          ;; 节点结束在下一行行首时，不把那一行算进来
+                          (when (and (bolp) (> (point) (car range)))
+                            (backward-char))
+                          (line-end-position))))
+          ;; 只保留多行的块，且每层都要比上一层大（去掉行范围相同的层）
+          (when (and (> (count-lines beg end) 1)
+                     (or (null result)
+                         (< beg (caar result))
+                         (> end (cdar result))))
+            (push (cons beg end) result)))))
+    (nreverse result)))
+
+;; pulse 在用到时才加载：daemon 启动时还没有终端 frame，提前加载会把 `pulse-flag' 算成 nil
+(defvar pulse-flag)
+(defvar pulse-iterations)
+(defvar pulse-delay)
+(declare-function pulse-available-p "pulse")
+(declare-function pulse-momentary-unhighlight "pulse")
+
+(defun my/smart-recenter--block ()
+  "返回要居中的代码块范围：能放进窗口的最大一层，一层都放不下就用最内层。
+不是编程模式或者没有多行代码块时返回 nil。"
+  (when (derived-mode-p 'prog-mode)
+    (let ((win-h (window-body-height))
+          (ranges (my/smart-recenter--ranges)))
+      (when ranges
+        ;; 外层一定不比内层矮，所以取前面能放下的那几层里的最后一层
+        (or (car (last (seq-take-while
+                        (lambda (r) (<= (count-screen-lines (car r) (cdr r)) win-h))
+                        ranges)))
+            (car ranges))))))
+
+(defun my/smart-recenter--line-up (n)
+  "从光标所在屏幕行往上 N 行的位置，到 buffer 开头为止。"
+  (save-excursion
+    (vertical-motion 0)
+    (vertical-motion (- n))
+    (point)))
+
+(defun my/smart-recenter--views (block)
+  "按 代码块居中、光标行居中、到顶部、到底部 的顺序返回各步的 (步骤 . 窗口起点)。
+BLOCK 为 nil 时没有代码块居中这一步。窗口起点相同的步骤只保留第一个，
+这样光标靠近文件开头、几步画面一样时，连按不会出现看不出变化的步骤。"
+  (let* ((win-h (window-body-height))
+         ;; 和 `recenter-top-bottom' 一样，顶部和底部留出 `scroll-margin'
+         (margin (min (max 0 scroll-margin) (truncate (/ win-h 4.0))))
+         (views
+          (append
+           (when block
+             (let ((height (count-screen-lines (car block) (cdr block))))
+               (list (cons 'block
+                           (if (> height win-h)
+                               ;; 块比窗口高：光标行放在离顶部 1/4 高度的位置
+                               (my/smart-recenter--line-up (/ win-h 4))
+                             (save-excursion
+                               (goto-char (car block))
+                               (vertical-motion (- (/ (- win-h height) 2)))
+                               (point)))))))
+           (list (cons 'middle (my/smart-recenter--line-up (/ win-h 2)))
+                 (cons 'top (my/smart-recenter--line-up margin))
+                 (cons 'bottom (my/smart-recenter--line-up (- win-h 1 margin)))))))
+    (cl-remove-duplicates views :key #'cdr :from-end t)))
+
+(defvar my/smart-recenter--flash-timer nil
+  "清除静态高亮的定时器。")
+
+(defun my/smart-recenter--flash (beg end)
+  "把 BEG 到 END 闪烁 1 秒。"
+  (require 'pulse)
+  (when (timerp my/smart-recenter--flash-timer)
+    (cancel-timer my/smart-recenter--flash-timer))
+  ;; 闪烁总时长是 pulse-iterations × pulse-delay，这里只改本次的节奏：10 × 0.1 = 1 秒。
+  ;; `pulse-flag' 固定为 t，是否能渐变交给 pulse 按当前 frame 判断
+  (let ((pulse-flag t)
+        (pulse-iterations 10)
+        (pulse-delay 0.1))
+    (pulse-momentary-highlight-region beg end))
+  ;; 当前 frame 取不到颜色时 pulse 只会静态高亮，要等按键才清除，这里 1 秒后主动清除
+  (unless (pulse-available-p)
+    (setq my/smart-recenter--flash-timer
+          (run-with-timer 1 nil #'pulse-momentary-unhighlight))))
+
+(defvar my/smart-recenter--state nil
+  "上一次 `my/smart-recenter' 的状态：(光标位置 各步画面 当前序号 代码块范围)。")
+
+(defun my/smart-recenter ()
+  "智能居中：代码块居中 → 光标行居中 → 光标行到顶部 → 光标行到底部，连按循环。"
+  (interactive)
+  (let* ((state my/smart-recenter--state)
+         (repeat (and (eq last-command this-command)
+                      state
+                      (eql (car state) (point))))
+         (block (if repeat (nth 3 state) (my/smart-recenter--block)))
+         (views (if repeat (nth 1 state) (my/smart-recenter--views block)))
+         (index (cond (repeat (mod (1+ (nth 2 state)) (length views)))
+                      ;; 第一次按：第一步的画面和现在一样，就直接用下一步
+                      ((and (cdr views) (= (cdar views) (window-start))) 1)
+                      (t 0)))
+         (view (nth index views)))
+    (set-window-start nil (cdr view))
+    (setq my/smart-recenter--state (list (point) views index block))
+    (if (eq (car view) 'block)
+        (my/smart-recenter--flash (car block) (min (1+ (cdr block)) (point-max)))
+      (my/smart-recenter--flash (line-beginning-position)
+                                (min (1+ (line-end-position)) (point-max))))))
+
+(global-set-key (kbd "C-l") #'my/smart-recenter)
+
 ;; DAP
 (use-package dap-mode
   :commands (dap-debug dap-breakpoint-toggle)
