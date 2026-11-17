@@ -170,7 +170,7 @@
 ;;    选能放进窗口的最大那一层居中；一层都放不下时，把光标放在离窗口顶部 1/4 高度的位置
 ;; 2. 光标行居中  3. 光标行到顶部  4. 光标行到底部
 ;; 不是编程模式或者不在任何多行代码块里时，没有第 1 步。
-;; 每一步之后闪一下：第 1 步闪整个代码块，其他步骤闪光标行。
+;; 每一步之后高亮：第 1 步高亮整个代码块，其他步骤高亮光标行；1 秒后或执行下一个命令时清除。
 ;; 高度按屏幕上实际显示的行数算，折叠后显示几行就算几行
 (defun my/smart-recenter--defun-node-p (node)
   "NODE 是否是函数级别的 tree-sitter 节点。"
@@ -249,13 +249,6 @@
             (push (cons beg end) result)))))
     (nreverse result)))
 
-;; pulse 在用到时才加载：daemon 启动时还没有终端 frame，提前加载会把 `pulse-flag' 算成 nil
-(defvar pulse-flag)
-(defvar pulse-iterations)
-(defvar pulse-delay)
-(declare-function pulse-available-p "pulse")
-(declare-function pulse-momentary-unhighlight "pulse")
-
 (defun my/smart-recenter--block ()
   "返回要居中的代码块范围：能放进窗口的最大一层，一层都放不下就用最内层。
 不是编程模式或者没有多行代码块时返回 nil。"
@@ -300,24 +293,38 @@ BLOCK 为 nil 时没有代码块居中这一步。窗口起点相同的步骤只
                  (cons 'bottom (my/smart-recenter--line-up (- win-h 1 margin)))))))
     (cl-remove-duplicates views :key #'cdr :from-end t)))
 
-(defvar my/smart-recenter--flash-timer nil
-  "清除静态高亮的定时器。")
+;; 高亮用静态 overlay，不做渐隐：pulse 渐隐每一帧都改全局面孔，终端里会让整个 frame
+;; 重画、整屏和光标狂闪。静态高亮只在加上和删除时各重画一次被高亮的那几行。
+(defvar my/smart-recenter--flash-overlay nil
+  "当前的高亮 overlay。")
 
-(defun my/smart-recenter--flash (beg end)
-  "把 BEG 到 END 闪烁 1 秒。"
-  (require 'pulse)
+(defvar my/smart-recenter--flash-timer nil
+  "清除高亮的定时器。")
+
+(defun my/smart-recenter--flash-stop ()
+  "删除高亮。"
+  (remove-hook 'pre-command-hook #'my/smart-recenter--flash-stop)
   (when (timerp my/smart-recenter--flash-timer)
     (cancel-timer my/smart-recenter--flash-timer))
-  ;; 闪烁总时长是 pulse-iterations × pulse-delay，这里只改本次的节奏：10 × 0.1 = 1 秒。
-  ;; `pulse-flag' 固定为 t，是否能渐变交给 pulse 按当前 frame 判断
-  (let ((pulse-flag t)
-        (pulse-iterations 10)
-        (pulse-delay 0.1))
-    (pulse-momentary-highlight-region beg end))
-  ;; 当前 frame 取不到颜色时 pulse 只会静态高亮，要等按键才清除，这里 1 秒后主动清除
-  (unless (pulse-available-p)
-    (setq my/smart-recenter--flash-timer
-          (run-with-timer 1 nil #'pulse-momentary-unhighlight))))
+  (when (overlayp my/smart-recenter--flash-overlay)
+    (delete-overlay my/smart-recenter--flash-overlay))
+  (setq my/smart-recenter--flash-timer nil
+        my/smart-recenter--flash-overlay nil))
+
+(defun my/smart-recenter--flash (beg end)
+  "把 BEG 到 END 静态高亮，1 秒后或者执行下一个命令时清除。"
+  ;; 颜色沿用 pulse 的起始色：zenburn 里 `highlight' 和 hl-line 同色、又接近背景，看不出来
+  (require 'pulse)
+  (my/smart-recenter--flash-stop)
+  (let ((ov (make-overlay beg end)))
+    ;; 盖过 hl-line（优先级 -50）
+    (overlay-put ov 'priority 1)
+    (overlay-put ov 'face '((:extend t) pulse-highlight-start-face))
+    (setq my/smart-recenter--flash-overlay ov
+          my/smart-recenter--flash-timer
+          (run-with-timer 1 nil #'my/smart-recenter--flash-stop))
+    ;; 本次 C-l 的 pre-command-hook 已经跑过，这里挂上只会在下一个命令前触发
+    (add-hook 'pre-command-hook #'my/smart-recenter--flash-stop)))
 
 (defvar my/smart-recenter--state nil
   "上一次 `my/smart-recenter' 的状态：(光标位置 各步画面 当前序号 代码块范围)。")
