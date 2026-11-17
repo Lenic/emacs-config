@@ -74,5 +74,8 @@
 ;; 加载输入法配置
 (require 'pkg-input)
 
+;; 加载终端配置（Ghostty / iTerm2 的 Command 键、光标和背景颜色）
+(require 'pkg-terminal)
+
 ;; 加载其它语言配置
 (require 'pkg-lang)
