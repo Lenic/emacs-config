@@ -172,4 +172,41 @@ pyim 的指示器会周期性调用 `set-cursor-color'，去重可避免反复�
 (when (terminal-parameter nil 'terminal-initted)
   (my/term-activate))
 
+;;;; emacsclient 编辑完成的快捷键
+;; Claude Code 的 Ctrl+G、ec 打开的文件，用 C-c C-c 保存并返回，C-c C-k 放弃修改并返回，
+;; 和 git commit（with-editor）的习惯一致。git commit 的 buffer 已经有 `with-editor-mode'，
+;; 不再重复开启，保留 magit 自己的处理。
+
+(defun my/server-finish ()
+  "保存当前 buffer，结束 emacsclient 编辑；终端 frame 随之关闭，回到调用方。"
+  (interactive)
+  (save-buffer)
+  (server-edit))
+
+(defun my/server-abort ()
+  "放弃未保存的修改，结束 emacsclient 编辑；文件内容保持打开时的样子。"
+  (interactive)
+  (when (buffer-modified-p)
+    (revert-buffer t t t))
+  (server-edit))
+
+(define-minor-mode my/server-edit-mode
+  "emacsclient 打开的 buffer：C-c C-c 保存并返回，C-c C-k 放弃并返回。"
+  :lighter " Client"
+  :keymap (let ((map (make-sparse-keymap)))
+            (define-key map (kbd "C-c C-c") #'my/server-finish)
+            (define-key map (kbd "C-c C-k") #'my/server-abort)
+            map)
+  (when my/server-edit-mode
+    (message "C-c C-c 保存并返回，C-c C-k 放弃并返回")))
+
+(defun my/server-edit-mode-maybe ()
+  "在 emacsclient 打开的 buffer 里开启 `my/server-edit-mode'，git commit 除外。"
+  (unless (bound-and-true-p with-editor-mode)
+    (my/server-edit-mode 1)))
+
+(add-hook 'server-visit-hook #'my/server-edit-mode-maybe)
+;; buffer 结束编辑后还会留在 Emacs 里，关掉这个模式，避免按键继续生效
+(add-hook 'server-done-hook (lambda () (my/server-edit-mode -1)))
+
 (provide 'pkg-terminal)
