@@ -42,6 +42,8 @@
   (setq pyim-default-scheme 'microsoft-shuangpin)
   ;; 设置不使用模糊拼音
   (setq pyim-pinyin-fuzzy-alist '())
+  ;; 关闭联想词（前缀补全），避免 bmli 出现「变量」这类候选
+  (setq pyim-enable-shortcode nil)
   ;; 设置光标颜色
   (setq pyim-indicator-list (list #'my/pyim-indicator-with-cursor-color #'pyim-indicator-with-modeline))
   ;; 设置 pyim 探针：只按光标前一个字符决定中英文，前面是中文就继续输入中文。
