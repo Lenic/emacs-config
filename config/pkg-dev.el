@@ -9,6 +9,36 @@
   (setq treesit-language-source-alist
       '((vue "https://github.com/ikatyang/tree-sitter-vue")))
   (global-treesit-auto-mode)
+
+  ;; 缓存 `treesit-auto--ready-p' 的结果。
+  ;; treesit-auto 在每次 `set-auto-mode-0' 前都会重建 `major-mode-remap-alist'，
+  ;; 对 `treesit-auto-langs' 里的 60 多种语言逐个检查 grammar 是否可用；没装的 grammar
+  ;; 每次都要到磁盘上找动态库，打开一个文件会重复 3 遍，约 2 秒（Claude Code 的 Ctrl+G
+  ;; 打开 .md 就卡在这里）。结果只在安装新 grammar 后才会变化，所以安装后清空缓存。
+  ;; 注意：`treesit-language-available-p' 是 primitive，native-comp 代码直接调用它，
+  ;; 在它上面加 advice 不生效，只能缓存这一层。
+  (defvar my/treesit-auto-ready-cache (make-hash-table :test #'eq)
+    "缓存 `treesit-auto--ready-p' 的结果：major mode -> t 或 :no。")
+
+  (defun my/treesit-auto-ready-cached (orig mode)
+    "带缓存的 `treesit-auto--ready-p'。"
+    (let ((v (gethash mode my/treesit-auto-ready-cache)))
+      (if v
+          (eq v t)
+        (let ((r (funcall orig mode)))
+          (puthash mode (if r t :no) my/treesit-auto-ready-cache)
+          r))))
+
+  (defun my/treesit-auto-ready-cache-clear (&rest _)
+    "安装新的 grammar 后清空缓存。"
+    (clrhash my/treesit-auto-ready-cache))
+
+  (advice-add 'treesit-auto--ready-p :around #'my/treesit-auto-ready-cached)
+  (advice-add 'treesit-install-language-grammar :after #'my/treesit-auto-ready-cache-clear)
+
+  ;; daemon 启动时预热缓存，第一次打开文件就不用再等
+  (when (daemonp)
+    (add-hook 'after-init-hook #'treesit-auto--build-major-mode-remap-alist))
   :init
   ;; 设置代码高亮力度和现代编辑器相同，比如 VSCode
   (setq treesit-font-lock-level 4))
