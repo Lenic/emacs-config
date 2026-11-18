@@ -26,6 +26,21 @@
       (not (> (length (pyim-process-get-entered 'point-before)) 0))
     (pyim-probe-dynamic-english)))
 
+;; 修复 pyim 连续选词时与 M-b（光标后退一个音节）配合的问题：
+;; 1. 选中的词正好覆盖光标前全部拼音时，原实现 (insert nil) 报错被吞掉，
+;;    光标停在开头，而 `pyim-entered-get' 在开头时前后都返回整串，导致重复上屏；
+;; 2. 选了较短的词后，原实现把光标推到末尾，把 M-b 留在光标后的拼音又并回来转换。
+;; 修复后：光标前还有未转换的拼音时，光标停在它们之后，光标后的拼音继续保留；
+;; 光标前都转换完了，才把光标移到末尾，开始转换之前留在后面的拼音。
+(defun my/pyim-process--select-word-in-next-step ()
+  "Like `pyim-process--select-word-in-next-step', but respect text after point."
+  (let ((rest (or (pyim-process--entered-to-be-translated) "")))
+    (pyim-process-with-entered-buffer
+      (delete-region (point-min) (point))
+      (insert rest)
+      (goto-char (if (string-empty-p rest) (point-max) (1+ (length rest)))))
+    (pyim-process-run)))
+
 ;; 输入法设置
 (use-package pyim
   :commands pyim-convert-string-at-point
@@ -33,6 +48,8 @@
   ;; 个人词库
   (pyim-dicts `((:name "mine" :file ,(expand-file-name "pyim/mine.pyim" user-emacs-directory))))
   :config
+  (advice-add 'pyim-process--select-word-in-next-step
+              :override #'my/pyim-process--select-word-in-next-step)
   ;; 激活 basedict 拼音词库
   (use-package pyim-basedict
     :config (pyim-basedict-enable))
