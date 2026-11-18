@@ -52,6 +52,58 @@
      (lambda (word) (member code (pyim-cstring-to-pinyin word nil "-" t)))
      words)))
 
+;; pyim 的删词只清理个人词库缓存（icode2word 等），基础词库 basedict、
+;; mine.pyim 以及 buffer 搜索出来的词条仍会出现在候选中。
+;; 这里维护一份删词黑名单：删过的词从所有候选中过滤掉，并立即落盘。
+(defvar my/pyim-blocked-words-file
+  (expand-file-name "pyim/blocked-words.el" user-emacs-directory)
+  "保存 pyim 删词黑名单的文件。")
+
+(defvar my/pyim-blocked-words nil
+  "pyim 删词黑名单（哈希表），首次使用时从文件加载。")
+
+(defun my/pyim-blocked-words ()
+  "返回黑名单哈希表，必要时从 `my/pyim-blocked-words-file' 加载。"
+  (or my/pyim-blocked-words
+      (let ((table (make-hash-table :test #'equal)))
+        (when (file-exists-p my/pyim-blocked-words-file)
+          (with-temp-buffer
+            (insert-file-contents my/pyim-blocked-words-file)
+            (dolist (word (ignore-errors (read (current-buffer))))
+              (puthash word t table))))
+        (setq my/pyim-blocked-words table))))
+
+(defun my/pyim-save-blocked-words ()
+  "将黑名单写入 `my/pyim-blocked-words-file'。"
+  (let ((words (sort (hash-table-keys (my/pyim-blocked-words)) #'string<))
+        (coding-system-for-write 'utf-8-unix))
+    (with-temp-file my/pyim-blocked-words-file
+      (insert ";; -*- coding: utf-8-unix; -*-\n;; pyim 删词黑名单，由 pkg-input.el 维护\n")
+      (prin1 words (current-buffer))
+      (insert "\n"))))
+
+(defun my/pyim-block-deleted-word (word)
+  "`pyim-process-delete-word' 之后：把 WORD 加入黑名单，并将个人词库缓存落盘。"
+  (puthash word t (my/pyim-blocked-words))
+  (my/pyim-save-blocked-words)
+  (pyim-process-save-dcaches t))
+
+(defun my/pyim-filter-blocked-words (orig &rest args)
+  "从 ORIG 返回的候选中去掉黑名单里的词条。"
+  (let ((words (apply orig args))
+        (blocked (my/pyim-blocked-words)))
+    (if (zerop (hash-table-count blocked))
+        words
+      (cl-remove-if (lambda (word) (gethash word blocked)) words))))
+
+(defun my/pyim-unblock-word (word)
+  "把 WORD 从 pyim 删词黑名单中移除，让它重新出现在候选中。"
+  (interactive
+   (list (completing-read "恢复词条: " (hash-table-keys (my/pyim-blocked-words)) nil t)))
+  (remhash word (my/pyim-blocked-words))
+  (my/pyim-save-blocked-words)
+  (message "已将词条 %S 移出黑名单。" word))
+
 ;; 输入法设置
 (use-package pyim
   :commands pyim-convert-string-at-point
@@ -63,6 +115,10 @@
               :override #'my/pyim-process--select-word-in-next-step)
   (advice-add 'pyim-candidates-create-limit-time
               :around #'my/pyim-candidates-exact-buffer-words)
+  ;; 删词黑名单：删过的词不再出现在候选中，删词后立即保存词库缓存
+  (advice-add 'pyim-process-delete-word :after #'my/pyim-block-deleted-word)
+  (advice-add 'pyim-candidates-create :around #'my/pyim-filter-blocked-words)
+  (advice-add 'pyim-candidates-create-limit-time :around #'my/pyim-filter-blocked-words)
   ;; 激活 basedict 拼音词库
   (use-package pyim-basedict
     :config (pyim-basedict-enable))
