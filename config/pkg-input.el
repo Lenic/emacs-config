@@ -41,6 +41,17 @@
       (goto-char (if (string-empty-p rest) (point-max) (1+ (length rest)))))
     (pyim-process-run)))
 
+;; pyim 会在当前 buffer 里按拼音前缀搜索词条（候选后标 (buf)），
+;; 比如 bmli 会把 buffer 中的「变量」(bian-liang) 也找出来。
+;; 这里只保留拼音与输入完全一致的词条（多音字任一读音匹配即可）。
+(defun my/pyim-candidates-exact-buffer-words (orig imobjs scheme)
+  "Filter buffer-searched words from ORIG to those whose pinyin match IMOBJS exactly."
+  (let ((words (funcall orig imobjs scheme))
+        (code (string-join (pyim-codes-create (car imobjs) (pyim-scheme-get 'quanpin)) "-")))
+    (cl-remove-if-not
+     (lambda (word) (member code (pyim-cstring-to-pinyin word nil "-" t)))
+     words)))
+
 ;; 输入法设置
 (use-package pyim
   :commands pyim-convert-string-at-point
@@ -50,6 +61,8 @@
   :config
   (advice-add 'pyim-process--select-word-in-next-step
               :override #'my/pyim-process--select-word-in-next-step)
+  (advice-add 'pyim-candidates-create-limit-time
+              :around #'my/pyim-candidates-exact-buffer-words)
   ;; 激活 basedict 拼音词库
   (use-package pyim-basedict
     :config (pyim-basedict-enable))
@@ -60,7 +73,7 @@
   ;; 设置不使用模糊拼音
   (setq pyim-pinyin-fuzzy-alist '())
   ;; 关闭联想词（前缀补全），避免 bmli 出现「变量」这类候选
-  ;; (setq pyim-enable-shortcode nil)
+  (setq pyim-enable-shortcode nil)
   ;; 设置光标颜色
   (setq pyim-indicator-list (list #'my/pyim-indicator-with-cursor-color #'pyim-indicator-with-modeline))
   ;; 设置 pyim 探针：只按光标前一个字符决定中英文，前面是中文就继续输入中文。
