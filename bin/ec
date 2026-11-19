@@ -1,0 +1,47 @@
+#!/bin/zsh
+# 在当前终端里连接 Emacs server，server 没启动就先启动。
+#
+# 用法：ec [--as-editor] [@名字] [文件 | +行号 文件 | emacsclient 参数 ...]
+#   ec                     连接默认 server（Emacs 默认名字 server），打开一个终端 frame
+#   ec foo.txt +3 bar.txt  用默认 server 打开文件
+#   ec @saas foo.txt       用名为 saas 的 server 打开文件
+#   ec --as-editor FILE    其他程序把 ec 当编辑器调用（等同于 eca FILE）
+#
+# eca 是指向 ec 的软链接，等同于 ec --as-editor，给 $VISUAL/$EDITOR 用
+# （Claude Code 的 Ctrl+G、git commit 等），这样 EDITOR 不用带参数。
+#
+# --as-editor 不会交给 emacsclient（它不认识这个参数），而是换成环境变量
+# EC_INTENT=editor。emacsclient -t 会把环境发给 server，挂在这个客户端的终端
+# frame 上，pkg-terminal.el 在 server-visit-hook 里读它：开启 C-c C-c 保存并返回、
+# C-c C-k 放弃修改并返回，并且不把临时文件记进 recentf 和文件名历史。
+#
+# 参数开头的 --as-editor 和 @名字 各认一次（顺序随意），其余参数原样交给
+# emacsclient，所以调用方传进来的文件路径不会被误当成名字，新文件也没关系。
+# C-x # 或 C-x C-c 也可以关闭 frame。
+#
+# Ghostty / iTerm2 的 Command 键和颜色由 ~/.emacs.d/config/pkg-terminal.el 处理。
+
+emacs_dir=/Applications/Emacs.app/Contents/MacOS
+name=server
+as_editor=
+[[ ${0:t} == eca ]] && as_editor=1
+
+seen_name=
+while (( $# )); do
+  if [[ $1 == --as-editor ]]; then
+    as_editor=1
+  elif [[ -z $seen_name && $1 == @?* ]]; then
+    name=${1#@}
+    seen_name=1
+  else
+    break
+  fi
+  shift
+done
+
+# 先不带 EC_INTENT 启动 server，免得 eds 新拉起的 daemon 继承这个变量；
+# 手动 ec 时也显式清掉，避免从带着这个变量的环境里调用时被误判
+unset EC_INTENT
+"${0:A:h}/eds" "$name" || exit
+[[ -n $as_editor ]] && export EC_INTENT=editor
+exec "$emacs_dir/bin/emacsclient" -s "$name" -t "$@"

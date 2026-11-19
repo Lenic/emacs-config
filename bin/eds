@@ -1,0 +1,22 @@
+#!/bin/zsh
+# 启动 Emacs server（daemon）。用法：eds [名字]，名字默认是 Emacs 自带的 server
+# 同名 server 已经在运行时什么都不做。socket 在 $TMPDIR/emacs$UID/<名字>。
+
+emacs_dir=/Applications/Emacs.app/Contents/MacOS
+name=${1:-server}
+
+if "$emacs_dir/bin/emacsclient" -s "$name" -e t >/dev/null 2>&1; then
+  exit 0
+fi
+
+# daemon 用自己启动时的环境查 terminfo。从 iTerm2 或 Claude Code 的子 shell 等
+# 没有 Ghostty TERMINFO 的环境启动时，之后 Ghostty 里的 emacsclient -t 会报
+# "Terminal type xterm-ghostty is not defined"，所以总是把 Ghostty 的 terminfo
+# 加进搜索路径；末尾的空项表示继续查系统默认目录。
+ghostty_terminfo=/Applications/Ghostty.app/Contents/Resources/terminfo
+if [[ -d $ghostty_terminfo ]]; then
+  export TERMINFO_DIRS="${TERMINFO_DIRS:+$TERMINFO_DIRS:}$ghostty_terminfo:"
+fi
+
+# --daemon 会等配置读完、server 就绪后才返回，之后可以直接连接
+exec "$emacs_dir/Emacs" --daemon="$name"

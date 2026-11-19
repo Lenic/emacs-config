@@ -172,10 +172,48 @@ pyim 的指示器会周期性调用 `set-cursor-color'，去重可避免反复�
 (when (terminal-parameter nil 'terminal-initted)
   (my/term-activate))
 
-;;;; emacsclient 编辑完成的快捷键
-;; Claude Code 的 Ctrl+G、ec 打开的文件，用 C-c C-c 保存并返回，C-c C-k 放弃修改并返回，
-;; 和 git commit（with-editor）的习惯一致。git commit 的 buffer 已经有 `with-editor-mode'，
-;; 不再重复开启，保留 magit 自己的处理。
+;;;; 其他程序把 Emacs 当编辑器调用（eca / ec --as-editor）
+;; $VISUAL/$EDITOR 设为 eca（ec 的软链接），Claude Code 的 Ctrl+G 等调用时，
+;; ec 给 emacsclient 设置 EC_INTENT=editor。这个变量随 -t 发给 server，挂在该客户端的
+;; 终端 frame 上，daemon 自己的环境里没有，所以要用 (getenv VAR frame) 读；
+;; 每个客户端各自一份，同时调用也不会串。
+;;
+;; 这样打开的 buffer：
+;; - C-c C-c 保存并返回，C-c C-k 放弃修改并返回，和 git commit（with-editor）的习惯一致。
+;;   git commit / rebase 的 buffer 已经有 `with-editor-mode'，不再重复开启，保留 magit 的处理。
+;; - 不记进 recentf 和文件名历史（参照 git-commit 对 COMMIT_EDITMSG 的处理），
+;;   临时文件不会堆在最近文件列表里。
+;;
+;; 手动 `ec 文件' 打开的 buffer 是普通编辑，不受影响。
+
+(defvar recentf-exclude)
+(defvar recentf-list)
+
+(defvar-local my/server-as-editor nil
+  "非 nil 表示这个 buffer 是其他程序通过 eca / ec --as-editor 打开的。")
+
+(defun my/server-as-editor-p ()
+  "当前客户端是否带着编辑器意图（EC_INTENT=editor）。
+`server-visit-hook' 运行时，-t 新建的 frame 已经选中，但客户端还没登记到
+`server-buffer-clients'，所以从 frame 的环境里读。"
+  (equal (getenv "EC_INTENT" (selected-frame)) "editor"))
+
+(defun my/server-recentf-exclude-p (file)
+  "给 `recentf-exclude' 用：编辑器意图打开的 FILE 不记，保存时也不会再记进去。"
+  (let ((buf (get-file-buffer file)))
+    (and buf (buffer-local-value 'my/server-as-editor buf))))
+
+(with-eval-after-load 'recentf
+  (add-to-list 'recentf-exclude #'my/server-recentf-exclude-p))
+
+(defun my/server-forget-file (file)
+  "把打开时已经记下的 FILE 从文件名历史和 recentf 里去掉。
+`server-visit-files' 和 recentf 的 `find-file-hook' 都在 `server-visit-hook' 之前记录。"
+  (let* ((file (expand-file-name file))
+         (other-p (lambda (f) (not (string= (expand-file-name f) file)))))
+    (setq file-name-history (seq-filter other-p file-name-history))
+    (when (boundp 'recentf-list)
+      (setq recentf-list (seq-filter other-p recentf-list)))))
 
 (defun my/server-finish ()
   "保存当前 buffer，结束 emacsclient 编辑；终端 frame 随之关闭，回到调用方。"
@@ -191,7 +229,7 @@ pyim 的指示器会周期性调用 `set-cursor-color'，去重可避免反复�
   (server-edit))
 
 (define-minor-mode my/server-edit-mode
-  "emacsclient 打开的 buffer：C-c C-c 保存并返回，C-c C-k 放弃并返回。"
+  "eca 打开的 buffer：C-c C-c 保存并返回，C-c C-k 放弃并返回。"
   :lighter " Client"
   :keymap (let ((map (make-sparse-keymap)))
             (define-key map (kbd "C-c C-c") #'my/server-finish)
@@ -200,13 +238,20 @@ pyim 的指示器会周期性调用 `set-cursor-color'，去重可避免反复�
   (when my/server-edit-mode
     (message "C-c C-c 保存并返回，C-c C-k 放弃并返回")))
 
-(defun my/server-edit-mode-maybe ()
-  "在 emacsclient 打开的 buffer 里开启 `my/server-edit-mode'，git commit 除外。"
-  (unless (bound-and-true-p with-editor-mode)
-    (my/server-edit-mode 1)))
+(defun my/server-visit ()
+  "带编辑器意图打开时：不记历史，开启 `my/server-edit-mode'（git commit 等除外）。"
+  (when (my/server-as-editor-p)
+    (setq my/server-as-editor t)
+    (my/server-forget-file buffer-file-name)
+    (unless (bound-and-true-p with-editor-mode)
+      (my/server-edit-mode 1))))
 
-(add-hook 'server-visit-hook #'my/server-edit-mode-maybe)
-;; buffer 结束编辑后还会留在 Emacs 里，关掉这个模式，避免按键继续生效
-(add-hook 'server-done-hook (lambda () (my/server-edit-mode -1)))
+(defun my/server-done ()
+  "结束编辑后 buffer 可能还留在 Emacs 里（打开前就存在的文件），恢复成普通 buffer。"
+  (setq my/server-as-editor nil)
+  (my/server-edit-mode -1))
+
+(add-hook 'server-visit-hook #'my/server-visit)
+(add-hook 'server-done-hook #'my/server-done)
 
 (provide 'pkg-terminal)
