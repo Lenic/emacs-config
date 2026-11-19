@@ -31,14 +31,31 @@
 ;;    光标停在开头，而 `pyim-entered-get' 在开头时前后都返回整串，导致重复上屏；
 ;; 2. 选了较短的词后，原实现把光标推到末尾，把 M-b 留在光标后的拼音又并回来转换。
 ;; 修复后：光标前还有未转换的拼音时，光标停在它们之后，光标后的拼音继续保留；
-;; 光标前都转换完了，才把光标移到末尾，开始转换之前留在后面的拼音。
+;; 光标前都转换完了，光标只向后移动一个词（逐词确认），而不是直接移到末尾，
+;; 避免把后面整段拼音拼成的整句首选一次性上屏。
+(defun my/pyim-next-word-imelem-count (string)
+  "返回 STRING 中第一个词占的 imelem 数，与 pyim 拼整句首选时的分词一致。
+非全拼/双拼方案或无法分词时返回 nil。"
+  (let ((scheme (pyim-scheme-current)))
+    (when (pyim-scheme-quanpin-p scheme)
+      (let* ((imobjs (pyim-imobjs-create string scheme))
+             (word (car (pyim-candidates--quanpin imobjs scheme))))
+        (when (and word (> (length word) 0))
+          (length word))))))
+
 (defun my/pyim-process--select-word-in-next-step ()
   "Like `pyim-process--select-word-in-next-step', but respect text after point."
   (let ((rest (or (pyim-process--entered-to-be-translated) "")))
     (pyim-process-with-entered-buffer
       (delete-region (point-min) (point))
       (insert rest)
-      (goto-char (if (string-empty-p rest) (point-max) (1+ (length rest)))))
+      (goto-char
+       (if (not (string-empty-p rest))
+           (1+ (length rest))
+         (let ((n (ignore-errors (my/pyim-next-word-imelem-count (buffer-string)))))
+           (if n
+               (pyim-process-next-imelem-position n t (point-min))
+             (point-max))))))
     (pyim-process-run)))
 
 ;; pyim 会在当前 buffer 里按拼音前缀搜索词条（候选后标 (buf)），
@@ -104,6 +121,50 @@
   (my/pyim-save-blocked-words)
   (message "已将词条 %S 移出黑名单。" word))
 
+;; pyim 选词上屏时会立刻把整段结果当成新词记入个人词库，误选的组合（比如「我县在」）
+;; 也会被学进去。这里改成延迟记录：选词时先不记，`my/pyim-create-word-delay' 秒后
+;; 检查这个词是否还在原来插入的位置，还在才记入词库；期间被删掉或改掉就不记录。
+;; 只影响选词上屏；手动造词（pyim-create-word-at-point 等）仍然立即生效。
+(defvar my/pyim-create-word-delay 2
+  "选词后延迟多少秒再决定是否把词条记入个人词库。")
+
+(defvar my/pyim--deferring-create-word nil
+  "非 nil 时，`pyim-process-create-word' 改为延迟记录。")
+
+(defun my/pyim--defer-create-word-in-select (orig &rest args)
+  "在 `pyim-process-select-word' 期间，让新词延迟记录。"
+  (let ((my/pyim--deferring-create-word t))
+    (apply orig args)))
+
+(defun my/pyim--commit-deferred-word (marker word args)
+  "若 MARKER 处仍是 WORD，则用 ARGS 调用 `pyim-process-create-word' 记录它。"
+  (let ((buf (marker-buffer marker)))
+    (when (buffer-live-p buf)
+      (with-current-buffer buf
+        (let ((end (+ marker (length word))))
+          (when (and (<= end (point-max))
+                     (equal (buffer-substring-no-properties marker end) word))
+            (apply #'pyim-process-create-word args))))
+      (set-marker marker nil))))
+
+(defun my/pyim--deferred-create-word (orig word &optional prepend wordcount-handler criteria)
+  "选词期间把 `pyim-process-create-word' 推迟 `my/pyim-create-word-delay' 秒执行。"
+  (if (not my/pyim--deferring-create-word)
+      (funcall orig word prepend wordcount-handler criteria)
+    (let ((word (substring-no-properties (or word "")))
+          ;; 选词时的编码在之后会被清掉，先保存下来用于多音字矫正。
+          (criteria (or criteria pyim-process--code-criteria)))
+      (when (> (length word) 0)
+        ;; 预览文字（overlay）稍后会被删除，词条插入到预览的起点；没有预览时就是 point。
+        (run-with-timer my/pyim-create-word-delay nil
+                        #'my/pyim--commit-deferred-word
+                        (copy-marker (if (and (overlayp pyim-preview--overlay)
+                                              (overlay-start pyim-preview--overlay))
+                                         (overlay-start pyim-preview--overlay)
+                                       (point)))
+                        word
+                        (list word prepend wordcount-handler criteria))))))
+
 ;; 输入法设置
 (use-package pyim
   :commands pyim-convert-string-at-point
@@ -117,6 +178,8 @@
               :around #'my/pyim-candidates-exact-buffer-words)
   ;; 删词黑名单：删过的词不再出现在候选中，删词后立即保存词库缓存
   (advice-add 'pyim-process-delete-word :after #'my/pyim-block-deleted-word)
+  (advice-add 'pyim-process-select-word :around #'my/pyim--defer-create-word-in-select)
+  (advice-add 'pyim-process-create-word :around #'my/pyim--deferred-create-word)
   (advice-add 'pyim-candidates-create :around #'my/pyim-filter-blocked-words)
   (advice-add 'pyim-candidates-create-limit-time :around #'my/pyim-filter-blocked-words)
   ;; 激活 basedict 拼音词库
