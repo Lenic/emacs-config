@@ -38,6 +38,13 @@
 ;; 却每次复制都卡 1 秒、选区 1 秒后才消失。这里改成只在选区没有激活时才闪
 (setq copy-region-blink-predicate (lambda () (not (region-active-p))))
 
+;; 允许 minibuffer 嵌套。daemon 下同时连着多个 emacsclient frame 时，
+;; 在一个 frame 里读 minibuffer（如 counsel-ibuffer）可能因另一终端被锁报错
+;; 「Terminal N is locked, cannot read from it」，Emacs 31.1 会因此泄漏 minibuffer 层级计数，
+;; 之后 C-x b 等所有命令都报「Command attempted to use minibuffer while in minibuffer」，
+;; 且 top-level 也恢复不了。打开嵌套后不再做这个检查，命令仍可正常使用
+(setq enable-recursive-minibuffers t)
+
 ;; 设置平滑滚动
 (setq scroll-step            1
       scroll-conservatively  10000)
