@@ -43,7 +43,7 @@
 ;; 「Terminal N is locked, cannot read from it」，Emacs 31.1 会因此泄漏 minibuffer 层级计数，
 ;; 之后 C-x b 等所有命令都报「Command attempted to use minibuffer while in minibuffer」，
 ;; 且 top-level 也恢复不了。打开嵌套后不再做这个检查，命令仍可正常使用
-(setq enable-recursive-minibuffers t)
+;; (setq enable-recursive-minibuffers nil)
 
 ;; 设置平滑滚动
 (setq scroll-step            1

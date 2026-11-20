@@ -195,14 +195,35 @@
               (goto-char token-beg))))))
     (my/er-add-expansion 'my/treesit-mark-class-token)))
 
-;; C-l：智能居中，连按在下面几步之间循环，画面和前面某一步相同的步骤直接跳过：
-;; 1. 代码块居中：编程模式下从光标所在位置逐层向外找代码块（最大到函数级别），
-;;    选能放进窗口的最大那一层居中；一层都放不下时，把光标放在离窗口顶部 1/4 高度的位置
-;; 2. 光标行居中  3. 光标行到顶部  4. 光标行到底部
-;; 不是编程模式或者不在任何多行代码块里时，没有第 1 步。
-;; 每一步之后高亮：第 1 步高亮整个代码块，其他步骤高亮光标行；1 秒后或执行下一个命令时清除。
-;; 高度按屏幕上实际显示的行数算，折叠后显示几行就算几行
-(defun my/smart-recenter--defun-node-p (node)
+;; M-o：把光标所在的代码块在窗口里上下居中，连按效果不变。
+;; 代码块是从光标往外找到的第一个跨多行的结构（对象、参数列表、语句块等），
+;; 找到的是函数体时用整个函数，一直到函数级别都没有跨多行的结构时也用函数。
+;; 不在任何代码块里时把光标行当作代码块。代码块比窗口高时，把开头放在离窗口顶部
+;; 1/4 高度的位置。居中后高亮这段内容 300 毫秒。
+;; 高度按屏幕上实际显示的行数算，折叠后显示几行就算几行。
+(defun my/center-block--lines (beg end)
+  "把 BEG 到 END 扩展成整行，返回 (开始 . 结束)。"
+  (save-excursion
+    (cons (progn (goto-char beg) (line-beginning-position))
+          (progn (goto-char end)
+                 ;; 结束在下一行行首时，不把那一行算进来
+                 (when (and (bolp) (> (point) beg))
+                   (backward-char))
+                 (line-end-position)))))
+
+(defun my/center-block--multiline-p (beg end)
+  "BEG 到 END 扩展成整行后是否跨多行。"
+  (let ((range (my/center-block--lines beg end)))
+    (> (cdr range)
+       (save-excursion (goto-char (car range)) (line-end-position)))))
+
+(defun my/center-block--start-pos ()
+  "查找的起点：光标在行首缩进里时，用这一行第一个字符的位置。"
+  (if (<= (current-column) (current-indentation))
+      (save-excursion (back-to-indentation) (point))
+    (point)))
+
+(defun my/center-block--defun-p (node)
   "NODE 是否是函数级别的 tree-sitter 节点。"
   (or (ignore-errors (treesit-node-match-p node 'defun t))
       (let ((type (treesit-node-type node)))
@@ -210,177 +231,97 @@
           ((and (pred stringp) re) (string-match-p re type))
           (`(,re . ,pred) (and (string-match-p re type) (funcall pred node)))))))
 
-(defun my/smart-recenter--treesit-ranges ()
-  "从最内层的嵌入语法开始，返回包住光标的 tree-sitter 节点范围，由内到外，到函数级别为止。"
-  (let ((pos (point))
-        ranges done)
+(defun my/center-block--treesit-node (node)
+  "从 NODE 往外找第一个跨多行的节点，是函数体时返回函数，找不到返回 nil。
+根节点是整个文件或整个嵌入区域，不算代码块。"
+  (cl-loop
+   for parent = (and node (treesit-node-parent node))
+   while parent
+   when (my/center-block--defun-p node)
+   return node
+   when (my/center-block--multiline-p (treesit-node-start node) (treesit-node-end node))
+   return (if (my/center-block--defun-p parent) parent node)
+   do (setq node parent)))
+
+(defun my/center-block--treesit-range ()
+  "用 tree-sitter 找光标所在的代码块，返回 (开始 . 结束)。
+从最内层的嵌入语法开始找，像 Vue 文件里 script 中的代码也能找到。"
+  (let ((pos (my/center-block--start-pos)))
     (cl-loop
      for parser in (treesit-parsers-at pos)
-     until done
-     do (let ((node (treesit-node-descendant-for-range
-                     (treesit-parser-root-node parser) pos pos))
-              (limits (or (treesit-parser-included-ranges parser)
-                          (list (cons (point-min) (point-max))))))
-          ;; 根节点就是整个文件或整个嵌入区域，不算代码块
-          (while (and node (treesit-node-parent node) (not done))
-            ;; 嵌入 parser 的节点不能超出它自己的解析范围
-            (when (cl-some (lambda (range)
-                             (and (<= (car range) (treesit-node-start node))
-                                  (>= (cdr range) (treesit-node-end node))))
-                           limits)
-              (push (cons (treesit-node-start node) (treesit-node-end node)) ranges)
-              (when (my/smart-recenter--defun-node-p node)
-                (setq done t)))
-            (setq node (treesit-node-parent node)))))
-    (nreverse ranges)))
+     for node = (my/center-block--treesit-node
+                 (treesit-node-descendant-for-range
+                  (treesit-parser-root-node parser) pos pos))
+     when node
+     return (cons (treesit-node-start node) (treesit-node-end node)))))
 
-(defun my/smart-recenter--syntax-ranges ()
-  "没有 tree-sitter 时，用括号层级和 defun 返回包住光标的范围，由内到外。"
-  (let* ((pos (point))
-         (defun-range (ignore-errors
-                        (save-excursion
-                          (end-of-defun)
-                          (let ((end (point)))
-                            (beginning-of-defun)
-                            (when (<= (point) pos end)
-                              (cons (point) end))))))
-         (ranges (delq nil
-                       (mapcar (lambda (open)
-                                 (let ((close (ignore-errors (scan-lists open 1 0))))
-                                   (when (and close
-                                              (or (null defun-range)
-                                                  (>= open (car defun-range))))
-                                     (cons open close))))
-                               ;; 第 9 项是外层在前的左括号位置
-                               (reverse (nth 9 (syntax-ppss pos)))))))
-    (if defun-range
-        (append ranges (list defun-range))
-      ranges)))
+(defun my/center-block--syntax-range ()
+  "没有 tree-sitter 时，用括号层级找第一个跨多行的括号，找不到就用所在的函数。"
+  (let ((pos (my/center-block--start-pos)))
+    (or (cl-loop
+         ;; 第 9 项是外层在前的左括号位置，反过来从最内层开始找；
+         ;; 起点正好是左括号时，从这个括号开始
+         for open in (append (when (eq (syntax-class (syntax-after pos)) 4)
+                               (list pos))
+                             (reverse (nth 9 (syntax-ppss pos))))
+         for close = (ignore-errors (scan-lists open 1 0))
+         when (and close (my/center-block--multiline-p open close))
+         return (cons open close))
+        (ignore-errors
+          (save-excursion
+            (goto-char pos)
+            (end-of-defun)
+            (let ((end (point)))
+              (beginning-of-defun)
+              (when (<= (point) pos end)
+                (cons (point) end))))))))
 
-(defun my/smart-recenter--ranges ()
-  "返回按整行对齐、由内到外且逐层变大的多行代码块范围。"
-  (let ((raw (if (and (treesit-available-p) (treesit-parser-list))
-                 (my/smart-recenter--treesit-ranges)
-               (my/smart-recenter--syntax-ranges)))
-        result)
-    (save-excursion
-      (dolist (range raw)
-        (let ((beg (progn (goto-char (car range)) (line-beginning-position)))
-              (end (progn (goto-char (cdr range))
-                          ;; 节点结束在下一行行首时，不把那一行算进来
-                          (when (and (bolp) (> (point) (car range)))
-                            (backward-char))
-                          (line-end-position))))
-          ;; 只保留多行的块，且每层都要比上一层大（去掉行范围相同的层）
-          (when (and (> (count-lines beg end) 1)
-                     (or (null result)
-                         (< beg (caar result))
-                         (> end (cdar result))))
-            (push (cons beg end) result)))))
-    (nreverse result)))
+(defun my/center-block--range ()
+  "返回光标所在代码块按整行对齐的范围 (开始 . 结束)，找不到时返回 nil。"
+  (when-let* ((range (and (derived-mode-p 'prog-mode)
+                          (if (and (treesit-available-p) (treesit-parser-list))
+                              (my/center-block--treesit-range)
+                            (my/center-block--syntax-range)))))
+    (my/center-block--lines (car range) (cdr range))))
 
-(defun my/smart-recenter--block ()
-  "返回要居中的代码块范围：能放进窗口的最大一层，一层都放不下就用最内层。
-不是编程模式或者没有多行代码块时返回 nil。"
-  (when (derived-mode-p 'prog-mode)
-    (let ((win-h (window-body-height))
-          (ranges (my/smart-recenter--ranges)))
-      (when ranges
-        ;; 外层一定不比内层矮，所以取前面能放下的那几层里的最后一层
-        (or (car (last (seq-take-while
-                        (lambda (r) (<= (count-screen-lines (car r) (cdr r)) win-h))
-                        ranges)))
-            (car ranges))))))
+(defvar my/center-block--overlay nil
+  "居中后的高亮 overlay。")
 
-(defun my/smart-recenter--line-up (n)
-  "从光标所在屏幕行往上 N 行的位置，到 buffer 开头为止。"
-  (save-excursion
-    (vertical-motion 0)
-    (vertical-motion (- n))
-    (point)))
-
-(defun my/smart-recenter--views (block)
-  "按 代码块居中、光标行居中、到顶部、到底部 的顺序返回各步的 (步骤 . 窗口起点)。
-BLOCK 为 nil 时没有代码块居中这一步。窗口起点相同的步骤只保留第一个，
-这样光标靠近文件开头、几步画面一样时，连按不会出现看不出变化的步骤。"
-  (let* ((win-h (window-body-height))
-         ;; 和 `recenter-top-bottom' 一样，顶部和底部留出 `scroll-margin'
-         (margin (min (max 0 scroll-margin) (truncate (/ win-h 4.0))))
-         (views
-          (append
-           (when block
-             (let ((height (count-screen-lines (car block) (cdr block))))
-               (list (cons 'block
-                           (if (> height win-h)
-                               ;; 块比窗口高：光标行放在离顶部 1/4 高度的位置
-                               (my/smart-recenter--line-up (/ win-h 4))
-                             (save-excursion
-                               (goto-char (car block))
-                               (vertical-motion (- (/ (- win-h height) 2)))
-                               (point)))))))
-           (list (cons 'middle (my/smart-recenter--line-up (/ win-h 2)))
-                 (cons 'top (my/smart-recenter--line-up margin))
-                 (cons 'bottom (my/smart-recenter--line-up (- win-h 1 margin)))))))
-    (cl-remove-duplicates views :key #'cdr :from-end t)))
-
-;; 高亮用静态 overlay，不做渐隐：pulse 渐隐每一帧都改全局面孔，终端里会让整个 frame
-;; 重画、整屏和光标狂闪。静态高亮只在加上和删除时各重画一次被高亮的那几行。
-(defvar my/smart-recenter--flash-overlay nil
-  "当前的高亮 overlay。")
-
-(defvar my/smart-recenter--flash-timer nil
-  "清除高亮的定时器。")
-
-(defun my/smart-recenter--flash-stop ()
+(defun my/center-block--unflash ()
   "删除高亮。"
-  (remove-hook 'pre-command-hook #'my/smart-recenter--flash-stop)
-  (when (timerp my/smart-recenter--flash-timer)
-    (cancel-timer my/smart-recenter--flash-timer))
-  (when (overlayp my/smart-recenter--flash-overlay)
-    (delete-overlay my/smart-recenter--flash-overlay))
-  (setq my/smart-recenter--flash-timer nil
-        my/smart-recenter--flash-overlay nil))
+  (when (overlayp my/center-block--overlay)
+    (delete-overlay my/center-block--overlay)
+    (setq my/center-block--overlay nil)))
 
-(defun my/smart-recenter--flash (beg end)
-  "把 BEG 到 END 静态高亮，1 秒后或者执行下一个命令时清除。"
-  ;; 颜色沿用 pulse 的起始色：zenburn 里 `highlight' 和 hl-line 同色、又接近背景，看不出来
+(defun my/center-block--flash (beg end)
+  "高亮 BEG 到 END 所在的整行，300 毫秒后清除。"
+  ;; zenburn 里 `highlight' 和 hl-line 同色，看不出来，所以借用 pulse 的颜色
   (require 'pulse)
-  (my/smart-recenter--flash-stop)
-  (let ((ov (make-overlay beg end)))
+  (my/center-block--unflash)
+  (let ((ov (make-overlay beg (min (1+ end) (point-max)))))
     ;; 盖过 hl-line（优先级 -50）
     (overlay-put ov 'priority 1)
     (overlay-put ov 'face '((:extend t) pulse-highlight-start-face))
-    (setq my/smart-recenter--flash-overlay ov
-          my/smart-recenter--flash-timer
-          (run-with-timer 1 nil #'my/smart-recenter--flash-stop))
-    ;; 本次 C-l 的 pre-command-hook 已经跑过，这里挂上只会在下一个命令前触发
-    (add-hook 'pre-command-hook #'my/smart-recenter--flash-stop)))
+    (setq my/center-block--overlay ov)
+    (run-with-timer 0.3 nil #'my/center-block--unflash)))
 
-(defvar my/smart-recenter--state nil
-  "上一次 `my/smart-recenter' 的状态：(光标位置 各步画面 当前序号 代码块范围)。")
-
-(defun my/smart-recenter ()
-  "智能居中：代码块居中 → 光标行居中 → 光标行到顶部 → 光标行到底部，连按循环。"
+(defun my/center-block ()
+  "把光标所在的代码块在窗口里上下居中，代码块太长时把开头放在离顶部 1/4 的位置。"
   (interactive)
-  (let* ((state my/smart-recenter--state)
-         (repeat (and (eq last-command this-command)
-                      state
-                      (eql (car state) (point))))
-         (block (if repeat (nth 3 state) (my/smart-recenter--block)))
-         (views (if repeat (nth 1 state) (my/smart-recenter--views block)))
-         (index (cond (repeat (mod (1+ (nth 2 state)) (length views)))
-                      ;; 第一次按：第一步的画面和现在一样，就直接用下一步
-                      ((and (cdr views) (= (cdar views) (window-start))) 1)
-                      (t 0)))
-         (view (nth index views)))
-    (set-window-start nil (cdr view))
-    (setq my/smart-recenter--state (list (point) views index block))
-    (if (eq (car view) 'block)
-        (my/smart-recenter--flash (car block) (min (1+ (cdr block)) (point-max)))
-      (my/smart-recenter--flash (line-beginning-position)
-                                (min (1+ (line-end-position)) (point-max))))))
+  (let* ((range (or (my/center-block--range)
+                    (cons (line-beginning-position) (line-end-position))))
+         (height (count-screen-lines (car range) (cdr range)))
+         (win-h (window-body-height))
+         (above (if (<= height win-h)
+                    (/ (- win-h height) 2)
+                  (/ win-h 4))))
+    (set-window-start nil (save-excursion
+                            (goto-char (car range))
+                            (vertical-motion (- above))
+                            (point)))
+    (my/center-block--flash (car range) (cdr range))))
 
-(global-set-key (kbd "C-l") #'my/smart-recenter)
+(global-set-key (kbd "M-o") #'my/center-block)
 
 ;; DAP
 (use-package dap-mode
