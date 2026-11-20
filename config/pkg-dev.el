@@ -295,13 +295,12 @@
 
 (defun my/center-block--flash (beg end)
   "高亮 BEG 到 END 所在的整行，300 毫秒后清除。"
-  ;; zenburn 里 `highlight' 和 hl-line 同色，看不出来，所以借用 pulse 的颜色
-  (require 'pulse)
+  ;; zenburn 里 `highlight' 和 hl-line 同色，看不出来，所以用和选区一样的 `region' 颜色
   (my/center-block--unflash)
   (let ((ov (make-overlay beg (min (1+ end) (point-max)))))
     ;; 盖过 hl-line（优先级 -50）
     (overlay-put ov 'priority 1)
-    (overlay-put ov 'face '((:extend t) pulse-highlight-start-face))
+    (overlay-put ov 'face '((:extend t) region))
     (setq my/center-block--overlay ov)
     (run-with-timer 0.3 nil #'my/center-block--unflash)))
 
