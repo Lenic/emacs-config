@@ -113,7 +113,7 @@ end if" action tty))))
 
 (defun my/term--default-cursor-color ()
   "默认光标颜色，与 pkg-input.el 中 pyim 关闭时的颜色一致。"
-  "#93E0E3")
+  "#D0BF8F")
 
 (defun my/term--send-cursor-color (terminal color)
   "把 TERMINAL 的光标设成 COLOR；与上次相同时不重复发送。
