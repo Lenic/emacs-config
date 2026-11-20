@@ -1,22 +1,14 @@
 ;; -*- lexical-binding: t -*-
 
-;; 设置光标颜色：同步兼容 PYIM 的光标颜色设置，颜色随 pkg-theme 的日夜主题变化
+;; 设置光标颜色：同步兼容 PYIM 的光标颜色设置
 (defun my/pyim-indicator-with-cursor-color (input-method chinese-input-p)
-  "Set cursor color according to current input method and theme."
-  (if (not (equal input-method "pyim"))
-      ;; pyim 关闭时的颜色
-      (if my/is-day-theme
-          (set-cursor-color "#100a14")
-        (set-cursor-color "#e3dedd"))
-    (if chinese-input-p
-        ;; pyim 输入中文时的颜色
-        (if my/is-day-theme
-            (set-cursor-color "purple")
-          (set-cursor-color "#ff72ff"))
-      ;; pyim 输入英文时的颜色
-      (if my/is-day-theme
-          (set-cursor-color "#100a14")
-        (set-cursor-color "#e3dedd")))))
+  "Set cursor color according to current input method."
+  (set-cursor-color
+   (if (and (equal input-method "pyim") chinese-input-p)
+       ;; pyim 输入中文时的颜色
+       "#D0BF8F"
+     ;; pyim 关闭或输入英文时的颜色
+     "#93E0E3")))
 
 ;; 同 `pyim-probe-dynamic-english'，但在行首（缩进之前）不再向上一行查找字符，
 ;; 即换行后不继承上一行末尾的中英文状态，强制使用英文

@@ -112,8 +112,8 @@ end if" action tty))))
 ;;;; 光标颜色
 
 (defun my/term--default-cursor-color ()
-  "当前日夜主题下的默认光标颜色，与 pkg-input.el 中 pyim 关闭时的颜色一致。"
-  (if (bound-and-true-p my/is-day-theme) "#100a14" "#e3dedd"))
+  "默认光标颜色，与 pkg-input.el 中 pyim 关闭时的颜色一致。"
+  "#93E0E3")
 
 (defun my/term--send-cursor-color (terminal color)
   "把 TERMINAL 的光标设成 COLOR；与上次相同时不重复发送。
