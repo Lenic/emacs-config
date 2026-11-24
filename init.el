@@ -68,6 +68,9 @@
 ;; 加载开发配置
 (require 'pkg-dev)
 
+;; 加载 M-o 代码块智能居中
+(require 'pkg-center-block)
+
 ;; 加载主题配置
 (require 'pkg-theme)
 

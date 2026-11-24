@@ -288,7 +288,13 @@ JS/TS/Vue 项目装了 eslint 时先跑 javascript-eslint，再接着跑 lsp。"
                 `((typescript
                    (list ,(js--regexp-opt-symbol typescript-ts-mode--list-nodes))
                    (sentence ,(js--regexp-opt-symbol typescript-ts-mode--sentence-nodes))
-                   (text ,(js--regexp-opt-symbol '("comment" "template_string"))))
+                   (text ,(js--regexp-opt-symbol '("comment" "template_string")))
+                   ;; 包里没有设置 `treesit-defun-type-regexp'，M-o 居中靠这里识别函数
+                   (defun ,(rx bos (or "function_declaration" "function_expression"
+                                       "arrow_function" "method_definition"
+                                       "generator_function_declaration"
+                                       "class_declaration")
+                               eos)))
                   ,@css--treesit-thing-settings
                   (vue
                    (list ,(rx bos (or "element" "template_element" "script_element"
