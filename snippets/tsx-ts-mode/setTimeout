@@ -1,6 +1,0 @@
-# -*- mode: snippet -*-
-# name: setTimeout
-# key: setTimeout
-# --
-
-setTimeout(() => { $0 }, ${1:300});

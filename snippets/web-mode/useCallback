@@ -1,6 +1,0 @@
-# -*- mode: snippet -*-
-# name: useCallback
-# key: useCallback
-# --
-
-const handle$1 = useCallback(() => { $0 }, []);

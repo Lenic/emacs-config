@@ -1,6 +1,0 @@
-# -*- mode: snippet -*-
-# name: useMemo
-# key: useMemo
-# --
-
-const $1 = useMemo(() => { $0 }, []);
