@@ -157,13 +157,83 @@
                         word
                         (list word prepend wordcount-handler criteria))))))
 
+;; 基础词库：优先用雾凇拼音词库（8105 单字 + base + ext），没有时退回 pyim-basedict。
+;;
+;; pyim/rime-ice.pyim 不在仓库里（已加入 .gitignore），所以新机器 clone 下来后先用
+;; basedict，开箱即可输入。执行 M-x my/pyim-use-rime-ice 会在后台运行
+;; bin/rime-ice-to-pyim.py（只依赖 python3 标准库，从 GitHub 下载约 28 MB 词库并转换），
+;; 成功后当前 Emacs 立即切到雾凇词库，之后启动时检测到文件存在也会自动使用它。
+;; 想更新雾凇词库时，再执行一次这个命令即可。
+;; 每个 daemon 各自切换：在一个 daemon 里执行命令，其他 daemon 要重启或各自执行一次。
+(defvar my/pyim-rime-ice-file
+  (expand-file-name "pyim/rime-ice.pyim" user-emacs-directory)
+  "雾凇拼音转换出的 pyim 词库文件。")
+
+(defvar my/pyim-rime-ice-script
+  (expand-file-name "bin/rime-ice-to-pyim.py" user-emacs-directory)
+  "把雾凇拼音词库转换成 pyim 词库的脚本。")
+
+(defvar my/pyim--rime-ice-process nil
+  "正在生成雾凇词库的进程。")
+
+(defun my/pyim-enable-rime-ice ()
+  "让 pyim 使用雾凇词库并停用 basedict（只改词库列表，不刷新缓存）。"
+  (setq pyim-extra-dicts
+        (seq-remove (lambda (dict) (equal (plist-get dict :name) "Basedict-elpa"))
+                    pyim-extra-dicts))
+  (add-to-list 'pyim-dicts `(:name "rime-ice" :file ,my/pyim-rime-ice-file) t))
+
+(defun my/pyim-setup-dicts ()
+  "雾凇词库存在就用它，否则退回 pyim-basedict。"
+  (if (file-exists-p my/pyim-rime-ice-file)
+      (my/pyim-enable-rime-ice)
+    (require 'pyim-basedict)
+    (pyim-basedict-enable)
+    (message "pyim: 还没有雾凇词库，暂用 basedict；M-x my/pyim-use-rime-ice 生成并切换")))
+
+(defun my/pyim--rime-ice-sentinel (proc _event)
+  "生成雾凇词库的进程 PROC 结束后，成功就切换词库，失败就提示。"
+  (when (memq (process-status proc) '(exit signal))
+    (if (and (eq (process-status proc) 'exit)
+             (zerop (process-exit-status proc)))
+        (progn
+          ;; pyim 还没加载时什么都不用做：加载时 `my/pyim-setup-dicts' 会选上雾凇词库
+          (when (featurep 'pyim)
+            (my/pyim-enable-rime-ice)
+            (pyim-process-init-dcaches :force))
+          (message "pyim: 雾凇词库已生成，词库缓存在后台重建，几秒后生效"))
+      (message "pyim: 生成雾凇词库失败，仍使用原来的词库，详见 %s"
+               (buffer-name (process-buffer proc))))))
+
+(defun my/pyim-use-rime-ice ()
+  "在后台生成（或更新）雾凇词库，成功后把 pyim 切换到雾凇词库。"
+  (interactive)
+  (when (process-live-p my/pyim--rime-ice-process)
+    (user-error "雾凇词库正在生成中"))
+  (let ((python (or (executable-find "python3") (user-error "找不到 python3")))
+        (buffer (get-buffer-create "*rime-ice-to-pyim*")))
+    (with-current-buffer buffer
+      (erase-buffer))
+    (setq my/pyim--rime-ice-process
+          (make-process
+           :name "rime-ice-to-pyim"
+           :buffer buffer
+           :command (list python "-I" my/pyim-rime-ice-script "-o" my/pyim-rime-ice-file)
+           :sentinel #'my/pyim--rime-ice-sentinel))
+    (message "pyim: 正在下载并生成雾凇词库，完成后自动切换……")))
+
+;; 只负责安装，需要时由 `my/pyim-setup-dicts' 加载
+(use-package pyim-basedict
+  :defer t)
+
 ;; 输入法设置
 (use-package pyim
   :commands pyim-convert-string-at-point
   :custom
-  ;; 个人词库
+  ;; 个人词库；基础词库由 `my/pyim-setup-dicts' 添加
   (pyim-dicts `((:name "mine" :file ,(expand-file-name "pyim/mine.pyim" user-emacs-directory))))
   :config
+  (my/pyim-setup-dicts)
   (advice-add 'pyim-process--select-word-in-next-step
               :override #'my/pyim-process--select-word-in-next-step)
   (advice-add 'pyim-candidates-create-limit-time
@@ -174,9 +244,6 @@
   (advice-add 'pyim-process-create-word :around #'my/pyim--deferred-create-word)
   (advice-add 'pyim-candidates-create :around #'my/pyim-filter-blocked-words)
   (advice-add 'pyim-candidates-create-limit-time :around #'my/pyim-filter-blocked-words)
-  ;; 激活 basedict 拼音词库
-  (use-package pyim-basedict
-    :config (pyim-basedict-enable))
   ;; 设置使用拼音输入法
   (setq default-input-method "pyim")
   ;; 使用微软双拼

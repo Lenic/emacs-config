@@ -11,6 +11,7 @@ projectile*
 transient/
 amx-items
 pyim/dcache/
+pyim/rime-ice.pyim
 .cache/
 .dap-breakpoints
 .lsp-session-v1
