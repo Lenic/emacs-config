@@ -6,9 +6,9 @@
   (set-cursor-color
    (if (and (equal input-method "pyim") chinese-input-p)
        ;; pyim 输入中文时的颜色
-       "#93E0E3"
+       "#88E098"
      ;; pyim 关闭或输入英文时的颜色
-     "#D0BF8F")))
+     "#6CA8F0")))
 
 ;; 同 `pyim-probe-dynamic-english'，但在行首（缩进之前）不再向上一行查找字符，
 ;; 即换行后不继承上一行末尾的中英文状态，强制使用英文
