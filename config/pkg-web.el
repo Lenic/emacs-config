@@ -332,6 +332,7 @@ JS/TS/Vue 项目装了 eslint 时先跑 javascript-eslint，再接着跑 lsp。"
   :after lsp-mode
   :init
   (setq lsp-tailwindcss-add-on-mode t
+        lsp-tailwindcss-class-functions ["tw" "cn" "String.raw"]
         lsp-tailwindcss-server-version "0.14.24")
   :config
   ;; 插件按 major mode 判断是否挂载，默认列表只有 web-mode，没有 vue-ts-mode
