@@ -21,6 +21,9 @@
 ;; 挂到 after-init-hook 上，避免在读取配置期间加载
 (add-hook 'after-init-hook #'global-auto-revert-mode) ; 自动加载已修改文件
 (add-hook 'after-init-hook #'delete-selection-mode)   ; 选中时编辑直接删除选中值
+;; C-d 默认绑定的 `delete-char' 不认选区（delete-selection-mode 也不管它），
+;; 换成 `delete-forward-char'：有选区时删除整个选区，没有时和原来一样删一个字符
+(keymap-global-set "C-d" #'delete-forward-char)
 
 ;; 高亮当前行，但有选区时不画：zenburn 等低对比主题里 region 和 hl-line 颜色太接近，
 ;; 叠在一起看不出选区。
